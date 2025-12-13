@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "rust-vcf-parser",
+    "node-binding",
+    "wasm"
+]
+
+resolver = "2"

@@ -1,0 +1,35 @@
+[package]
+name = "vcf-parser-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "WebAssembly bindings for high-performance VCF parser"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# WebAssembly bindings
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4"
+
+# Our core parser library
+vcf-parser = { path = "../rust-vcf-parser" }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Better panic messages in wasm
+console_error_panic_hook = "0.1"
+
+# JavaScript interop
+js-sys = "0.3"
+web-sys = { version = "0.3", features = ["console", "Performance", "Window"] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[profile.release]
+opt-level = "s"  # Optimize for size in WASM
+lto = true

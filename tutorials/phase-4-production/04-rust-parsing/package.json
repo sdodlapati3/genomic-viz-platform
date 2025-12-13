@@ -1,0 +1,30 @@
+{
+  "name": "tutorial-4-4-rust-parsing",
+  "version": "1.0.0",
+  "description": "Tutorial 4.4: Rust for High-Performance VCF Parsing",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "benchmark": "node benchmarks/benchmark.js",
+    "benchmark:js": "node benchmarks/js-parser-benchmark.js",
+    "generate-data": "node benchmarks/generate-test-data.js",
+    "build:rust": "cd rust-vcf-parser && cargo build --release",
+    "build:node": "cd node-binding && cargo build --release",
+    "build:wasm": "cd wasm && wasm-pack build --target web",
+    "test:rust": "cd rust-vcf-parser && cargo test",
+    "lint:rust": "cd rust-vcf-parser && cargo clippy"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "rust",
+    "wasm",
+    "vcf",
+    "parser",
+    "genomics",
+    "performance"
+  ]
+}

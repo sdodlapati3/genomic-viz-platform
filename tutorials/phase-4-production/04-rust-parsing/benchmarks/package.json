@@ -1,0 +1,13 @@
+{
+  "name": "vcf-parser-benchmarks",
+  "version": "1.0.0",
+  "description": "Benchmarks comparing JavaScript vs Rust VCF parsing",
+  "type": "module",
+  "scripts": {
+    "benchmark": "node benchmark.js",
+    "benchmark:js": "node js-parser-benchmark.js",
+    "generate": "node generate-test-data.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
