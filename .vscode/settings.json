@@ -1,0 +1,12 @@
+{
+  "python.defaultInterpreterPath": "/opt/anaconda3/envs/genomic-viz/bin/python",
+  "python.condaPath": "/opt/anaconda3/bin/conda",
+  "python.terminal.activateEnvironment": true,
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

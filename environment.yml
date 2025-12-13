@@ -1,0 +1,31 @@
+name: genomic-viz
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Python core
+  - python=3.11
+  - pip
+  
+  # Data science essentials
+  - numpy
+  - pandas
+  - scipy
+  
+  # Visualization
+  - matplotlib
+  - seaborn
+  
+  # Jupyter for notebooks
+  - jupyterlab
+  - ipykernel
+  
+  # AI/ML dependencies (for Phase 4)
+  - pip:
+    - openai
+    - langchain
+    - chromadb
+
+# Environment variables
+variables:
+  PROJECT_NAME: genomic-viz-platform
