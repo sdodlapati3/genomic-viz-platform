@@ -1,0 +1,122 @@
+[
+  {
+    "symbol": "TP53",
+    "name": "Tumor protein p53",
+    "ensemblId": "ENSG00000141510",
+    "entrezId": 7157,
+    "chromosome": "chr17",
+    "start": 7668402,
+    "end": 7687550,
+    "strand": "-",
+    "biotype": "protein_coding",
+    "description": "This gene encodes a tumor suppressor protein containing transcriptional activation, DNA binding, and oligomerization domains."
+  },
+  {
+    "symbol": "EGFR",
+    "name": "Epidermal growth factor receptor",
+    "ensemblId": "ENSG00000146648",
+    "entrezId": 1956,
+    "chromosome": "chr7",
+    "start": 55019017,
+    "end": 55211628,
+    "strand": "+",
+    "biotype": "protein_coding",
+    "description": "The protein encoded by this gene is a transmembrane glycoprotein that is a member of the protein kinase superfamily."
+  },
+  {
+    "symbol": "KRAS",
+    "name": "KRAS proto-oncogene, GTPase",
+    "ensemblId": "ENSG00000133703",
+    "entrezId": 3845,
+    "chromosome": "chr12",
+    "start": 25204789,
+    "end": 25250936,
+    "strand": "-",
+    "biotype": "protein_coding",
+    "description": "This gene encodes a protein that is a member of the small GTPase superfamily."
+  },
+  {
+    "symbol": "BRAF",
+    "name": "B-Raf proto-oncogene, serine/threonine kinase",
+    "ensemblId": "ENSG00000157764",
+    "entrezId": 673,
+    "chromosome": "chr7",
+    "start": 140719327,
+    "end": 140924929,
+    "strand": "-",
+    "biotype": "protein_coding",
+    "description": "This gene encodes a protein belonging to the RAF family of serine/threonine protein kinases."
+  },
+  {
+    "symbol": "PIK3CA",
+    "name": "Phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha",
+    "ensemblId": "ENSG00000121879",
+    "entrezId": 5290,
+    "chromosome": "chr3",
+    "start": 179148114,
+    "end": 179240093,
+    "strand": "+",
+    "biotype": "protein_coding",
+    "description": "This gene encodes the catalytic subunit of phosphatidylinositol 3-kinase."
+  },
+  {
+    "symbol": "PTEN",
+    "name": "Phosphatase and tensin homolog",
+    "ensemblId": "ENSG00000171862",
+    "entrezId": 5728,
+    "chromosome": "chr10",
+    "start": 87862625,
+    "end": 87971930,
+    "strand": "+",
+    "biotype": "protein_coding",
+    "description": "This gene was identified as a tumor suppressor that is mutated in a large number of cancers."
+  },
+  {
+    "symbol": "BRCA1",
+    "name": "BRCA1 DNA repair associated",
+    "ensemblId": "ENSG00000012048",
+    "entrezId": 672,
+    "chromosome": "chr17",
+    "start": 43044295,
+    "end": 43170245,
+    "strand": "-",
+    "biotype": "protein_coding",
+    "description": "This gene encodes a nuclear phosphoprotein that plays a role in maintaining genomic stability."
+  },
+  {
+    "symbol": "BRCA2",
+    "name": "BRCA2 DNA repair associated",
+    "ensemblId": "ENSG00000139618",
+    "entrezId": 675,
+    "chromosome": "chr13",
+    "start": 32315086,
+    "end": 32400266,
+    "strand": "+",
+    "biotype": "protein_coding",
+    "description": "This gene encodes a protein that is involved in the repair of chromosomal damage."
+  },
+  {
+    "symbol": "MYC",
+    "name": "MYC proto-oncogene, bHLH transcription factor",
+    "ensemblId": "ENSG00000136997",
+    "entrezId": 4609,
+    "chromosome": "chr8",
+    "start": 127735434,
+    "end": 127742951,
+    "strand": "+",
+    "biotype": "protein_coding",
+    "description": "This gene encodes a multifunctional, nuclear phosphoprotein that plays a role in cell cycle progression."
+  },
+  {
+    "symbol": "NRAS",
+    "name": "NRAS proto-oncogene, GTPase",
+    "ensemblId": "ENSG00000213281",
+    "entrezId": 4893,
+    "chromosome": "chr1",
+    "start": 114704469,
+    "end": 114716771,
+    "strand": "-",
+    "biotype": "protein_coding",
+    "description": "This gene encodes a membrane protein that shuttles between the Golgi apparatus and the plasma membrane."
+  }
+]

@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: genomic-viz-db
+    environment:
+      POSTGRES_USER: genomic
+      POSTGRES_PASSWORD: genomic_dev_password
+      POSTGRES_DB: genomic_viz
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./datasets/sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genomic -d genomic_viz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: genomic-viz-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin for database management (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: genomic-viz-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@genomic.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    profiles:
+      - tools
+
+  # R Server for statistical analysis (optional)
+  rserver:
+    build:
+      context: ./docker/r-server
+      dockerfile: Dockerfile
+    container_name: genomic-viz-r
+    ports:
+      - "8787:8787"
+    environment:
+      PASSWORD: rstudio_dev
+    volumes:
+      - ./capstone/R:/home/rstudio/R
+      - ./datasets:/home/rstudio/data
+    profiles:
+      - analysis
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: genomic-viz-network

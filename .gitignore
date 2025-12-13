@@ -1,0 +1,84 @@
+# .gitignore for genomic-viz-platform
+
+# Dependencies
+node_modules/
+.npm
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Rust
+target/
+Cargo.lock
+*.rs.bk
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+.eggs/
+venv/
+.venv/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Docker
+docker-compose.override.yml
+
+# Data files (keep structure, ignore large files)
+datasets/**/*.vcf
+datasets/**/*.vcf.gz
+datasets/**/*.bam
+datasets/**/*.bai
+datasets/**/*.bed.gz
+datasets/**/*.bigwig
+datasets/**/*.bw
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Secrets
+*.pem
+*.key
+secrets/
