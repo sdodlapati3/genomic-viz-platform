@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 3.3: Kaplan-Meier Survival Curves</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      color: #2c3e50;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #7f8c8d;
+      font-size: 1.1rem;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .panel h3 {
+      color: #2c3e50;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3498db;
+    }
+
+    .control-group {
+      margin-bottom: 15px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background: white;
+      cursor: pointer;
+    }
+
+    select:hover {
+      border-color: #3498db;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .checkbox-item input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .checkbox-item span {
+      font-size: 0.9rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #2980b9;
+    }
+
+    #dataSummary {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    #chart {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    #chart svg {
+      max-width: 100%;
+    }
+
+    #statisticsPanel {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    #statisticsPanel h3 {
+      color: #2c3e50;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3498db;
+    }
+
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .stats-table th,
+    .stats-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .stats-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .test-results {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .test-results h4 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .test-results p {
+      margin: 5px 0;
+      font-size: 0.9rem;
+    }
+
+    .interpretation {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .interpretation-guide {
+      background: #f0f8ff;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+
+    .interpretation-guide h4 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
+    .interpretation-guide ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .interpretation-guide li {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .interpretation-guide li strong {
+      color: #333;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #95a5a6;
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .panel {
+        flex: 1;
+        min-width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎗️ Kaplan-Meier Survival Curves</h1>
+      <p>Tutorial 3.3: Interactive Survival Analysis for Clinical Genomics Data</p>
+    </header>
+
+    <div class="main-content">
+      <div class="sidebar">
+        <div class="panel">
+          <h3>Analysis Type</h3>
+          <div class="control-group">
+            <label for="analysisType">Grouping Variable</label>
+            <select id="analysisType">
+              <option value="treatment">Treatment Groups</option>
+              <option value="mutation">TP53 Mutation Status</option>
+              <option value="expression">Gene Expression Level</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Display Options</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="showCI" checked>
+              <span>95% Confidence Interval</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="showCensored" checked>
+              <span>Censoring Marks</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="showMedian" checked>
+              <span>Median Survival Lines</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="showAtRisk">
+              <span>At-Risk Table (on chart)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Data</h3>
+          <div id="dataSummary">Loading...</div>
+          <br>
+          <button id="regenerateData">🔄 Generate New Data</button>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div id="chart"></div>
+        <div id="statisticsPanel">
+          <p>Loading analysis results...</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Part of the <a href="../../../README.md">Genomic Visualization Platform</a> learning project
+        | Inspired by clinical survival analysis in cancer research
+      </p>
+    </footer>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
