@@ -1,0 +1,21 @@
+{
+  "name": "tutorial-01-svg-canvas",
+  "version": "1.0.0",
+  "description": "Tutorial 1.1: SVG & Canvas Fundamentals for Genomic Visualization",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "svg",
+    "canvas",
+    "visualization",
+    "genomics",
+    "tutorial"
+  ]
+}

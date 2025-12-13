@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 1.1: SVG & Canvas Fundamentals</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <header>
+    <h1>SVG & Canvas Fundamentals</h1>
+    <p>Building blocks for genomic visualization</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-section="svg-basics">SVG Basics</button>
+    <button class="tab" data-section="svg-paths">SVG Paths</button>
+    <button class="tab" data-section="canvas-basics">Canvas Basics</button>
+    <button class="tab" data-section="interactivity">Interactivity</button>
+    <button class="tab" data-section="comparison">SVG vs Canvas</button>
+  </nav>
+
+  <main>
+    <!-- Section 1: SVG Basics -->
+    <section id="svg-basics" class="section active">
+      <h2>1. SVG Basic Shapes</h2>
+      <p>SVG (Scalable Vector Graphics) provides resolution-independent graphics perfect for data visualization.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Basic Shapes</h3>
+          <div id="svg-shapes-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="svg-shapes-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Genomic Example: Gene Structure</h3>
+          <div id="svg-gene-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="svg-gene-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: SVG Paths -->
+    <section id="svg-paths" class="section">
+      <h2>2. SVG Path Commands</h2>
+      <p>Path commands allow complex shapes - essential for custom genomic visualizations.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Path Commands Demo</h3>
+          <div id="svg-paths-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Path Commands Reference</h3>
+          <pre><code id="svg-paths-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Genomic Example: Splice Junction</h3>
+          <div id="svg-splice-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="svg-splice-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Canvas Basics -->
+    <section id="canvas-basics" class="section">
+      <h2>3. Canvas 2D Fundamentals</h2>
+      <p>Canvas provides immediate-mode rendering for high-performance graphics.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Canvas Shapes</h3>
+          <canvas id="canvas-shapes-demo" width="500" height="300"></canvas>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="canvas-shapes-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Genomic Example: Coverage Plot</h3>
+          <canvas id="canvas-coverage-demo" width="500" height="200"></canvas>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="canvas-coverage-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Interactivity -->
+    <section id="interactivity" class="section">
+      <h2>4. Interactivity</h2>
+      <p>Adding mouse events, tooltips, and drag behavior to visualizations.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>SVG Hover & Tooltips</h3>
+          <div id="svg-interactive-demo"></div>
+          <div id="svg-tooltip" class="tooltip"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="svg-interactive-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Canvas Hit Detection</h3>
+          <canvas id="canvas-interactive-demo" width="500" height="300"></canvas>
+          <div id="canvas-tooltip" class="tooltip"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="canvas-interactive-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Comparison -->
+    <section id="comparison" class="section">
+      <h2>5. SVG vs Canvas Performance</h2>
+      <p>Understanding when to use each technology for genomic visualization.</p>
+      
+      <div class="comparison-controls">
+        <label>
+          Number of elements:
+          <input type="range" id="element-count" min="100" max="10000" value="1000" step="100">
+          <span id="element-count-display">1000</span>
+        </label>
+        <button id="run-benchmark">Run Benchmark</button>
+      </div>
+
+      <div class="demo-container benchmark">
+        <div class="demo-panel">
+          <h3>SVG Rendering</h3>
+          <div id="svg-benchmark-demo"></div>
+          <p>Render time: <span id="svg-time">-</span>ms</p>
+        </div>
+        <div class="demo-panel">
+          <h3>Canvas Rendering</h3>
+          <canvas id="canvas-benchmark-demo" width="400" height="300"></canvas>
+          <p>Render time: <span id="canvas-time">-</span>ms</p>
+        </div>
+      </div>
+
+      <div class="comparison-table">
+        <h3>When to Use Each</h3>
+        <table>
+          <thead>
+            <tr><th>Feature</th><th>SVG</th><th>Canvas</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Element count</td><td>Best for &lt; 1000</td><td>Handles 10,000+</td></tr>
+            <tr><td>DOM access</td><td>✅ Full DOM</td><td>❌ Bitmap only</td></tr>
+            <tr><td>CSS styling</td><td>✅ Full support</td><td>❌ Not applicable</td></tr>
+            <tr><td>Event handling</td><td>✅ Native</td><td>⚠️ Manual hit testing</td></tr>
+            <tr><td>Resolution</td><td>✅ Scales perfectly</td><td>⚠️ Pixelation possible</td></tr>
+            <tr><td>Genomic use</td><td>Gene diagrams, lollipops</td><td>Coverage plots, heatmaps</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
