@@ -1,0 +1,17 @@
+{
+  "name": "tutorial-02-d3-core",
+  "version": "1.0.0",
+  "description": "Tutorial 1.2: D3.js Core Concepts for Genomic Visualization",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "d3": "^7.8.5"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

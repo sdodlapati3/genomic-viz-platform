@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 1.2: D3.js Core Concepts</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <header>
+    <h1>D3.js Core Concepts</h1>
+    <p>Data-driven visualization for genomics</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-section="selections">Selections</button>
+    <button class="tab" data-section="data-binding">Data Binding</button>
+    <button class="tab" data-section="scales">Scales & Axes</button>
+    <button class="tab" data-section="transitions">Transitions</button>
+    <button class="tab" data-section="genomic-chart">Genomic Chart</button>
+  </nav>
+
+  <main>
+    <!-- Section 1: Selections -->
+    <section id="selections" class="section active">
+      <h2>1. D3 Selections</h2>
+      <p>D3 selections let you select and manipulate DOM elements.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>select() vs selectAll()</h3>
+          <div id="selection-demo">
+            <div class="box">Box 1</div>
+            <div class="box">Box 2</div>
+            <div class="box">Box 3</div>
+          </div>
+          <div class="controls">
+            <button id="select-first">Select First</button>
+            <button id="select-all">Select All</button>
+            <button id="reset-selection">Reset</button>
+          </div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="selection-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Method Chaining</h3>
+          <div id="chaining-demo"></div>
+          <div class="controls">
+            <button id="run-chain">Run Chain</button>
+          </div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="chaining-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Data Binding -->
+    <section id="data-binding" class="section">
+      <h2>2. Data Binding (Enter/Update/Exit)</h2>
+      <p>The core of D3: binding data to DOM elements.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Enter/Update/Exit Pattern</h3>
+          <div id="data-binding-demo"></div>
+          <div class="controls">
+            <button id="add-data">Add Data</button>
+            <button id="remove-data">Remove Data</button>
+            <button id="update-data">Update Values</button>
+            <button id="reset-data">Reset</button>
+          </div>
+          <p class="info">Current data: <span id="current-data">[]</span></p>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="data-binding-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>join() - Modern Approach</h3>
+          <div id="join-demo"></div>
+          <div class="controls">
+            <button id="randomize-join">Randomize Data</button>
+          </div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="join-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Scales & Axes -->
+    <section id="scales" class="section">
+      <h2>3. Scales & Axes</h2>
+      <p>Transform data values to visual values.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Linear & Log Scales</h3>
+          <div id="scales-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="scales-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Color Scales</h3>
+          <div id="color-scales-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="color-scales-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Axes</h3>
+          <div id="axes-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="axes-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Transitions -->
+    <section id="transitions" class="section">
+      <h2>4. Transitions & Animation</h2>
+      <p>Smooth animated changes to visualizations.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Basic Transitions</h3>
+          <div id="transitions-demo"></div>
+          <div class="controls">
+            <button id="run-transition">Animate</button>
+          </div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="transitions-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Staggered Transitions</h3>
+          <div id="staggered-demo"></div>
+          <div class="controls">
+            <button id="run-staggered">Animate Bars</button>
+          </div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="staggered-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Genomic Chart -->
+    <section id="genomic-chart" class="section">
+      <h2>5. Complete Example: Mutation Frequency Chart</h2>
+      <p>Putting it all together with real genomic data.</p>
+      
+      <div class="demo-container full-width">
+        <div class="demo-panel">
+          <h3>TP53 Mutation Frequency by Position</h3>
+          <div id="genomic-chart-demo"></div>
+          <div class="controls">
+            <select id="chart-type">
+              <option value="bar">Bar Chart</option>
+              <option value="line">Line Chart</option>
+              <option value="area">Area Chart</option>
+            </select>
+            <button id="update-chart">Update Chart</button>
+          </div>
+        </div>
+      </div>
+      <div class="demo-container full-width">
+        <div class="code-panel" style="width: 100%;">
+          <h3>Code</h3>
+          <pre><code id="genomic-chart-code"></code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
