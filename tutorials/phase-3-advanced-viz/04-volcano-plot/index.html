@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 3.4: Volcano Plot</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    header h1 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #7f8c8d;
+      font-size: 1rem;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 20px;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .panel h3 {
+      color: #2c3e50;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #3498db;
+    }
+
+    .control-group {
+      margin-bottom: 15px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      background: #ddd;
+      border-radius: 3px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #3498db;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .slider-value {
+      min-width: 45px;
+      text-align: right;
+      font-weight: bold;
+      color: #3498db;
+      font-size: 0.9rem;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      background: white;
+    }
+
+    select:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    .search-container {
+      position: relative;
+    }
+
+    #searchResults {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 0 0 6px 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 100;
+    }
+
+    .search-item {
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .search-item:hover {
+      background: #f0f8ff;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #2980b9;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat-box {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-box .value {
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    .stat-box .label {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .stat-box.up .value { color: #e74c3c; }
+    .stat-box.down .value { color: #3498db; }
+    .stat-box.ns .value { color: #95a5a6; }
+
+    #geneDetails {
+      display: none;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    #geneDetails h4 {
+      color: #2c3e50;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+
+    #geneDetails p {
+      margin: 4px 0;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    #chart {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: center;
+      position: relative;
+      min-height: 570px;
+    }
+
+    .results-panel {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .results-panel h3 {
+      color: #2c3e50;
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3498db;
+    }
+
+    .tables-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    .gene-table h4 {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gene-table h4 .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .gene-table h4 .dot.up { background: #e74c3c; }
+    .gene-table h4 .dot.down { background: #3498db; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #555;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #95a5a6;
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    @media (max-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      .tables-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🌋 Volcano Plot</h1>
+      <p>Tutorial 3.4: Differential Expression Analysis Visualization</p>
+    </header>
+
+    <div class="main-content">
+      <div class="sidebar">
+        <div class="panel">
+          <h3>Thresholds</h3>
+          <div class="control-group">
+            <label>Fold Change Threshold (log₂)</label>
+            <div class="slider-container">
+              <input type="range" id="fcThreshold" min="0.5" max="3" step="0.1" value="1">
+              <span class="slider-value" id="fcValue">1.0</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <label>P-value Threshold (adj.)</label>
+            <div class="slider-container">
+              <input type="range" id="pValueThreshold" min="0.001" max="0.1" step="0.001" value="0.05">
+              <span class="slider-value" id="pValue">0.050</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Filters</h3>
+          <div class="control-group">
+            <label>Gene Category</label>
+            <select id="categoryFilter">
+              <option value="All">All Categories</option>
+            </select>
+          </div>
+          <div class="control-group search-container">
+            <label>Search Gene</label>
+            <input type="text" id="geneSearch" placeholder="Enter gene name...">
+            <div id="searchResults"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Summary</h3>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="value" id="totalGenes">0</div>
+              <div class="label">Total Genes</div>
+            </div>
+            <div class="stat-box up">
+              <div class="value" id="upregulated">0</div>
+              <div class="label">Upregulated</div>
+            </div>
+            <div class="stat-box down">
+              <div class="value" id="downregulated">0</div>
+              <div class="label">Downregulated</div>
+            </div>
+            <div class="stat-box ns">
+              <div class="value" id="notSignificant">0</div>
+              <div class="label">Not Sig.</div>
+            </div>
+          </div>
+          <br>
+          <button id="regenerateData">🔄 Generate New Data</button>
+        </div>
+
+        <div class="panel">
+          <h3>Selected Gene</h3>
+          <div id="geneDetails">
+            <p style="color: #999; font-style: italic;">Click on a gene to view details</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div id="chart"></div>
+        
+        <div class="results-panel">
+          <h3>Top Differentially Expressed Genes</h3>
+          <div class="tables-container">
+            <div class="gene-table">
+              <h4><span class="dot up"></span> Top Upregulated</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Gene</th>
+                    <th>log₂FC</th>
+                    <th>Adj. p-value</th>
+                  </tr>
+                </thead>
+                <tbody id="topUpTable"></tbody>
+              </table>
+            </div>
+            <div class="gene-table">
+              <h4><span class="dot down"></span> Top Downregulated</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Gene</th>
+                    <th>log₂FC</th>
+                    <th>Adj. p-value</th>
+                  </tr>
+                </thead>
+                <tbody id="topDownTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Part of the <a href="../../../README.md">Genomic Visualization Platform</a>
+        | Simulated RNA-seq differential expression data
+      </p>
+    </footer>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

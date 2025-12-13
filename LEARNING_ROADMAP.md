@@ -649,10 +649,18 @@ GET  /api/samples/:id/mutations  # Mutations for a sample
 ```
 
 **Deliverables**:
-- [ ] Volcano plot component
-- [ ] Dynamic threshold controls
-- [ ] Gene labeling system
-- [ ] Selection export
+- [x] Volcano plot component (Canvas-based for 20k+ genes)
+- [x] Dynamic threshold controls (FC and p-value sliders)
+- [x] Gene labeling system (top 12 significant genes)
+- [x] Gene search and highlight
+- [x] Hover tooltips with gene details
+- [ ] Selection export (future enhancement)
+
+**Implementation Notes**:
+- Uses Canvas + SVG hybrid approach for performance
+- Handles 20,000 genes (full human transcriptome scale)
+- Throttled mouse events prevent UI lag
+- Batch drawing by color reduces draw calls
 
 **Estimated Time**: 4-5 days
 
@@ -1002,10 +1010,10 @@ A simplified but complete genomic data visualization platform demonstrating all 
 ### Phase 3: Advanced Visualizations
 | Tutorial | Status | Start Date | End Date | Notes |
 |----------|--------|------------|----------|-------|
-| 3.1 UMAP Scatter | ⬜ Not Started | | | |
-| 3.2 Heatmap | ⬜ Not Started | | | |
-| 3.3 Survival Curves | ⬜ Not Started | | | |
-| 3.4 Volcano Plot | ⬜ Not Started | | | |
+| 3.1 UMAP Scatter | ✅ Complete | Dec 12 | Dec 12 | WebGL rendering, 10k+ points |
+| 3.2 Heatmap | ✅ Complete | Dec 12 | Dec 12 | Canvas-based, clustering |
+| 3.3 Survival Curves | ✅ Complete | Dec 13 | Dec 13 | Kaplan-Meier, log-rank test |
+| 3.4 Volcano Plot | ✅ Complete | Dec 13 | Dec 13 | Canvas rendering, 20k genes |
 | 3.5 Oncoprint | ⬜ Not Started | | | |
 
 ### Phase 4: Production Skills
