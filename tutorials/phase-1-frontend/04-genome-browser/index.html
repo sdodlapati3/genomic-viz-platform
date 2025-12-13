@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 1.4: Genome Browser</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Mini Genome Browser</h1>
+    <p>Navigate and visualize genomic regions with interactive tracks</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-section="coordinates">Coordinates</button>
+    <button class="tab" data-section="tracks">Gene Tracks</button>
+    <button class="tab" data-section="navigation">Navigation</button>
+    <button class="tab" data-section="features">Features</button>
+    <button class="tab" data-section="complete">Complete Browser</button>
+  </nav>
+
+  <main>
+    <!-- Section 1: Coordinate Systems -->
+    <section id="coordinates" class="section active">
+      <h2>1. Genomic Coordinate Systems</h2>
+      <p>Understanding how genomic positions are represented and parsed.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Region Parser</h3>
+          <div class="region-input-demo">
+            <input type="text" id="region-input" placeholder="chr17:7668402-7687550" value="chr17:7668402-7687550">
+            <button id="parse-region">Parse Region</button>
+          </div>
+          <div id="parsed-result" class="result-box"></div>
+          <div id="coordinate-ruler"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="coordinates-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Coordinate Scale Demo</h3>
+          <div id="scale-demo"></div>
+          <p class="info">Click on the ruler to see genomic position ↔ pixel conversion</p>
+          <div id="scale-info" class="result-box"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="scale-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Gene Tracks -->
+    <section id="tracks" class="section">
+      <h2>2. Gene Track Rendering</h2>
+      <p>Visualize gene structures with exons, introns, and UTRs.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel full">
+          <h3>Gene Structure</h3>
+          <div id="gene-track-demo"></div>
+        </div>
+      </div>
+      
+      <div class="demo-container">
+        <div class="code-panel full">
+          <h3>Code</h3>
+          <pre><code id="gene-track-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Multiple Genes</h3>
+          <div id="multi-gene-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="multi-gene-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Navigation -->
+    <section id="navigation" class="section">
+      <h2>3. Pan and Zoom Navigation</h2>
+      <p>Interactive navigation with buttons, mouse drag, and scroll zoom.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel full">
+          <h3>Navigation Controls</h3>
+          <div class="nav-controls">
+            <button id="pan-left-far">◀◀</button>
+            <button id="pan-left">◀</button>
+            <span id="nav-region" class="region-display">chr17:7,668,402-7,687,550</span>
+            <button id="pan-right">▶</button>
+            <button id="pan-right-far">▶▶</button>
+            <span class="zoom-controls">
+              <button id="zoom-out">−</button>
+              <button id="zoom-in">+</button>
+              <button id="zoom-reset">Reset</button>
+            </span>
+          </div>
+          <div id="navigation-demo"></div>
+          <p class="info">Drag to pan • Scroll to zoom • Click buttons for navigation</p>
+        </div>
+      </div>
+      
+      <div class="demo-container">
+        <div class="code-panel full">
+          <h3>Code</h3>
+          <pre><code id="navigation-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Feature Tracks -->
+    <section id="features" class="section">
+      <h2>4. Feature and Variant Tracks</h2>
+      <p>Display variants, domains, and other genomic features.</p>
+      
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Variant Track</h3>
+          <div id="variant-track-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="variant-track-code"></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-container">
+        <div class="demo-panel">
+          <h3>Domain Track</h3>
+          <div id="domain-track-demo"></div>
+        </div>
+        <div class="code-panel">
+          <h3>Code</h3>
+          <pre><code id="domain-track-code"></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Complete Browser -->
+    <section id="complete" class="section">
+      <h2>5. Complete Genome Browser</h2>
+      <p>Full-featured mini genome browser with synchronized tracks.</p>
+      
+      <div class="browser-container">
+        <div class="browser-header">
+          <div class="region-selector">
+            <label>Region:</label>
+            <select id="preset-regions">
+              <option value="chr17:7668402-7687550">TP53 (chr17:7,668,402-7,687,550)</option>
+              <option value="chr12:25205246-25250936">KRAS (chr12:25,205,246-25,250,936)</option>
+              <option value="chr7:55019017-55211628">EGFR (chr7:55,019,017-55,211,628)</option>
+            </select>
+            <input type="text" id="custom-region" placeholder="Or enter region...">
+            <button id="go-to-region">Go</button>
+          </div>
+          <div class="browser-controls">
+            <button id="browser-pan-left-far" title="Pan far left">◀◀</button>
+            <button id="browser-pan-left" title="Pan left">◀</button>
+            <button id="browser-pan-right" title="Pan right">▶</button>
+            <button id="browser-pan-right-far" title="Pan far right">▶▶</button>
+            <span class="divider"></span>
+            <button id="browser-zoom-out" title="Zoom out">−</button>
+            <button id="browser-zoom-in" title="Zoom in">+</button>
+            <button id="browser-zoom-reset" title="Reset zoom">⟲</button>
+          </div>
+        </div>
+        
+        <div id="genome-browser">
+          <!-- Browser SVG will be rendered here -->
+        </div>
+        
+        <div class="browser-legend">
+          <span class="legend-item"><span class="legend-color coding"></span> Coding Exon</span>
+          <span class="legend-item"><span class="legend-color utr"></span> UTR</span>
+          <span class="legend-item"><span class="legend-color missense"></span> Missense</span>
+          <span class="legend-item"><span class="legend-color nonsense"></span> Nonsense</span>
+          <span class="legend-item"><span class="legend-color frameshift"></span> Frameshift</span>
+        </div>
+        
+        <div class="browser-tooltip" id="browser-tooltip"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

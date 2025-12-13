@@ -28,7 +28,7 @@ case $TUTORIAL in
   "1.4"|"genome-browser")
     echo "🧬 Starting Tutorial 1.4: Genome Browser"
     cd tutorials/phase-1-frontend/04-genome-browser
-    npx vite --open
+    npx vite --port 5176 --open
     ;;
   *)
     echo "Available tutorials:"
