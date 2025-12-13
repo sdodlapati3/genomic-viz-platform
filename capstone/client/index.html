@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mini-ProteinPaint: Interactive genomic data visualization platform">
+  <title>Mini-ProteinPaint</title>
+  <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <h1>Mini-ProteinPaint</h1>
+        <span class="tagline">Genomic Visualization Platform</span>
+      </div>
+      <nav class="main-nav">
+        <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="mutations">Mutations</button>
+        <button class="nav-btn" data-view="expression">Expression</button>
+        <button class="nav-btn" data-view="survival">Survival</button>
+        <button class="nav-btn" data-view="ai-chat">AI Assistant</button>
+      </nav>
+      <div class="user-actions">
+        <button class="upload-btn" id="uploadBtn">Upload Data</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+          <h3>Datasets</h3>
+          <ul class="dataset-list" id="datasetList">
+            <li class="dataset-item active">
+              <span class="dataset-name">TP53 Mutations</span>
+              <span class="dataset-count">150 variants</span>
+            </li>
+            <li class="dataset-item">
+              <span class="dataset-name">BRCA Gene Panel</span>
+              <span class="dataset-count">89 samples</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sidebar-section">
+          <h3>Filters</h3>
+          <div class="filter-group">
+            <label>Cancer Type</label>
+            <select id="cancerTypeFilter">
+              <option value="">All Types</option>
+              <option value="breast">Breast</option>
+              <option value="lung">Lung</option>
+              <option value="colon">Colorectal</option>
+              <option value="brain">Brain</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Variant Type</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" value="missense" checked> Missense</label>
+              <label><input type="checkbox" value="nonsense" checked> Nonsense</label>
+              <label><input type="checkbox" value="frameshift" checked> Frameshift</label>
+              <label><input type="checkbox" value="splice" checked> Splice Site</label>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Content Area -->
+      <section class="content" id="content">
+        <!-- Dashboard View (default) -->
+        <div class="view active" id="dashboardView">
+          <div class="view-header">
+            <h2>Dashboard</h2>
+            <div class="view-actions">
+              <button class="btn-secondary" id="refreshDashboard">Refresh</button>
+            </div>
+          </div>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="totalVariants">0</div>
+              <div class="stat-label">Total Variants</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="totalSamples">0</div>
+              <div class="stat-label">Samples</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="totalGenes">0</div>
+              <div class="stat-label">Genes</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="cohortSize">0</div>
+              <div class="stat-label">Cohort Size</div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="dashboard-card" id="mutationSummary">
+              <h3>Mutation Distribution</h3>
+              <div class="chart-container" id="mutationChart"></div>
+            </div>
+            <div class="dashboard-card" id="variantTypes">
+              <h3>Variant Types</h3>
+              <div class="chart-container" id="variantTypeChart"></div>
+            </div>
+            <div class="dashboard-card" id="topGenes">
+              <h3>Most Mutated Genes</h3>
+              <div class="chart-container" id="topGenesChart"></div>
+            </div>
+            <div class="dashboard-card" id="sampleOverview">
+              <h3>Sample Overview</h3>
+              <div class="chart-container" id="sampleChart"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mutations View -->
+        <div class="view" id="mutationsView">
+          <div class="view-header">
+            <h2>Mutation Analysis</h2>
+            <div class="view-actions">
+              <select id="geneSelect">
+                <option value="TP53">TP53</option>
+                <option value="BRCA1">BRCA1</option>
+                <option value="BRCA2">BRCA2</option>
+                <option value="EGFR">EGFR</option>
+                <option value="KRAS">KRAS</option>
+              </select>
+              <button class="btn-primary" id="updateLollipop">Update</button>
+            </div>
+          </div>
+          
+          <div class="visualization-container">
+            <div class="viz-panel" id="lollipopPanel">
+              <h3>Lollipop Plot</h3>
+              <div id="lollipopPlot" class="plot-area"></div>
+            </div>
+            <div class="viz-panel" id="oncoprintPanel">
+              <h3>Oncoprint Matrix</h3>
+              <div id="oncoprintPlot" class="plot-area"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expression View -->
+        <div class="view" id="expressionView">
+          <div class="view-header">
+            <h2>Gene Expression</h2>
+            <div class="view-actions">
+              <button class="btn-secondary" id="toggleClustering">Toggle Clustering</button>
+              <button class="btn-primary" id="exportHeatmap">Export</button>
+            </div>
+          </div>
+          
+          <div class="visualization-container">
+            <div class="viz-panel full-width" id="heatmapPanel">
+              <h3>Expression Heatmap</h3>
+              <div id="heatmapPlot" class="plot-area large"></div>
+            </div>
+          </div>
+          
+          <div class="visualization-container">
+            <div class="viz-panel" id="volcanoPanel">
+              <h3>Volcano Plot</h3>
+              <div id="volcanoPlot" class="plot-area"></div>
+            </div>
+            <div class="viz-panel" id="umapPanel">
+              <h3>UMAP Projection</h3>
+              <div id="umapPlot" class="plot-area"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Survival View -->
+        <div class="view" id="survivalView">
+          <div class="view-header">
+            <h2>Survival Analysis</h2>
+            <div class="view-actions">
+              <select id="survivalGroup">
+                <option value="mutation_status">Mutation Status</option>
+                <option value="expression_high_low">Expression (High/Low)</option>
+                <option value="cancer_type">Cancer Type</option>
+              </select>
+              <button class="btn-primary" id="runSurvival">Analyze</button>
+            </div>
+          </div>
+          
+          <div class="visualization-container">
+            <div class="viz-panel full-width" id="survivalPanel">
+              <h3>Kaplan-Meier Survival Curves</h3>
+              <div id="survivalPlot" class="plot-area large"></div>
+            </div>
+          </div>
+          
+          <div class="survival-stats" id="survivalStats">
+            <div class="stat-box">
+              <span class="stat-label">Median Survival (Group 1)</span>
+              <span class="stat-value" id="medianSurvival1">--</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Median Survival (Group 2)</span>
+              <span class="stat-value" id="medianSurvival2">--</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Log-rank p-value</span>
+              <span class="stat-value" id="logRankP">--</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Hazard Ratio</span>
+              <span class="stat-value" id="hazardRatio">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Chat View -->
+        <div class="view" id="aiChatView">
+          <div class="view-header">
+            <h2>AI Data Assistant</h2>
+          </div>
+          
+          <div class="chat-container" id="chatContainer">
+            <div class="chat-messages" id="chatMessages">
+              <div class="message assistant">
+                <div class="message-content">
+                  Hello! I'm your genomic data assistant. I can help you explore your data, 
+                  answer questions about mutations and genes, and suggest visualizations. 
+                  What would you like to know?
+                </div>
+              </div>
+            </div>
+            
+            <div class="chat-suggestions" id="chatSuggestions">
+              <button class="suggestion-btn">Show me the most common mutations in TP53</button>
+              <button class="suggestion-btn">What genes have the highest mutation frequency?</button>
+              <button class="suggestion-btn">Compare survival between mutated and wild-type samples</button>
+            </div>
+            
+            <div class="chat-input">
+              <input type="text" id="chatInput" placeholder="Ask a question about your data...">
+              <button class="send-btn" id="sendBtn">Send</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Upload Data</h2>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📁</div>
+            <p>Drag and drop files here, or click to browse</p>
+            <input type="file" id="fileInput" accept=".vcf,.maf,.tsv,.csv" multiple hidden>
+          </div>
+          <div class="upload-formats">
+            <p>Supported formats:</p>
+            <ul>
+              <li>VCF - Variant Call Format</li>
+              <li>MAF - Mutation Annotation Format</li>
+              <li>TSV/CSV - Expression matrices</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelUpload">Cancel</button>
+          <button class="btn-primary" id="confirmUpload" disabled>Upload</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
