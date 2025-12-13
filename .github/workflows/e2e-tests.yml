@@ -1,0 +1,166 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: genomics_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd capstone/server && npm ci
+          cd ../client && npm ci
+
+      - name: Install Playwright browsers
+        working-directory: capstone
+        run: npx playwright install --with-deps
+
+      - name: Setup database
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/genomics_test
+        run: |
+          cd capstone/server
+          npx knex migrate:latest
+          npx knex seed:run
+
+      - name: Run E2E tests
+        working-directory: capstone
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://test:test@localhost:5432/genomics_test
+          JWT_SECRET: test-secret-key
+          JWT_REFRESH_SECRET: test-refresh-secret
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: capstone/playwright-report/
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: capstone/test-results/
+          retention-days: 7
+
+  api-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: genomics_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install server dependencies
+        run: |
+          cd capstone/server
+          npm ci
+
+      - name: Setup database
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/genomics_test
+        run: |
+          cd capstone/server
+          npx knex migrate:latest
+          npx knex seed:run
+
+      - name: Run API tests
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://test:test@localhost:5432/genomics_test
+          JWT_SECRET: test-secret-key
+        run: |
+          cd capstone/server
+          npm test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint || true
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd capstone/client
+          npm ci
+
+      - name: Build client
+        run: |
+          cd capstone/client
+          npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: client-build
+          path: capstone/client/dist/
+          retention-days: 7

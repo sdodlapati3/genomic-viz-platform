@@ -19,6 +19,8 @@ import { survivalRouter } from './routes/survival.js';
 import { samplesRouter } from './routes/samples.js';
 import { uploadRouter } from './routes/upload.js';
 import { chatRouter } from './routes/chat.js';
+import authRoutes from './routes/auth.routes.js';
+import { setupSwagger } from './docs/swagger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { logger } from './utils/logger.js';
 
@@ -63,7 +65,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Setup Swagger API documentation
+setupSwagger(app);
+
 // API routes
+app.use('/api/auth', authRoutes);
 app.use('/api/mutations', mutationsRouter);
 app.use('/api/expression', expressionRouter);
 app.use('/api/survival', survivalRouter);
