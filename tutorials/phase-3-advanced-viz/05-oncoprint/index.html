@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 3.5: Oncoprint</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #7f8c8d;
+      font-size: 1rem;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 20px;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .panel h3 {
+      color: #2c3e50;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #3498db;
+    }
+
+    .control-group {
+      margin-bottom: 12px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      background: white;
+    }
+
+    select:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 5px;
+    }
+
+    button:hover {
+      background: #2980b9;
+    }
+
+    button.secondary {
+      background: #95a5a6;
+    }
+
+    button.secondary:hover {
+      background: #7f8c8d;
+    }
+
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 14px;
+      border-radius: 2px;
+    }
+
+    .legend-glyph {
+      width: 20px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stat-box {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-box .value {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .stat-box .label {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      overflow-x: auto;
+    }
+
+    #oncoprint {
+      min-height: 500px;
+    }
+
+    .sample-info {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .sample-info h4 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .sample-info p {
+      font-size: 0.85rem;
+      margin: 4px 0;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 15px;
+      color: #7f8c8d;
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: #3498db;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧬 Oncoprint</h1>
+      <p>Tutorial 3.5: Mutation Matrix Visualization for Cancer Genomics</p>
+    </header>
+
+    <div class="main-content">
+      <div class="sidebar">
+        <div class="panel">
+          <h3>Data Options</h3>
+          <div class="control-group">
+            <label>Cancer Type</label>
+            <select id="cancerType">
+              <option value="TCGA">TCGA Pan-Cancer</option>
+              <option value="BRCA">Breast Cancer</option>
+              <option value="LUAD">Lung Adenocarcinoma</option>
+              <option value="COAD">Colorectal Cancer</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Number of Samples</label>
+            <select id="sampleCount">
+              <option value="50">50 samples</option>
+              <option value="100" selected>100 samples</option>
+              <option value="200">200 samples</option>
+            </select>
+          </div>
+          <button id="regenerateData">🔄 Generate New Data</button>
+        </div>
+
+        <div class="panel">
+          <h3>Sort Options</h3>
+          <div class="control-group">
+            <label>Sort Samples By</label>
+            <select id="sortBy">
+              <option value="mutation">Mutation Count</option>
+              <option value="gene">Gene Priority</option>
+              <option value="clinical">Clinical Feature</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Sort Genes By</label>
+            <select id="sortGenesBy">
+              <option value="frequency">Mutation Frequency</option>
+              <option value="name">Gene Name</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Display Options</h3>
+          <div class="checkbox-group">
+            <label><input type="checkbox" id="showClinical" checked> Show Clinical Tracks</label>
+            <label><input type="checkbox" id="showPercentages" checked> Show Percentages</label>
+            <label><input type="checkbox" id="showGaps"> Show Sample Gaps</label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Mutation Types</h3>
+          <div class="legend" id="mutationLegend">
+            <!-- Generated dynamically -->
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Summary</h3>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="value" id="totalSamples">0</div>
+              <div class="label">Samples</div>
+            </div>
+            <div class="stat-box">
+              <div class="value" id="totalGenes">0</div>
+              <div class="label">Genes</div>
+            </div>
+            <div class="stat-box">
+              <div class="value" id="totalMutations">0</div>
+              <div class="label">Mutations</div>
+            </div>
+            <div class="stat-box">
+              <div class="value" id="avgMutations">0</div>
+              <div class="label">Avg/Sample</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div id="oncoprint"></div>
+        <div class="sample-info" id="sampleInfo">
+          <h4>Sample Details</h4>
+          <div id="sampleDetails"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Part of the <a href="../../../README.md">Genomic Visualization Platform</a> | 
+      Simulated mutation data inspired by TCGA studies
+    </footer>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

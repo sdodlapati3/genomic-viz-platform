@@ -1014,7 +1014,7 @@ A simplified but complete genomic data visualization platform demonstrating all 
 | 3.2 Heatmap | ✅ Complete | Dec 12 | Dec 12 | Canvas-based, clustering |
 | 3.3 Survival Curves | ✅ Complete | Dec 13 | Dec 13 | Kaplan-Meier, log-rank test |
 | 3.4 Volcano Plot | ✅ Complete | Dec 13 | Dec 13 | Canvas rendering, 20k genes |
-| 3.5 Oncoprint | ⬜ Not Started | | | |
+| 3.5 Oncoprint | ✅ Complete | Dec 13 | Dec 13 | Canvas mutation matrix, clinical tracks |
 
 ### Phase 4: Production Skills
 | Tutorial | Status | Start Date | End Date | Notes |

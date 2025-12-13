@@ -1,0 +1,17 @@
+{
+  "name": "tutorial-3.5-oncoprint",
+  "version": "1.0.0",
+  "description": "Oncoprint/Mutation Matrix Visualization Tutorial",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "d3": "^7.8.5"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
