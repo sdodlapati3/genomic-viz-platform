@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genomic Visualization Platform - Demo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6f7;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #2c3e50, #3498db);
+      color: white;
+      padding: 20px 40px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    nav button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    nav button:hover, nav button.active {
+      background: rgba(255,255,255,0.3);
+    }
+
+    nav button.active {
+      background: white;
+      color: #2c3e50;
+    }
+
+    /* Main content */
+    main {
+      padding: 30px 40px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* Demo sections */
+    .demo-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .demo-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      margin-bottom: 20px;
+    }
+
+    .section-header h2 {
+      font-size: 24px;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+
+    .section-header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .card-header {
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    /* Visualization containers */
+    .viz-container {
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .viz-container.loaded {
+      border: none;
+      background: white;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group label {
+      font-size: 13px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .control-group select,
+    .control-group input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      background: white;
+    }
+
+    .control-group select:focus,
+    .control-group input:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+
+    .btn-secondary {
+      background: #ecf0f1;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #ddd;
+    }
+
+    /* Grid layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1200px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Code display */
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    .code-block .keyword { color: #569cd6; }
+    .code-block .string { color: #ce9178; }
+    .code-block .number { color: #b5cea8; }
+    .code-block .comment { color: #6a9955; }
+
+    /* Status indicators */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Feature list */
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .feature-item svg {
+      flex-shrink: 0;
+      color: #3498db;
+    }
+
+    .feature-item h4 {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .feature-item p {
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #666;
+      font-size: 13px;
+      border-top: 1px solid #eee;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧬 Genomic Visualization Platform</h1>
+    <p>ProteinPaint-inspired visualization toolkit for cancer genomics research</p>
+    
+    <nav>
+      <button class="active" data-section="overview">Overview</button>
+      <button data-section="lollipop">Lollipop Plot</button>
+      <button data-section="browser">Genome Browser</button>
+      <button data-section="matrix">Sample Matrix</button>
+      <button data-section="survival">Survival</button>
+      <button data-section="heatmap">Heatmap</button>
+      <button data-section="volcano">Volcano Plot</button>
+      <button data-section="studyview">Study View</button>
+      <button data-section="config">Config Editor</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Overview Section -->
+    <section id="overview" class="demo-section active">
+      <div class="section-header">
+        <h2>Platform Overview</h2>
+        <p>A comprehensive genomic data visualization platform built with TypeScript, D3.js, and modern web technologies.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Key Features</h3>
+          <span class="status status-success">✓ Production Ready</span>
+        </div>
+        <div class="card-body">
+          <div class="feature-list">
+            <div class="feature-item">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+              </svg>
+              <div>
+                <h4>TypeScript + Zod Validation</h4>
+                <p>Fully typed configuration with runtime validation</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/>
+              </svg>
+              <div>
+                <h4>Embed API Pattern</h4>
+                <p>ProteinPaint-style config → render pipeline</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+              <div>
+                <h4>URL Reproducibility</h4>
+                <p>Share links reproduce exact visualization state</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+              </svg>
+              <div>
+                <h4>Track-based Browser</h4>
+                <p>Synchronized multi-track genome navigation</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+              </svg>
+              <div>
+                <h4>7 Visualization Types</h4>
+                <p>Lollipop, Matrix, Survival, Heatmap, Volcano, Browser, Study</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8"/>
+                <path d="m21 16-9 5-9-5"/>
+              </svg>
+              <div>
+                <h4>Full-Stack Integration</h4>
+                <p>Node.js API, PostgreSQL, WebSocket, Swagger</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Quick Start Code</h3>
+        </div>
+        <div class="card-body">
+          <div class="code-block">
+<span class="comment">// Create a lollipop plot with typed configuration</span>
+<span class="keyword">import</span> { GenomicEmbed } <span class="keyword">from</span> <span class="string">'./embed'</span>;
+
+<span class="keyword">const</span> embed = <span class="keyword">new</span> GenomicEmbed({
+  entrypoint: <span class="string">'gene'</span>,
+  gene: <span class="string">'TP53'</span>,
+  genome: <span class="string">'hg38'</span>,
+  showDomains: <span class="keyword">true</span>,
+  showMutations: <span class="keyword">true</span>,
+  dimensions: { width: <span class="number">800</span>, height: <span class="number">400</span> }
+});
+
+<span class="comment">// Render to container</span>
+embed.render(<span class="string">'#visualization'</span>);
+
+<span class="comment">// Get shareable URL</span>
+<span class="keyword">const</span> url = embed.getShareableUrl();
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lollipop Plot Section -->
+    <section id="lollipop" class="demo-section">
+      <div class="section-header">
+        <h2>Mutation Lollipop Plot</h2>
+        <p>Visualize mutations on a protein backbone with domain annotations.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>TP53 Mutations</h3>
+        </div>
+        <div class="card-body">
+          <div class="controls">
+            <div class="control-group">
+              <label>Gene:</label>
+              <select id="lollipop-gene">
+                <option value="TP53">TP53</option>
+                <option value="EGFR">EGFR</option>
+                <option value="KRAS">KRAS</option>
+                <option value="BRAF">BRAF</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Show Domains:</label>
+              <input type="checkbox" id="lollipop-domains" checked>
+            </div>
+            <button class="btn btn-primary" onclick="renderLollipop()">Render</button>
+            <button class="btn btn-secondary" onclick="shareLollipop()">Share Link</button>
+          </div>
+          <div id="lollipop-viz" class="viz-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Genome Browser Section -->
+    <section id="browser" class="demo-section">
+      <div class="section-header">
+        <h2>Genome Browser</h2>
+        <p>Track-based navigation with synchronized gene and mutation views.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>chr17:7,668,421-7,687,490 (TP53 Region)</h3>
+        </div>
+        <div class="card-body">
+          <div class="controls">
+            <div class="control-group">
+              <label>Chromosome:</label>
+              <select id="browser-chr">
+                <option value="chr17">chr17</option>
+                <option value="chr7">chr7</option>
+                <option value="chr12">chr12</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Position:</label>
+              <input type="text" id="browser-pos" value="7668421-7687490" style="width: 150px;">
+            </div>
+            <button class="btn btn-primary" onclick="navigateBrowser()">Go</button>
+            <button class="btn btn-secondary" onclick="zoomBrowser(2)">Zoom In</button>
+            <button class="btn btn-secondary" onclick="zoomBrowser(0.5)">Zoom Out</button>
+          </div>
+          <div id="browser-viz" class="viz-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sample Matrix Section -->
+    <section id="matrix" class="demo-section">
+      <div class="section-header">
+        <h2>Sample Matrix (OncoPrint)</h2>
+        <p>Genes × Samples mutation matrix with type-based coloring.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Cancer Gene Panel</h3>
+        </div>
+        <div class="card-body">
+          <div class="controls">
+            <div class="control-group">
+              <label>Sort Genes By:</label>
+              <select id="matrix-sort-genes">
+                <option value="frequency">Mutation Frequency</option>
+                <option value="alphabetical">Alphabetical</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Sort Samples By:</label>
+              <select id="matrix-sort-samples">
+                <option value="mutations">Mutation Count</option>
+                <option value="alphabetical">Sample ID</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="renderMatrix()">Render</button>
+          </div>
+          <div id="matrix-viz" class="viz-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Survival Section -->
+    <section id="survival" class="demo-section">
+      <div class="section-header">
+        <h2>Survival Analysis</h2>
+        <p>Kaplan-Meier curves with log-rank test statistics.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Survival by TP53 Status</h3>
+        </div>
+        <div class="card-body">
+          <div class="controls">
+            <div class="control-group">
+              <label>Time Unit:</label>
+              <select id="survival-time">
+                <option value="months">Months</option>
+                <option value="days">Days</option>
+                <option value="years">Years</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Show CI:</label>
+              <input type="checkbox" id="survival-ci" checked>
+            </div>
+            <div class="control-group">
+              <label>Show At-Risk:</label>
+              <input type="checkbox" id="survival-atrisk" checked>
+            </div>
+            <button class="btn btn-primary" onclick="renderSurvival()">Render</button>
+          </div>
+          <div id="survival-viz" class="viz-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Heatmap Section -->
+    <section id="heatmap" class="demo-section">
+      <div class="section-header">
+        <h2>Expression Heatmap</h2>
+        <p>Clustered gene expression visualization.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Top Variable Genes</h3>
+        </div>
+        <div class="card-body">
+          <div class="controls">
+            <div class="control-group">
+              <label>Top N Genes:</label>
+              <input type="number" id="heatmap-topn" value="30" min="10" max="100" style="width: 80px;">
+            </div>
+            <div class="control-group">
+              <label>Color Scale:</label>
+              <select id="heatmap-color">
+                <option value="RdBu">Red-Blue</option>
+                <option value="viridis">Viridis</option>
+                <option value="PiYG">Pink-Green</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Cluster:</label>
+              <input type="checkbox" id="heatmap-cluster" checked>
+            </div>
+            <button class="btn btn-primary" onclick="renderHeatmap()">Render</button>
+          </div>
+          <div id="heatmap-viz" class="viz-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Volcano Section -->
+    <section id="volcano" class="demo-section">
+      <div class="section-header">
+        <h2>Volcano Plot</h2>
+        <p>Differential expression visualization with significance thresholds.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Treatment vs Control</h3>
+        </div>
+        <div class="card-body">
+          <div class="controls">
+            <div class="control-group">
+              <label>P-value Threshold:</label>
+              <select id="volcano-pval">
+                <option value="0.05">0.05</option>
+                <option value="0.01">0.01</option>
+                <option value="0.001">0.001</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Fold Change:</label>
+              <select id="volcano-fc">
+                <option value="2">2x</option>
+                <option value="1.5">1.5x</option>
+                <option value="4">4x</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Show Labels:</label>
+              <input type="checkbox" id="volcano-labels" checked>
+            </div>
+            <button class="btn btn-primary" onclick="renderVolcano()">Render</button>
+          </div>
+          <div id="volcano-viz" class="viz-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Study View Section -->
+    <section id="studyview" class="demo-section">
+      <div class="section-header">
+        <h2>Study View Dashboard</h2>
+        <p>Multi-chart cohort exploration with interactive filtering.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding: 0;">
+          <div id="studyview-viz" style="min-height: 600px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Config Editor Section -->
+    <section id="config" class="demo-section">
+      <div class="section-header">
+        <h2>Configuration Editor</h2>
+        <p>Interactive JSON editor with validation and presets.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3>Edit Configuration</h3>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div id="config-editor"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Preview</h3>
+          </div>
+          <div class="card-body">
+            <div id="config-preview" class="viz-container"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Genomic Visualization Platform • Built for ProteinPaint Interview Preparation</p>
+    <p style="margin-top: 5px; opacity: 0.7;">TypeScript • D3.js • Zod • Node.js • PostgreSQL</p>
+  </footer>
+
+  <script type="module">
+    // Navigation handling
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update nav buttons
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Update sections
+        const sectionId = btn.dataset.section;
+        document.querySelectorAll('.demo-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        
+        // Initialize section if needed
+        initSection(sectionId);
+      });
+    });
+
+    // Section initialization
+    function initSection(sectionId) {
+      switch(sectionId) {
+        case 'lollipop':
+          if (!window.lollipopInitialized) {
+            renderLollipop();
+            window.lollipopInitialized = true;
+          }
+          break;
+        case 'browser':
+          if (!window.browserInitialized) {
+            initBrowser();
+            window.browserInitialized = true;
+          }
+          break;
+        // Add more initializations as needed
+      }
+    }
+
+    // Placeholder functions - these would connect to actual implementations
+    window.renderLollipop = function() {
+      const container = document.getElementById('lollipop-viz');
+      container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Lollipop plot visualization would render here<br><small>See capstone/client/src/visualizations/lollipop.ts</small></div>';
+      container.classList.add('loaded');
+    };
+
+    window.initBrowser = function() {
+      const container = document.getElementById('browser-viz');
+      container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Genome browser would render here<br><small>See capstone/client/src/components/GenomeBrowser/</small></div>';
+      container.classList.add('loaded');
+    };
+
+    window.renderMatrix = function() {
+      const container = document.getElementById('matrix-viz');
+      container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Sample matrix would render here<br><small>See capstone/client/src/visualizations/sampleMatrix.ts</small></div>';
+      container.classList.add('loaded');
+    };
+
+    window.renderSurvival = function() {
+      const container = document.getElementById('survival-viz');
+      container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Survival plot would render here<br><small>See capstone/client/src/visualizations/survival.ts</small></div>';
+      container.classList.add('loaded');
+    };
+
+    window.renderHeatmap = function() {
+      const container = document.getElementById('heatmap-viz');
+      container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Heatmap would render here<br><small>See capstone/client/src/visualizations/heatmap.ts</small></div>';
+      container.classList.add('loaded');
+    };
+
+    window.renderVolcano = function() {
+      const container = document.getElementById('volcano-viz');
+      container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Volcano plot would render here<br><small>See capstone/client/src/visualizations/volcano.ts</small></div>';
+      container.classList.add('loaded');
+    };
+
+    window.shareLollipop = function() {
+      const config = {
+        entrypoint: 'gene',
+        gene: document.getElementById('lollipop-gene').value,
+        showDomains: document.getElementById('lollipop-domains').checked
+      };
+      const encoded = btoa(JSON.stringify(config));
+      const url = `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+      navigator.clipboard.writeText(url);
+      alert('URL copied to clipboard!');
+    };
+
+    window.navigateBrowser = function() {
+      console.log('Navigate browser');
+    };
+
+    window.zoomBrowser = function(factor) {
+      console.log('Zoom browser:', factor);
+    };
+
+    // Check URL for config on load
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('config')) {
+      try {
+        const config = JSON.parse(atob(urlParams.get('config')));
+        console.log('Loaded config from URL:', config);
+      } catch (e) {
+        console.error('Failed to parse URL config:', e);
+      }
+    }
+  </script>
+</body>
+</html>
