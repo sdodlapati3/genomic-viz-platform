@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 2.3: Parsing Genomic File Formats
 
 ## Overview
@@ -77,6 +81,7 @@ chr17   7673700 rs28934578  C    T    99    PASS    DP=150;AF=0.35 GT:DP   0/1:4
 ```
 
 **Key Components:**
+
 - **Header**: Metadata starting with `##`
 - **Columns**: CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO
 - **Samples**: Genotype data per sample
@@ -93,6 +98,7 @@ chr17  ENSEMBL  exon  7687377  7687550  .  -  .  Parent=ENST00000269305;exon_num
 ```
 
 **9 Columns:**
+
 1. seqid - Chromosome/contig
 2. source - Annotation source
 3. type - Feature type (gene, mRNA, exon, CDS)
@@ -113,6 +119,7 @@ chr17  7687376  7687551  TP53_exon1  500  -
 ```
 
 **Formats:**
+
 - **BED3**: chrom, start, end
 - **BED6**: + name, score, strand
 - **BED12**: + thickStart, thickEnd, rgb, blocks
@@ -160,9 +167,9 @@ import { createInterface } from 'readline';
 async function streamFile(filePath, callback) {
   const rl = createInterface({
     input: createReadStream(filePath),
-    crlfDelay: Infinity
+    crlfDelay: Infinity,
   });
-  
+
   for await (const line of rl) {
     callback(parseLine(line));
   }
@@ -190,15 +197,11 @@ function parseInfoField(infoStr) {
 
 ```javascript
 // Build parent-child relationships
-const genes = features.filter(f => f.type === 'gene');
+const genes = features.filter((f) => f.type === 'gene');
 for (const gene of genes) {
-  gene.transcripts = features.filter(f => 
-    f.type === 'mRNA' && f.parent === gene.id
-  );
+  gene.transcripts = features.filter((f) => f.type === 'mRNA' && f.parent === gene.id);
   for (const transcript of gene.transcripts) {
-    transcript.exons = features.filter(f =>
-      f.type === 'exon' && f.parent === transcript.id
-    );
+    transcript.exons = features.filter((f) => f.type === 'exon' && f.parent === transcript.id);
   }
 }
 ```
@@ -211,7 +214,7 @@ for (const gene of genes) {
 function toOneBased(bedRegion) {
   return {
     ...bedRegion,
-    start: bedRegion.start + 1  // Now 1-based
+    start: bedRegion.start + 1, // Now 1-based
   };
 }
 ```
@@ -219,27 +222,31 @@ function toOneBased(bedRegion) {
 ## Exercises
 
 ### Exercise 1: Add FASTA Parser
+
 Create a parser for FASTA sequence files:
 
 ```javascript
 function parseFasta(filePath) {
   const sequences = [];
   let current = null;
-  
+
   // Parse >header lines and sequence data
   // ...
-  
+
   return sequences;
 }
 ```
 
 ### Exercise 2: VCF Statistics
+
 Add an endpoint that returns VCF statistics:
+
 - Variant count by type (SNP, indel)
 - Variant count by chromosome
 - Transition/transversion ratio
 
 ### Exercise 3: Region Query
+
 Implement efficient region queries using an interval tree:
 
 ```javascript
@@ -255,7 +262,9 @@ const overlaps = tree.search(queryStart, queryEnd);
 ```
 
 ### Exercise 4: File Validation
+
 Add validation for uploaded files:
+
 - Check file format magic bytes
 - Validate required columns
 - Report parsing errors with line numbers
@@ -263,12 +272,14 @@ Add validation for uploaded files:
 ## Common Parsing Challenges
 
 ### 1. Encoding Issues
+
 ```javascript
 // Handle URL-encoded attributes in GFF3
 const value = decodeURIComponent(rawValue);
 ```
 
 ### 2. Large Files
+
 ```javascript
 // Use streaming and generators
 async function* parseLines(filePath) {
@@ -280,6 +291,7 @@ async function* parseLines(filePath) {
 ```
 
 ### 3. Malformed Data
+
 ```javascript
 // Always handle errors gracefully
 try {
@@ -302,7 +314,7 @@ function variantToLollipop(variant) {
     position: variant.position,
     aaChange: variant.info.AA,
     type: variant.info.CONSEQUENCE,
-    frequency: variant.info.AF
+    frequency: variant.info.AF,
   };
 }
 
@@ -314,10 +326,94 @@ function geneToTrack(gene) {
     start: gene.start,
     end: gene.end,
     strand: gene.strand,
-    exons: gene.transcripts[0]?.exons || []
+    exons: gene.transcripts[0]?.exons || [],
   };
 }
 ```
+
+## 🎯 ProteinPaint Connection
+
+File parsing is critical to ProteinPaint's data ingestion pipeline:
+
+| Tutorial Concept | ProteinPaint Usage                            |
+| ---------------- | --------------------------------------------- |
+| VCF parsing      | `server/src/vcf.*.js` - Variant file handling |
+| BED parsing      | `server/src/bedj.js` - BED/BigBed processing  |
+| Streaming        | Handle large genomic files efficiently        |
+| Tabix indexing   | Fast region-based file access                 |
+| Error recovery   | Graceful handling of malformed data           |
+
+### ProteinPaint File Processing Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ProteinPaint File Processing                               │
+│                                                             │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐       │
+│  │  VCF    │  │  BED    │  │  BAM    │  │  BigWig │       │
+│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘       │
+│       │            │            │            │              │
+│  ┌────▼────────────▼────────────▼────────────▼────────┐   │
+│  │              Index Layer (Tabix/BAI/etc)            │   │
+│  │  Fast random access by genomic coordinates          │   │
+│  └────────────────────────┬────────────────────────────┘   │
+│                           │                                 │
+│  ┌────────────────────────▼────────────────────────────┐   │
+│  │              Stream Parser                           │   │
+│  │  Line-by-line processing for memory efficiency      │   │
+│  │  Chunk-based for large files                        │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Relevant ProteinPaint Files
+
+- `server/src/vcf.*.js` - VCF parsing modules
+- `server/src/bedj.js` - BED file handling
+- `server/src/bam.js` - BAM/CRAM reading
+- `server/src/bigwig.js` - BigWig/BigBed support
+
+## Exercises
+
+### Exercise 1: MAF Parser
+
+Build a parser for Mutation Annotation Format (MAF):
+
+**Requirements:**
+
+- Parse TCGA MAF files
+- Extract Hugo_Symbol, Chromosome, Start_Position
+- Convert to VCF-like structure
+
+### Exercise 2: FASTA Indexing
+
+Create an indexed FASTA reader:
+
+**Requirements:**
+
+- Parse FAI index files
+- Fetch sequences by region
+- Handle multi-line FASTA
+
+### Exercise 3: GTF Parser
+
+Parse GTF gene annotation files:
+
+**Requirements:**
+
+- Extract gene/transcript/exon hierarchy
+- Build gene models
+- Handle attribute parsing
+
+### Exercise 4: Streaming Large Files
+
+Process a large VCF without loading into memory:
+
+**Requirements:**
+
+- Use Node.js streams
+- Progress reporting
+- Memory usage under 100MB for 10GB file
 
 ## Next Steps
 
@@ -330,3 +426,7 @@ function geneToTrack(gene) {
 - [GFF3 Specification](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md)
 - [BED Format](https://genome.ucsc.edu/FAQ/FAQformat.html#format1)
 - [Bioinformatics File Formats](https://www.ncbi.nlm.nih.gov/sra/docs/submitformats/)
+
+---
+
+[← Back to Tutorials Index](../../README.md)

@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 2.4: R Integration for Statistical Analysis
 
 ## Overview
@@ -59,6 +63,7 @@ sudo apt-get install r-base
 ```
 
 **R Packages (if R is installed):**
+
 ```r
 install.packages(c("survival", "survminer", "jsonlite"))
 ```
@@ -100,6 +105,7 @@ curl http://localhost:3004/api/analysis/survival/kaplan-meier?gene=TP53
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -120,6 +126,7 @@ curl http://localhost:3004/api/analysis/survival/kaplan-meier?gene=TP53
 ```
 
 **Cox Regression** (requires R):
+
 ```bash
 curl http://localhost:3004/api/analysis/survival/cox
 ```
@@ -133,6 +140,7 @@ curl http://localhost:3004/api/analysis/expression/differential
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -156,11 +164,13 @@ curl http://localhost:3004/api/analysis/expression/differential
 ```
 
 **Volcano Plot Data**:
+
 ```bash
 curl http://localhost:3004/api/analysis/expression/volcano
 ```
 
 **Gene Correlation**:
+
 ```bash
 curl http://localhost:3004/api/analysis/expression/correlation
 ```
@@ -168,27 +178,29 @@ curl http://localhost:3004/api/analysis/expression/correlation
 ### 3. Mutation Analysis
 
 **Enrichment by Cancer Type**:
+
 ```bash
 curl http://localhost:3004/api/analysis/mutation/enrichment
 ```
 
 **Mutual Exclusivity**:
+
 ```bash
 curl http://localhost:3004/api/analysis/mutation/exclusivity
 ```
 
 ## API Endpoints
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/analysis/status` | Check R availability |
-| `GET /api/analysis/survival/kaplan-meier` | Kaplan-Meier analysis |
-| `GET /api/analysis/survival/cox` | Cox regression |
+| Endpoint                                    | Description             |
+| ------------------------------------------- | ----------------------- |
+| `GET /api/analysis/status`                  | Check R availability    |
+| `GET /api/analysis/survival/kaplan-meier`   | Kaplan-Meier analysis   |
+| `GET /api/analysis/survival/cox`            | Cox regression          |
 | `GET /api/analysis/expression/differential` | Differential expression |
-| `GET /api/analysis/expression/volcano` | Volcano plot data |
-| `GET /api/analysis/expression/correlation` | Gene correlations |
-| `GET /api/analysis/mutation/enrichment` | Mutation enrichment |
-| `GET /api/analysis/mutation/exclusivity` | Mutual exclusivity |
+| `GET /api/analysis/expression/volcano`      | Volcano plot data       |
+| `GET /api/analysis/expression/correlation`  | Gene correlations       |
+| `GET /api/analysis/mutation/enrichment`     | Mutation enrichment     |
+| `GET /api/analysis/mutation/exclusivity`    | Mutual exclusivity      |
 
 ## Key Concepts
 
@@ -200,11 +212,11 @@ import { spawn } from 'child_process';
 async function executeRScript(scriptPath, args) {
   return new Promise((resolve, reject) => {
     const rProcess = spawn('Rscript', ['--vanilla', scriptPath, ...args]);
-    
+
     let stdout = '';
-    rProcess.stdout.on('data', data => stdout += data);
-    
-    rProcess.on('close', code => {
+    rProcess.stdout.on('data', (data) => (stdout += data));
+
+    rProcess.on('close', (code) => {
       if (code === 0) {
         resolve(JSON.parse(stdout));
       } else {
@@ -220,14 +232,17 @@ async function executeRScript(scriptPath, args) {
 ```javascript
 // Two-sample t-test
 function tTest(group1, group2) {
-  const m1 = mean(group1), m2 = mean(group2);
-  const v1 = variance(group1), v2 = variance(group2);
-  const n1 = group1.length, n2 = group2.length;
-  
-  const pooledVar = ((n1-1)*v1 + (n2-1)*v2) / (n1+n2-2);
-  const t = (m1 - m2) / Math.sqrt(pooledVar * (1/n1 + 1/n2));
-  
-  return { statistic: t, pvalue: twoTailPValue(t, n1+n2-2) };
+  const m1 = mean(group1),
+    m2 = mean(group2);
+  const v1 = variance(group1),
+    v2 = variance(group2);
+  const n1 = group1.length,
+    n2 = group2.length;
+
+  const pooledVar = ((n1 - 1) * v1 + (n2 - 1) * v2) / (n1 + n2 - 2);
+  const t = (m1 - m2) / Math.sqrt(pooledVar * (1 / n1 + 1 / n2));
+
+  return { statistic: t, pvalue: twoTailPValue(t, n1 + n2 - 2) };
 }
 ```
 
@@ -238,14 +253,14 @@ function kaplanMeier(times, events) {
   let nRisk = times.length;
   let survival = 1.0;
   const curve = [{ time: 0, survival: 1.0 }];
-  
+
   for (const time of sortedUniqueTimes) {
     const deaths = countEventsAt(time);
     survival *= (nRisk - deaths) / nRisk;
     curve.push({ time, survival, nRisk });
     nRisk -= deathsAndCensoredAt(time);
   }
-  
+
   return curve;
 }
 ```
@@ -253,6 +268,7 @@ function kaplanMeier(times, events) {
 ## Exercises
 
 ### Exercise 1: Add Forest Plot Data
+
 Create an endpoint that returns forest plot data for multi-gene survival analysis:
 
 ```javascript
@@ -263,6 +279,7 @@ router.get('/survival/forest', async (req, res) => {
 ```
 
 ### Exercise 2: Gene Set Enrichment
+
 Implement GSEA-like analysis:
 
 ```javascript
@@ -273,6 +290,7 @@ function geneSetEnrichment(rankedGenes, geneSet) {
 ```
 
 ### Exercise 3: Mutation Signature Analysis
+
 Add mutation signature decomposition:
 
 ```javascript
@@ -283,6 +301,7 @@ router.get('/mutation/signatures', async (req, res) => {
 ```
 
 ### Exercise 4: Batch Correction
+
 Implement batch effect correction for expression data:
 
 ```javascript
@@ -295,18 +314,23 @@ function comBat(expressionMatrix, batches) {
 ## Statistical Concepts
 
 ### Log-Rank Test
+
 Compares survival distributions between groups:
+
 - H₀: Survival curves are identical
 - Uses chi-square approximation
 - P < 0.05 indicates significant difference
 
 ### Multiple Testing Correction
+
 Benjamini-Hochberg procedure:
+
 1. Sort p-values
 2. Calculate adjusted p = p × n / rank
 3. Controls false discovery rate (FDR)
 
 ### Effect Size Measures
+
 - **Hazard Ratio (HR)**: Risk of event in group 1 vs group 2
 - **Log2 Fold Change**: Log ratio of expression levels
 - **Cohen's d**: Standardized mean difference
@@ -314,18 +338,21 @@ Benjamini-Hochberg procedure:
 ## Data Formats
 
 ### Survival Data
+
 ```csv
 sample_id,gene,mutation_status,survival_months,event
 TCGA-001,TP53,mutated,24,1
 ```
 
 ### Expression Data
+
 ```csv
 sample_id,TP53,KRAS,EGFR,condition
 TCGA-001,4.2,6.8,8.1,tumor
 ```
 
 ### Mutation Frequency
+
 ```csv
 gene,breast,lung,colon,total_samples
 TP53,180,245,310,1000
@@ -341,9 +368,10 @@ const response = await fetch('/api/analysis/survival/kaplan-meier');
 const { data } = await response.json();
 
 // Plot step function
-const line = d3.line()
-  .x(d => xScale(d.time))
-  .y(d => yScale(d.survival))
+const line = d3
+  .line()
+  .x((d) => xScale(d.time))
+  .y((d) => yScale(d.survival))
   .curve(d3.curveStepAfter);
 ```
 
@@ -352,6 +380,99 @@ const line = d3.line()
 const volcanoData = await fetch('/api/analysis/expression/volcano');
 // Points have: log2_fold_change, neg_log10_pvalue, category
 ```
+
+## 🎯 ProteinPaint Connection
+
+ProteinPaint integrates with R for statistical computations:
+
+| Tutorial Concept    | ProteinPaint Usage                           |
+| ------------------- | -------------------------------------------- |
+| R script execution  | `server/src/run_R.js` - R process management |
+| Survival analysis   | Kaplan-Meier for clinical data               |
+| Statistical testing | Log-rank, t-tests, enrichment                |
+| JSON interchange    | R ↔ JavaScript data transfer                 |
+| Fallback handling   | Graceful degradation without R               |
+
+### ProteinPaint R Integration Pattern
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ProteinPaint Statistical Pipeline                          │
+│                                                             │
+│  ┌───────────────┐                                         │
+│  │  Node.js API  │                                         │
+│  │  (Express)    │                                         │
+│  └───────┬───────┘                                         │
+│          │                                                  │
+│  ┌───────▼───────────────────────────────────────────────┐ │
+│  │  Decision: Use R or JavaScript?                        │ │
+│  │  ├── R available? → spawn R process                   │ │
+│  │  └── R unavailable? → JS fallback                     │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                    │                                        │
+│    ┌───────────────┴───────────────┐                       │
+│    ▼                               ▼                        │
+│  ┌─────────────┐           ┌─────────────┐                 │
+│  │  R Process  │           │ JS Fallback │                 │
+│  │  survival   │           │ simple-stats│                 │
+│  │  ggplot2    │           │ jstat       │                 │
+│  └──────┬──────┘           └──────┬──────┘                 │
+│         │                         │                         │
+│         └────────────┬────────────┘                         │
+│                      ▼                                      │
+│              ┌──────────────┐                               │
+│              │ JSON Result  │                               │
+│              └──────────────┘                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Relevant ProteinPaint Files
+
+- `server/src/run_R.js` - R script execution
+- `server/r-scripts/` - Statistical analysis scripts
+- `shared/types/analysis.ts` - Analysis result interfaces
+
+## Exercises
+
+### Exercise 1: Cox Regression
+
+Implement Cox proportional hazards:
+
+**Requirements:**
+
+- Multivariate survival model
+- Hazard ratios with confidence intervals
+- Forest plot data output
+
+### Exercise 2: Gene Set Enrichment
+
+Add GSEA analysis:
+
+**Requirements:**
+
+- Input: ranked gene list
+- Compare to MSigDB gene sets
+- Return enrichment scores and p-values
+
+### Exercise 3: Clustering Analysis
+
+Implement hierarchical clustering:
+
+**Requirements:**
+
+- Multiple distance metrics (euclidean, correlation)
+- Multiple linkage methods (complete, average)
+- Return dendrogram structure for visualization
+
+### Exercise 4: JavaScript-Only Mode
+
+Create complete JS fallback:
+
+**Requirements:**
+
+- Kaplan-Meier without R
+- Basic differential expression
+- Document accuracy tradeoffs
 
 ## Next Steps
 
@@ -365,3 +486,7 @@ const volcanoData = await fetch('/api/analysis/expression/volcano');
 - [Survival Analysis in R](https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html)
 - [Bioconductor](https://www.bioconductor.org/)
 - [Statistics for Genomics](https://genomicsclass.github.io/book/)
+
+---
+
+[← Back to Tutorials Index](../../README.md)

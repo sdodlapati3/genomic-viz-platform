@@ -1,8 +1,15 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 4.2: CI/CD Pipeline
 
 ## Overview
 
-Learn how to set up a **Continuous Integration/Continuous Deployment (CI/CD)** pipeline using GitHub Actions for genomic visualization projects. This tutorial covers automated testing, linting, building, security scanning, and deployment workflows.
+Learn how to set up a **Continuous Integration/Continuous Deployment (CI/CD)**
+pipeline using GitHub Actions for genomic visualization projects. This tutorial
+covers automated testing, linting, building, security scanning, and deployment
+workflows.
 
 ## Learning Objectives
 
@@ -134,13 +141,13 @@ npm run validate  # Runs lint, typecheck, test, build
 
 This workflow runs on every push and pull request:
 
-| Job | Purpose | Key Steps |
-|-----|---------|-----------|
-| **lint** | Code quality | ESLint + Prettier check |
-| **test** | Test suite | Vitest with coverage, matrix testing |
-| **build** | Production build | Vite build + artifact upload |
-| **security** | Vulnerability scan | npm audit |
-| **typecheck** | Type validation | tsc --noEmit |
+| Job           | Purpose            | Key Steps                            |
+| ------------- | ------------------ | ------------------------------------ |
+| **lint**      | Code quality       | ESLint + Prettier check              |
+| **test**      | Test suite         | Vitest with coverage, matrix testing |
+| **build**     | Production build   | Vite build + artifact upload         |
+| **security**  | Vulnerability scan | npm audit                            |
+| **typecheck** | Type validation    | tsc --noEmit                         |
 
 #### Key Features:
 
@@ -153,10 +160,10 @@ This workflow runs on every push and pull request:
 
 **File:** `.github/workflows/deploy.yml`
 
-| Trigger | Environment | Action |
-|---------|-------------|--------|
-| Tag push (v*) | Staging | Deploy to staging URL |
-| Release published | Production | Deploy to production |
+| Trigger           | Environment | Action                |
+| ----------------- | ----------- | --------------------- |
+| Tag push (v\*)    | Staging     | Deploy to staging URL |
+| Release published | Production  | Deploy to production  |
 
 #### Features:
 
@@ -168,13 +175,13 @@ This workflow runs on every push and pull request:
 
 **File:** `.github/workflows/pr-check.yml`
 
-| Check | Purpose |
-|-------|---------|
-| **PR Info** | Labels, size summary |
-| **Bundle Size** | Size comparison with main |
-| **Preview** | Netlify/Vercel preview deployment |
-| **Dependency Review** | Security review of new deps |
-| **Auto Labeler** | Automatic PR labeling |
+| Check                 | Purpose                           |
+| --------------------- | --------------------------------- |
+| **PR Info**           | Labels, size summary              |
+| **Bundle Size**       | Size comparison with main         |
+| **Preview**           | Netlify/Vercel preview deployment |
+| **Dependency Review** | Security review of new deps       |
+| **Auto Labeler**      | Automatic PR labeling             |
 
 ## Configuration Files
 
@@ -228,19 +235,19 @@ module.exports = {
 
 ## Scripts Reference
 
-| Script | Command | Purpose |
-|--------|---------|---------|
-| `dev` | `vite` | Start dev server |
-| `build` | `vite build` | Production build |
-| `test` | `vitest run` | Run tests once |
-| `test:watch` | `vitest` | Watch mode |
-| `test:coverage` | `vitest run --coverage` | With coverage |
-| `lint` | `eslint src/` | Check linting |
-| `lint:fix` | `eslint src/ --fix` | Auto-fix issues |
-| `format` | `prettier --write src/` | Format code |
-| `format:check` | `prettier --check src/` | Check formatting |
-| `typecheck` | `tsc --noEmit` | Type checking |
-| `validate` | All checks | Full validation |
+| Script          | Command                 | Purpose          |
+| --------------- | ----------------------- | ---------------- |
+| `dev`           | `vite`                  | Start dev server |
+| `build`         | `vite build`            | Production build |
+| `test`          | `vitest run`            | Run tests once   |
+| `test:watch`    | `vitest`                | Watch mode       |
+| `test:coverage` | `vitest run --coverage` | With coverage    |
+| `lint`          | `eslint src/`           | Check linting    |
+| `lint:fix`      | `eslint src/ --fix`     | Auto-fix issues  |
+| `format`        | `prettier --write src/` | Format code      |
+| `format:check`  | `prettier --check src/` | Check formatting |
+| `typecheck`     | `tsc --noEmit`          | Type checking    |
+| `validate`      | All checks              | Full validation  |
 
 ## Exercises
 
@@ -356,13 +363,13 @@ environment:
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| npm ci fails | Check package-lock.json is committed |
-| Tests timeout | Increase timeout in vitest.config.ts |
+| Issue             | Solution                              |
+| ----------------- | ------------------------------------- |
+| npm ci fails      | Check package-lock.json is committed  |
+| Tests timeout     | Increase timeout in vitest.config.ts  |
 | TypeScript errors | Run `npm run typecheck` locally first |
-| Build fails | Check Vite config and imports |
-| Coverage drops | Add tests before merging |
+| Build fails       | Check Vite config and imports         |
+| Coverage drops    | Add tests before merging              |
 
 ### Debug Workflow
 
@@ -397,11 +404,13 @@ After completing this tutorial:
 
 In this tutorial, you learned to:
 
-✅ Configure GitHub Actions CI/CD pipelines
-✅ Set up automated testing with matrix strategies
-✅ Implement code quality checks (lint, format, typecheck)
-✅ Create deployment workflows for staging and production
-✅ Configure PR-specific checks and preview deployments
-✅ Use helper scripts for local development
+✅ Configure GitHub Actions CI/CD pipelines ✅ Set up automated testing with
+matrix strategies ✅ Implement code quality checks (lint, format, typecheck) ✅
+Create deployment workflows for staging and production ✅ Configure PR-specific
+checks and preview deployments ✅ Use helper scripts for local development
 
 Your genomic visualization projects now have production-grade CI/CD! 🚀
+
+---
+
+[← Back to Tutorials Index](../../README.md)

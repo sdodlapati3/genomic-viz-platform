@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 2.2: PostgreSQL Database for Genomic Data
 
 ## Overview
@@ -133,21 +137,21 @@ Server runs at **http://localhost:3002**
 
 ### Tables
 
-| Table | Description |
-|-------|-------------|
-| `genes` | Reference gene annotations |
-| `protein_domains` | Protein domain regions per gene |
-| `variants` | Genomic variants/mutations |
-| `samples` | Patient/sample metadata |
+| Table             | Description                      |
+| ----------------- | -------------------------------- |
+| `genes`           | Reference gene annotations       |
+| `protein_domains` | Protein domain regions per gene  |
+| `variants`        | Genomic variants/mutations       |
+| `samples`         | Patient/sample metadata          |
 | `sample_variants` | Many-to-many: samples ↔ variants |
 
 ### Views
 
-| View | Description |
-|------|-------------|
-| `variants_with_genes` | Variants joined with gene info |
+| View                      | Description                      |
+| ------------------------- | -------------------------------- |
+| `variants_with_genes`     | Variants joined with gene info   |
 | `sample_mutation_summary` | Sample stats with variant counts |
-| `gene_mutation_frequency` | Gene-level mutation statistics |
+| `gene_mutation_frequency` | Gene-level mutation statistics   |
 
 ### Functions
 
@@ -164,6 +168,7 @@ SELECT * FROM get_gene_mutation_stats('TP53');
 Same as Tutorial 2.1, but with database-backed queries:
 
 ### Genes
+
 - `GET /api/genes` - List genes (with filtering)
 - `GET /api/genes/:symbol` - Get gene details
 - `GET /api/genes/:symbol/domains` - Get protein domains
@@ -171,12 +176,14 @@ Same as Tutorial 2.1, but with database-backed queries:
 - `GET /api/genes/region/:chr/:start-:end` - Regional query
 
 ### Variants
+
 - `GET /api/variants` - List variants (with filtering)
 - `GET /api/variants/stats` - Aggregated statistics
 - `GET /api/variants/:id` - Get variant with samples
 - `GET /api/variants/region/:chr/:start-:end` - Regional query
 
 ### Samples
+
 - `GET /api/samples` - List samples (with filtering)
 - `GET /api/samples/stats` - Aggregated statistics
 - `GET /api/samples/:id` - Get sample with variants
@@ -193,8 +200,8 @@ const { Pool } = pg;
 const pool = new Pool({
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
-  max: 20,                    // Max connections
-  idleTimeoutMillis: 30000,   // Close idle after 30s
+  max: 20, // Max connections
+  idleTimeoutMillis: 30000, // Close idle after 30s
 });
 
 // Use pool.query() for automatic connection management
@@ -208,10 +215,7 @@ const result = await pool.query('SELECT * FROM genes');
 const sql = `SELECT * FROM genes WHERE symbol = '${userInput}'`;
 
 // ✅ Always use parameterized queries
-const result = await query(
-  'SELECT * FROM genes WHERE symbol = $1',
-  [userInput]
-);
+const result = await query('SELECT * FROM genes WHERE symbol = $1', [userInput]);
 ```
 
 ### 3. Transactions
@@ -255,15 +259,16 @@ const result = await query(sql, params);
 const countResult = await query('SELECT COUNT(*) FROM variants');
 const total = parseInt(countResult.rows[0].count);
 
-const result = await query(
-  'SELECT * FROM variants ORDER BY position LIMIT $1 OFFSET $2',
-  [limit, offset]
-);
+const result = await query('SELECT * FROM variants ORDER BY position LIMIT $1 OFFSET $2', [
+  limit,
+  offset,
+]);
 ```
 
 ## Exercises
 
 ### Exercise 1: Full-Text Search
+
 Add full-text search for gene descriptions:
 
 ```sql
@@ -277,6 +282,7 @@ SELECT * FROM genes WHERE search_vector @@ to_tsquery('cancer & tumor');
 ```
 
 ### Exercise 2: Add Indexes
+
 Create indexes to optimize common queries:
 
 ```sql
@@ -285,17 +291,17 @@ CREATE INDEX idx_samples_age ON samples(age);
 ```
 
 ### Exercise 3: Batch Insert
+
 Implement efficient bulk insert for large datasets:
 
 ```javascript
-const values = variants.map(v => 
-  `('${v.id}', '${v.chromosome}', ${v.position})`
-).join(',');
+const values = variants.map((v) => `('${v.id}', '${v.chromosome}', ${v.position})`).join(',');
 
 await query(`INSERT INTO variants (id, chromosome, position) VALUES ${values}`);
 ```
 
 ### Exercise 4: Data Export
+
 Add endpoint to export query results as CSV:
 
 ```javascript
@@ -309,17 +315,18 @@ router.get('/export/csv', async (req, res) => {
 
 ## Comparison: In-Memory vs PostgreSQL
 
-| Aspect | In-Memory (2.1) | PostgreSQL (2.2) |
-|--------|-----------------|------------------|
-| Data persistence | ❌ Lost on restart | ✅ Persisted |
-| Scalability | Limited by RAM | Handles millions of rows |
-| Query complexity | Manual filtering | SQL joins, aggregations |
-| Concurrent access | Race conditions | ACID transactions |
-| Search | Linear scan | Indexed queries |
+| Aspect            | In-Memory (2.1)    | PostgreSQL (2.2)         |
+| ----------------- | ------------------ | ------------------------ |
+| Data persistence  | ❌ Lost on restart | ✅ Persisted             |
+| Scalability       | Limited by RAM     | Handles millions of rows |
+| Query complexity  | Manual filtering   | SQL joins, aggregations  |
+| Concurrent access | Race conditions    | ACID transactions        |
+| Search            | Linear scan        | Indexed queries          |
 
 ## Troubleshooting
 
 ### Connection Refused
+
 ```bash
 # Check if PostgreSQL is running
 pg_isready
@@ -332,6 +339,7 @@ sudo systemctl start postgresql
 ```
 
 ### Authentication Failed
+
 ```bash
 # Check your .env credentials match PostgreSQL
 psql -U postgres -d genomic_viz
@@ -341,11 +349,85 @@ ALTER USER postgres PASSWORD 'newpassword';
 ```
 
 ### Database Does Not Exist
+
 ```bash
 createdb genomic_viz
 npm run db:init
 npm run db:seed
 ```
+
+## 🎯 ProteinPaint Connection
+
+ProteinPaint uses SQLite databases extensively for genomic data storage:
+
+| Tutorial Concept     | ProteinPaint Usage                             |
+| -------------------- | ---------------------------------------------- |
+| Schema design        | `server/src/termdb.sql` - Term database schema |
+| Indexed queries      | `server/src/mds3.gdc.js` - GDC data queries    |
+| Connection pooling   | Shared database connections                    |
+| Transaction handling | Bulk data operations                           |
+| Query optimization   | Prepared statements throughout                 |
+
+### ProteinPaint Database Pattern
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ProteinPaint Database Layer                                │
+│                                                             │
+│  ┌─────────────────┐  ┌──────────────────┐                │
+│  │  termdb.sql     │  │  genome DBs      │                │
+│  │  ├── terms      │  │  ├── genes       │                │
+│  │  ├── samples    │  │  ├── variants    │                │
+│  │  ├── annotations│  │  └── features    │                │
+│  │  └── relations  │  └──────────────────┘                │
+│  └─────────────────┘                                       │
+│           │                      │                          │
+│  ┌────────┴──────────────────────┴─────────────────────┐  │
+│  │              Query Layer                              │  │
+│  │  better-sqlite3 (sync, fast)                         │  │
+│  │  Prepared statements cached                          │  │
+│  │  Indexes on chr, start, end, gene                   │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Relevant ProteinPaint Files
+
+- `server/src/termdb.sql` - Database schema definitions
+- `server/src/termdb.*.js` - Database query modules
+- `server/src/mds3.init.js` - Database initialization
+
+## Exercises
+
+### Exercise 1: Genomic Range Index
+
+Create optimized indexes for range queries:
+
+**Requirements:**
+
+- Composite index on (chromosome, start, end)
+- Query variants in a chromosomal region
+- Benchmark query performance
+
+### Exercise 2: Materialized Views
+
+Create views for common query patterns:
+
+**Requirements:**
+
+- View for gene summary statistics
+- View for variant counts by type
+- Refresh strategy for views
+
+### Exercise 3: Full-Text Search
+
+Add full-text search for gene descriptions:
+
+**Requirements:**
+
+- Create GIN index on description
+- Search by keywords
+- Rank results by relevance
 
 ## Next Steps
 
@@ -358,3 +440,7 @@ npm run db:seed
 - [node-postgres (pg)](https://node-postgres.com/)
 - [SQL Style Guide](https://www.sqlstyle.guide/)
 - [Database Indexing](https://use-the-index-luke.com/)
+
+---
+
+[← Back to Tutorials Index](../../README.md)

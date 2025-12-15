@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 3.1: UMAP/t-SNE Scatter Plot
 
 ## Overview
@@ -73,7 +77,7 @@ Efficient point lookup for interactions:
 // With quadtree: O(log n) - divide and conquer
 
 const quadtree = new Quadtree(bounds);
-points.forEach(p => quadtree.insert(p));
+points.forEach((p) => quadtree.insert(p));
 
 // Find nearest point to mouse
 const nearest = quadtree.findNearest(mouseX, mouseY, radius);
@@ -121,12 +125,12 @@ Open http://localhost:3005 in your browser.
 
 ### Interactive Controls
 
-| Action | Effect |
-|--------|--------|
-| Scroll wheel | Zoom in/out |
-| Click + drag | Pan view |
-| Hover on point | Show cell details |
-| Click on point | Select and display info |
+| Action            | Effect                      |
+| ----------------- | --------------------------- |
+| Scroll wheel      | Zoom in/out                 |
+| Click + drag      | Pan view                    |
+| Hover on point    | Show cell details           |
+| Click on point    | Select and display info     |
 | Click legend item | Toggle cell type visibility |
 
 ### Color Mapping
@@ -136,15 +140,15 @@ Open http://localhost:3005 in your browser.
 
 ### Cell Types
 
-| Type | Markers | Color |
-|------|---------|-------|
-| T cells | CD3D, CD4, CD8A | Red |
-| B cells | CD19, CD20, MS4A1 | Blue |
-| Macrophages | CD14, CD68, CSF1R | Green |
-| NK cells | NKG7, GNLY, NCAM1 | Orange |
-| Dendritic cells | CD1C, CLEC10A | Purple |
-| Fibroblasts | COL1A1, DCN, LUM | Cyan |
-| Tumor cells | EPCAM, KRT8, KRT18 | Gray |
+| Type            | Markers            | Color  |
+| --------------- | ------------------ | ------ |
+| T cells         | CD3D, CD4, CD8A    | Red    |
+| B cells         | CD19, CD20, MS4A1  | Blue   |
+| Macrophages     | CD14, CD68, CSF1R  | Green  |
+| NK cells        | NKG7, GNLY, NCAM1  | Orange |
+| Dendritic cells | CD1C, CLEC10A      | Purple |
+| Fibroblasts     | COL1A1, DCN, LUM   | Cyan   |
+| Tumor cells     | EPCAM, KRT8, KRT18 | Gray   |
 
 ## Code Deep Dive
 
@@ -176,7 +180,8 @@ Raw Data → Scale Mapping → Transform → WebGL Coords → Render
 ### Zoom/Pan with D3
 
 ```javascript
-const zoom = d3.zoom()
+const zoom = d3
+  .zoom()
   .scaleExtent([0.5, 20])
   .on('zoom', (event) => {
     transform = event.transform;
@@ -202,9 +207,7 @@ overlay.on('mousemove', updateLasso);
 overlay.on('mouseup', completeLasso);
 
 function completeLasso() {
-  const selected = data.filter(d => 
-    pointInPolygon([d.x, d.y], lassoPath)
-  );
+  const selected = data.filter((d) => pointInPolygon([d.x, d.y], lassoPath));
 }
 ```
 
@@ -216,16 +219,16 @@ Add density visualization using D3's contour generator:
 import { contourDensity } from 'd3-contour';
 
 const contours = contourDensity()
-  .x(d => xScale(d.x))
-  .y(d => yScale(d.y))
+  .x((d) => xScale(d.x))
+  .y((d) => yScale(d.y))
   .size([width, height])
-  .bandwidth(15)
-  (data);
+  .bandwidth(15)(data);
 ```
 
 ### Exercise 3: Cell Type Statistics
 
 Add a statistics panel showing:
+
 - Mean expression per cell type
 - Cell count percentages
 - Expression correlation matrix
@@ -256,12 +259,100 @@ function exportSVG() {
 4. **Debounce**: Limit hover detection frequency
 5. **Web Workers**: Offload data processing
 
-## Real-World Applications
+## 🎯 ProteinPaint Connection
 
-- **Cancer Research**: Identifying tumor cell subpopulations
-- **Immunology**: Characterizing immune cell states
-- **Drug Discovery**: Tracking cell response to treatments
-- **Developmental Biology**: Mapping cell differentiation
+Scatter plots are used extensively in ProteinPaint for sample visualization:
+
+| Tutorial Concept  | ProteinPaint Usage                                      |
+| ----------------- | ------------------------------------------------------- |
+| Canvas rendering  | `client/plots/scatter.js` - main scatter implementation |
+| Quadtree lookup   | Point hover detection in large datasets                 |
+| Zoom/pan behavior | Sample navigation in matrix views                       |
+| Color by category | Color samples by cancer type, cluster                   |
+| WebGL (advanced)  | Future performance optimization                         |
+
+### ProteinPaint Scatter Applications
+
+```
+┌─────────────────────────────────────────┐
+│  ProteinPaint uses scatter for:         │
+│                                         │
+│  • Sample scatter (UMAP/t-SNE)          │
+│  • Gene expression correlation          │
+│  • Mutation VAF plots                   │
+│  • Copy number visualizations           │
+│                                         │
+│  Key file: client/plots/scatter.js      │
+└─────────────────────────────────────────┘
+```
+
+### Relevant ProteinPaint Code
+
+- `client/plots/scatter.js` - Main scatter plot
+- `client/plots/matrix.samples.js` - Sample matrix with scatter
+- `client/filter/tvs.*.ts` - Filter controls for samples
+
+## Sample Output
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Single-Cell RNA-seq UMAP                                   │
+│                                                             │
+│              ●●●●●                                          │
+│           ●●●●●●●●●●          ▲▲▲                          │
+│         ●●●●●●●●●●●●●      ▲▲▲▲▲▲▲                        │
+│        ●●●●●●●●●●●●●●    ▲▲▲▲▲▲▲▲▲▲                       │
+│         ●●●●●●●●●●●●●      ▲▲▲▲▲▲▲                        │
+│           ●●●●●●●●●●                                       │
+│                                                             │
+│     ■■■■■■■                         ◆◆◆◆◆                  │
+│   ■■■■■■■■■■■                     ◆◆◆◆◆◆◆                 │
+│  ■■■■■■■■■■■■■                   ◆◆◆◆◆◆◆◆◆                │
+│   ■■■■■■■■■■■                     ◆◆◆◆◆◆◆                 │
+│     ■■■■■■■                         ◆◆◆◆◆                  │
+│                                                             │
+│  Legend: ● T-cells  ▲ B-cells  ■ Monocytes  ◆ NK cells    │
+│                                                             │
+│  [Zoom: 100%]  [Points: 15,234]  [Visible: 15,234]         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Exercises
+
+### Exercise 1: Implement Lasso Selection
+
+Add lasso selection to select multiple points:
+
+**Requirements:**
+
+- Click and drag to draw freeform selection
+- Highlight selected points
+- Show count of selected points
+- Export selected cell IDs
+
+**Hint:** Track mouse path, then use point-in-polygon test.
+
+### Exercise 2: Add Density Contours
+
+Overlay density contours on the scatter plot:
+
+**Requirements:**
+
+- Calculate 2D kernel density estimation
+- Draw contour lines at density thresholds
+- Color contours by density level
+
+**Hint:** Use `d3-contour` library.
+
+### Exercise 3: Split View by Category
+
+Create a faceted scatter plot:
+
+**Requirements:**
+
+- Split into small multiples by cell type
+- Shared axes across panels
+- Linked hover (highlight same cell in all panels)
 
 ## Resources
 
@@ -274,7 +365,11 @@ function exportSVG() {
 
 After completing this tutorial, continue with:
 
-- **Tutorial 3.2**: Gene Expression Heatmap with Clustering
-- **Tutorial 3.3**: Kaplan-Meier Survival Curves
-- **Tutorial 3.4**: Volcano Plot for Differential Expression
-- **Tutorial 3.5**: Oncoprint/Mutation Matrix
+- [Tutorial 3.2: Gene Expression Heatmap](../02-heatmap/README.md)
+- [Tutorial 3.3: Kaplan-Meier Survival Curves](../03-survival-curves/README.md)
+- [Tutorial 3.4: Volcano Plot](../04-volcano-plot/README.md)
+- [Tutorial 3.5: OncoPrint](../05-oncoprint/README.md)
+
+---
+
+[← Back to Tutorials Index](../../README.md)

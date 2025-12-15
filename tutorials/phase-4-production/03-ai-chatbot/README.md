@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 4.3: AI Chatbot for Genomic Data Queries
 
 ## Overview
@@ -177,6 +181,7 @@ Query: "Tell me about TP53 mutations in breast cancer"
 Send a chat message and receive a response.
 
 **Request:**
+
 ```json
 {
   "message": "What can you tell me about TP53?",
@@ -185,6 +190,7 @@ Send a chat message and receive a response.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -209,11 +215,13 @@ Send a chat message and receive a response.
 Search the genomic knowledge base.
 
 **Request:**
+
 ```
 GET /api/knowledge/search?q=KRAS%20mutations
 ```
 
 **Response:**
+
 ```json
 {
   "query": "KRAS mutations",
@@ -246,13 +254,13 @@ Delete a conversation.
 
 The RAG system uses pre-defined knowledge chunks covering:
 
-| Category | Topics |
-|----------|--------|
-| **Genes** | TP53, BRCA1, KRAS, EGFR, BRAF, PIK3CA |
-| **Concepts** | Mutation types, ACMG classification, Hallmarks of cancer |
-| **Visualization** | Lollipop plots, OncoPrint, survival curves |
-| **Formats** | VCF, MAF file formats |
-| **Databases** | COSMIC, ClinVar |
+| Category          | Topics                                                   |
+| ----------------- | -------------------------------------------------------- |
+| **Genes**         | TP53, BRCA1, KRAS, EGFR, BRAF, PIK3CA                    |
+| **Concepts**      | Mutation types, ACMG classification, Hallmarks of cancer |
+| **Visualization** | Lollipop plots, OncoPrint, survival curves               |
+| **Formats**       | VCF, MAF file formats                                    |
+| **Databases**     | COSMIC, ClinVar                                          |
 
 ### Adding Knowledge
 
@@ -265,7 +273,7 @@ export const genomicKnowledge = [
     category: 'gene|concept|visualization|format|database',
     title: 'Display Title',
     content: 'Detailed content for RAG context...',
-    keywords: ['keyword1', 'keyword2']
+    keywords: ['keyword1', 'keyword2'],
   },
   // ... more chunks
 ];
@@ -275,12 +283,12 @@ export const genomicKnowledge = [
 
 ### Supported Providers
 
-| Provider | Model | Use Case |
-|----------|-------|----------|
-| OpenAI | gpt-4-turbo-preview | Best quality |
-| OpenAI | gpt-3.5-turbo | Fast, economical |
-| Anthropic | claude-3-sonnet | Alternative |
-| Mock | - | Development/testing |
+| Provider  | Model               | Use Case            |
+| --------- | ------------------- | ------------------- |
+| OpenAI    | gpt-4-turbo-preview | Best quality        |
+| OpenAI    | gpt-3.5-turbo       | Fast, economical    |
+| Anthropic | claude-3-sonnet     | Alternative         |
+| Mock      | -                   | Development/testing |
 
 ### System Prompt
 
@@ -302,12 +310,14 @@ Guidelines:
 ## Example Queries
 
 ### Gene Information
+
 ```
 You: What can you tell me about TP53?
 Bot: TP53 is a tumor suppressor gene located on chromosome 17p13.1...
 ```
 
 ### Data Queries
+
 ```
 You: Show me KRAS mutations in lung cancer
 Bot: Here are the KRAS mutations found in lung cancer samples:
@@ -315,6 +325,7 @@ Bot: Here are the KRAS mutations found in lung cancer samples:
 ```
 
 ### Visualization Suggestions
+
 ```
 You: How should I visualize mutation data?
 Bot: For mutation data, I recommend:
@@ -371,22 +382,22 @@ npm test -- tests/knowledgeBase.test.js
 
 ### Test Coverage
 
-| Module | Tests | Coverage |
-|--------|-------|----------|
-| Knowledge Base | 12 | ✅ |
-| Sample Data | 18 | ✅ |
-| Chat Service | 15 | ✅ |
+| Module         | Tests | Coverage |
+| -------------- | ----- | -------- |
+| Knowledge Base | 12    | ✅       |
+| Sample Data    | 18    | ✅       |
+| Chat Service   | 15    | ✅       |
 
 ## Troubleshooting
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| No API key | Use mock mode or set OPENAI_API_KEY |
-| Rate limited | Add retry logic or reduce requests |
-| Context too long | Reduce maxContextChunks |
-| Slow responses | Use gpt-3.5-turbo or mock mode |
+| Issue            | Solution                            |
+| ---------------- | ----------------------------------- |
+| No API key       | Use mock mode or set OPENAI_API_KEY |
+| Rate limited     | Add retry logic or reduce requests  |
+| Context too long | Reduce maxContextChunks             |
+| Slow responses   | Use gpt-3.5-turbo or mock mode      |
 
 ### Debug Mode
 
@@ -424,3 +435,7 @@ In this tutorial, you learned to:
 ✅ Test LLM-based applications
 
 Your genomic visualization platform now has AI-powered query capabilities! 🤖🧬
+
+---
+
+[← Back to Tutorials Index](../../README.md)

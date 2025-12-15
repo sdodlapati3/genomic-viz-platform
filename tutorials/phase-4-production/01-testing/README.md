@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 4.1: Testing Strategy for Genomic Visualizations
 
 Learn professional testing practices for data visualization applications using Vitest.
@@ -5,6 +9,7 @@ Learn professional testing practices for data visualization applications using V
 ## 🎯 Learning Objectives
 
 By the end of this tutorial, you will:
+
 - Write unit tests for data transformation functions
 - Test D3.js visualization components
 - Mock canvas and DOM elements
@@ -13,12 +18,12 @@ By the end of this tutorial, you will:
 
 ## 🛠️ Technologies Used
 
-| Technology | Purpose |
-|------------|---------|
-| **Vitest** | Fast unit test runner (Vite-native) |
-| **happy-dom** | Lightweight DOM implementation |
-| **@testing-library/jest-dom** | Custom DOM matchers |
-| **v8 Coverage** | Code coverage reporting |
+| Technology                    | Purpose                             |
+| ----------------------------- | ----------------------------------- |
+| **Vitest**                    | Fast unit test runner (Vite-native) |
+| **happy-dom**                 | Lightweight DOM implementation      |
+| **@testing-library/jest-dom** | Custom DOM matchers                 |
+| **v8 Coverage**               | Code coverage reporting             |
 
 ## 📁 Project Structure
 
@@ -72,7 +77,7 @@ describe('negLog10', () => {
     expect(negLog10(0.01)).toBeCloseTo(2, 5);
     expect(negLog10(0.001)).toBeCloseTo(3, 5);
   });
-  
+
   it('should return Infinity for p-value of 0', () => {
     expect(negLog10(0)).toBe(Infinity);
   });
@@ -80,6 +85,7 @@ describe('negLog10', () => {
 ```
 
 **Functions tested:**
+
 - `negLog10()` - P-value transformation
 - `log2FoldChange()` - Expression fold change
 - `filterSignificantGenes()` - Differential expression filtering
@@ -98,12 +104,12 @@ Test custom scale implementations:
 describe('linearScale', () => {
   it('should map domain values to range', () => {
     const scale = linearScale([0, 100], [0, 500]);
-    
+
     expect(scale(0)).toBe(0);
     expect(scale(50)).toBe(250);
     expect(scale(100)).toBe(500);
   });
-  
+
   it('should provide invert function', () => {
     const scale = linearScale([0, 100], [0, 500]);
     expect(scale.invert(250)).toBe(50);
@@ -112,6 +118,7 @@ describe('linearScale', () => {
 ```
 
 **Scales tested:**
+
 - `linearScale()` - Linear value mapping
 - `logScale()` - Logarithmic scale for p-values
 - `chromosomeScale()` - Genomic coordinate mapping
@@ -125,24 +132,24 @@ Test D3.js visualization components:
 describe('BarChart', () => {
   let container;
   let chart;
-  
+
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
   });
-  
+
   afterEach(() => {
     chart?.destroy();
     container?.remove();
   });
-  
+
   it('should render bars for each data point', () => {
     chart = new BarChart(container);
     chart.setData([
       { label: 'A', value: 10 },
-      { label: 'B', value: 25 }
+      { label: 'B', value: 25 },
     ]);
-    
+
     const bars = chart.getBars();
     expect(bars.length).toBe(2);
   });
@@ -157,36 +164,40 @@ The setup file provides a mock canvas context for testing canvas-based visualiza
 // From setup.js
 class MockCanvasRenderingContext2D {
   constructor() {
-    this._calls = [];  // Track all method calls
+    this._calls = []; // Track all method calls
   }
-  
+
   _track(method, ...args) {
     this._calls.push({ method, args });
   }
-  
-  fillRect(x, y, w, h) { this._track('fillRect', x, y, w, h); }
+
+  fillRect(x, y, w, h) {
+    this._track('fillRect', x, y, w, h);
+  }
   // ... other canvas methods
 }
 ```
 
 ## 📈 Coverage Goals
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Statements | > 90% | 100% |
-| Branches | > 85% | 97.27% |
-| Functions | > 90% | 94.87% |
-| Lines | > 90% | 100% |
+| Metric     | Target | Current |
+| ---------- | ------ | ------- |
+| Statements | > 90%  | 100%    |
+| Branches   | > 85%  | 97.27%  |
+| Functions  | > 90%  | 94.87%  |
+| Lines      | > 90%  | 100%    |
 
 ## 🔬 Testing Patterns
 
 ### Pattern 1: Test Pure Functions First
+
 ```javascript
 // Easy to test - no side effects
 expect(negLog10(0.01)).toBeCloseTo(2);
 ```
 
 ### Pattern 2: Isolate DOM Dependencies
+
 ```javascript
 beforeEach(() => {
   container = document.createElement('div');
@@ -195,6 +206,7 @@ beforeEach(() => {
 ```
 
 ### Pattern 3: Test Behaviors, Not Implementation
+
 ```javascript
 // Good: Test the result
 expect(chart.getBars().length).toBe(4);
@@ -204,6 +216,7 @@ expect(chart.getBars().length).toBe(4);
 ```
 
 ### Pattern 4: Edge Cases Matter
+
 ```javascript
 it('should handle empty data', () => {
   chart.setData([]);
@@ -235,3 +248,7 @@ it('should handle single value', () => {
 - [Vitest Documentation](https://vitest.dev/)
 - [Testing Library](https://testing-library.com/)
 - [D3.js Testing Strategies](https://www.d3indepth.com/testing/)
+
+---
+
+[← Back to Tutorials Index](../../README.md)

@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 3.2: Gene Expression Heatmap
 
 ## Overview
@@ -37,6 +41,7 @@ By completing this tutorial, you will learn:
 ### 1. Gene Expression Data
 
 RNA-seq produces expression matrices:
+
 - **Rows**: Genes (features)
 - **Columns**: Samples (observations)
 - **Values**: Expression levels (often log2-transformed)
@@ -64,11 +69,13 @@ Agglomerative (bottom-up) clustering:
 ```
 
 **Linkage Methods:**
+
 - **Single**: Distance = min distance between clusters
 - **Complete**: Distance = max distance between clusters
 - **Average**: Distance = mean distance between clusters
 
 **Distance Metrics:**
+
 - **Euclidean**: Geometric distance
 - **Correlation**: 1 - Pearson correlation (preserves shape)
 
@@ -79,13 +86,13 @@ Convert tree structure to drawable lines:
 ```javascript
 function dendrogramCoords(node, x, y) {
   if (isLeaf(node)) return { x: 0, y: leafPosition };
-  
+
   const left = dendrogramCoords(node.left);
   const right = dendrogramCoords(node.right);
-  
+
   // Vertical line connecting children
   drawLine(x, left.y, x, right.y);
-  
+
   // Horizontal lines to children
   drawLine(left.x, left.y, x, left.y);
   drawLine(right.x, right.y, x, right.y);
@@ -107,12 +114,12 @@ Open http://localhost:3007 in your browser.
 
 ### Interactive Controls
 
-| Control | Effect |
-|---------|--------|
-| Cluster genes | Toggle row clustering |
-| Cluster samples | Toggle column clustering |
+| Control          | Effect                    |
+| ---------------- | ------------------------- |
+| Cluster genes    | Toggle row clustering     |
+| Cluster samples  | Toggle column clustering  |
 | Show dendrograms | Toggle dendrogram display |
-| Regenerate | Generate new random data |
+| Regenerate       | Generate new random data  |
 
 ### Visual Elements
 
@@ -126,6 +133,7 @@ Open http://localhost:3007 in your browser.
 ### Data Patterns
 
 The simulated data includes:
+
 - **5 pathways**: Cell Cycle, Apoptosis, DNA Repair, Immune Response, Metabolism
 - **3 conditions**: Control, Treatment A, Treatment B
 - **Differential expression**: Treatment effects vary by pathway
@@ -138,19 +146,19 @@ The simulated data includes:
 function hierarchicalCluster(data, options) {
   // Calculate distance matrix
   const distances = distanceMatrix(data, correlationDistance);
-  
+
   // Initialize clusters
   let clusters = data.map((_, i) => ({ indices: [i] }));
-  
+
   // Merge until one cluster
   while (clusters.length > 1) {
     // Find closest pair
     const [i, j, dist] = findClosestPair(clusters, distances);
-    
+
     // Merge clusters
     clusters = merge(clusters, i, j, dist);
   }
-  
+
   return clusters[0];
 }
 ```
@@ -159,21 +167,17 @@ function hierarchicalCluster(data, options) {
 
 ```javascript
 // Diverging scale: blue (low) → white (0) → red (high)
-const colorScale = d3.scaleSequential()
-  .domain([-absMax, absMax])
-  .interpolator(d3.interpolateRdBu);
+const colorScale = d3.scaleSequential().domain([-absMax, absMax]).interpolator(d3.interpolateRdBu);
 
 // Reverse so red = high expression
-const getColor = v => colorScale(-v);
+const getColor = (v) => colorScale(-v);
 ```
 
 ### Matrix Reordering
 
 ```javascript
 function reorderMatrix(matrix, rowOrder, colOrder) {
-  return rowOrder.map(r => 
-    colOrder.map(c => matrix[r][c])
-  );
+  return rowOrder.map((r) => colOrder.map((c) => matrix[r][c]));
 }
 ```
 
@@ -185,9 +189,9 @@ Implement multiple color options:
 
 ```javascript
 const colorSchemes = {
-  'RdBu': d3.interpolateRdBu,      // Red-Blue
-  'PiYG': d3.interpolatePiYG,      // Pink-Green
-  'Viridis': d3.interpolateViridis // Sequential
+  RdBu: d3.interpolateRdBu, // Red-Blue
+  PiYG: d3.interpolatePiYG, // Pink-Green
+  Viridis: d3.interpolateViridis, // Sequential
 };
 ```
 
@@ -202,8 +206,8 @@ function filterTopVariableGenes(data, topN) {
     .map((v, i) => ({ v, i }))
     .sort((a, b) => b.v - a.v)
     .slice(0, topN)
-    .map(x => x.i);
-  
+    .map((x) => x.i);
+
   return filterGenes(data, topIndices);
 }
 ```
@@ -213,12 +217,12 @@ function filterTopVariableGenes(data, topN) {
 Implement click-to-select for genes or samples:
 
 ```javascript
-heatmap.on('rowClick', gene => {
-  showGeneProfile(gene);  // Line plot across samples
+heatmap.on('rowClick', (gene) => {
+  showGeneProfile(gene); // Line plot across samples
 });
 
-heatmap.on('colClick', sample => {
-  showSampleProfile(sample);  // Bar plot across genes
+heatmap.on('colClick', (sample) => {
+  showSampleProfile(sample); // Bar plot across genes
 });
 ```
 
@@ -230,11 +234,9 @@ Add data/image export:
 function exportCSV(data) {
   const csv = [
     ['Gene', ...data.samples].join(','),
-    ...data.genes.map((gene, i) => 
-      [gene, ...data.matrix[i]].join(',')
-    )
+    ...data.genes.map((gene, i) => [gene, ...data.matrix[i]].join(',')),
   ].join('\n');
-  
+
   downloadFile(csv, 'expression_data.csv');
 }
 ```
@@ -248,11 +250,11 @@ function exportCSV(data) {
 
 ## Color Scale Considerations
 
-| Context | Recommended Scale |
-|---------|------------------|
-| Diverging data (up/down regulation) | RdBu, PiYG |
-| Sequential data (abundance) | Viridis, YlOrRd |
-| Categorical annotations | Set2, Paired |
+| Context                             | Recommended Scale |
+| ----------------------------------- | ----------------- |
+| Diverging data (up/down regulation) | RdBu, PiYG        |
+| Sequential data (abundance)         | Viridis, YlOrRd   |
+| Categorical annotations             | Set2, Paired      |
 
 ## Performance Tips
 
@@ -260,6 +262,109 @@ function exportCSV(data) {
 2. **Canvas rendering**: Use canvas for >1000 cells
 3. **Lazy clustering**: Only cluster on demand
 4. **Memoization**: Cache distance calculations
+
+## 🎯 ProteinPaint Connection
+
+Heatmaps are a core visualization in ProteinPaint's expression analysis:
+
+| Tutorial Concept        | ProteinPaint Usage                                  |
+| ----------------------- | --------------------------------------------------- |
+| Z-score normalization   | `client/plots/matrix.js` - expression normalization |
+| Hierarchical clustering | Dendrogram rendering in matrix views                |
+| Color scales            | `shared/common.js` - diverging color schemes        |
+| Row/column reordering   | Optimal leaf ordering for patterns                  |
+| Cell hover              | Tooltip showing gene, sample, value                 |
+
+### ProteinPaint Matrix Architecture
+
+```
+┌─────────────────────────────────────────┐
+│  ProteinPaint Matrix Plot               │
+│                                         │
+│  ┌─────┐ ┌─────────────────┐           │
+│  │ Den │ │  Sample Annot   │           │
+│  │ dro │ ├─────────────────┤           │
+│  │ gram│ │                 │           │
+│  │     │ │   Expression    │           │
+│  │     │ │    Heatmap      │           │
+│  │     │ │                 │           │
+│  └─────┘ └─────────────────┘           │
+│          Gene Labels                    │
+└─────────────────────────────────────────┘
+```
+
+### Relevant ProteinPaint Files
+
+- `client/plots/matrix.js` - Core matrix implementation
+- `client/plots/hierCluster.js` - Clustering algorithms
+- `client/termsetting/handlers/geneExpression.ts` - Expression data
+
+## Sample Output
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Gene Expression Heatmap                                    │
+│                                                             │
+│  Cluster Dendrogram    Sample Annotations                   │
+│      ┬                 ━━━━━━━━━━━━━━━━━━━━━━━━━           │
+│    ┌─┴─┐               ▓▓▓▓░░░░▓▓▓▓░░░░▓▓▓▓               │
+│  ┌─┴┐ ┌┴─┐                                                  │
+│  │  │ │  │             S1 S2 S3 S4 S5 S6 S7 S8             │
+│                        ─────────────────────                │
+│  BRCA1 ─┤   ████ ████ ░░░░ ░░░░ ░░░░ ████ ████ ░░░░       │
+│  TP53  ─┤   ░░░░ ████ ████ ████ ░░░░ ░░░░ ████ ████       │
+│  EGFR  ─┤   ████ ░░░░ ████ ░░░░ ████ ░░░░ ████ ░░░░       │
+│  MYC   ─┤   ░░░░ ░░░░ ████ ████ ████ ████ ░░░░ ░░░░       │
+│  PTEN  ─┤   ████ ████ ░░░░ ░░░░ ████ ████ ░░░░ ░░░░       │
+│                                                             │
+│  Legend: ████ High (z>1)  ░░░░ Low (z<-1)                  │
+│                                                             │
+│  Annotation: ▓ Tumor  ░ Normal                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Exercises
+
+### Exercise 1: Add Row Annotations
+
+Add a gene annotation track on the left side:
+
+**Requirements:**
+
+- Color genes by pathway (e.g., cell cycle, apoptosis)
+- Add legend for pathway colors
+- Allow filtering by pathway
+
+### Exercise 2: Interactive Dendrogram
+
+Make the dendrogram clickable:
+
+**Requirements:**
+
+- Click branch to collapse/expand
+- Click leaf to highlight row
+- Show cluster info on hover
+
+### Exercise 3: Dual Heatmap Comparison
+
+Create side-by-side heatmaps:
+
+**Requirements:**
+
+- Same genes, different sample groups
+- Shared color scale
+- Linked hover (highlight gene in both)
+
+### Exercise 4: Export to PDF
+
+Add PDF export with SVG:
+
+**Requirements:**
+
+- Include dendrogram
+- Include color legend
+- Include sample annotations
+- Proper font embedding
 
 ## Resources
 
@@ -271,6 +376,10 @@ function exportCSV(data) {
 
 After completing this tutorial, continue with:
 
-- **Tutorial 3.3**: Kaplan-Meier Survival Curves
-- **Tutorial 3.4**: Volcano Plot for Differential Expression
-- **Tutorial 3.5**: Oncoprint/Mutation Matrix
+- [Tutorial 3.3: Kaplan-Meier Survival Curves](../03-survival-curves/README.md)
+- [Tutorial 3.4: Volcano Plot](../04-volcano-plot/README.md)
+- [Tutorial 3.5: OncoPrint](../05-oncoprint/README.md)
+
+---
+
+[← Back to Tutorials Index](../../README.md)

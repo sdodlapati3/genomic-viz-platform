@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 2.1: Node.js REST API for Genomics
 
 ## Overview
@@ -44,6 +48,7 @@ npm run dev
 ```
 
 Or use the start script:
+
 ```bash
 ./start-tutorial.sh
 ```
@@ -66,6 +71,7 @@ The server will start at **http://localhost:3001**
 ## API Documentation
 
 ### Base URL
+
 ```
 http://localhost:3001/api
 ```
@@ -74,14 +80,15 @@ http://localhost:3001/api
 
 #### Genes
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/genes` | List all genes with filtering |
-| GET | `/api/genes/:symbol` | Get a specific gene |
-| GET | `/api/genes/:symbol/domains` | Get protein domains |
-| GET | `/api/genes/region/:chr/:start-:end` | Get genes in region |
+| Method | Endpoint                             | Description                   |
+| ------ | ------------------------------------ | ----------------------------- |
+| GET    | `/api/genes`                         | List all genes with filtering |
+| GET    | `/api/genes/:symbol`                 | Get a specific gene           |
+| GET    | `/api/genes/:symbol/domains`         | Get protein domains           |
+| GET    | `/api/genes/region/:chr/:start-:end` | Get genes in region           |
 
 **Query Parameters for `/api/genes`:**
+
 - `symbol` - Filter by gene symbol (partial match)
 - `chromosome` - Filter by chromosome
 - `biotype` - Filter by gene biotype
@@ -89,6 +96,7 @@ http://localhost:3001/api
 - `offset` - Pagination offset
 
 **Examples:**
+
 ```bash
 # List all genes
 curl http://localhost:3001/api/genes
@@ -111,14 +119,15 @@ curl "http://localhost:3001/api/genes/region/chr17/7668402-7687550"
 
 #### Variants
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/variants` | List all variants with filtering |
-| GET | `/api/variants/stats` | Get variant statistics |
-| GET | `/api/variants/:id` | Get a specific variant |
-| GET | `/api/variants/region/:chr/:start-:end` | Get variants in region |
+| Method | Endpoint                                | Description                      |
+| ------ | --------------------------------------- | -------------------------------- |
+| GET    | `/api/variants`                         | List all variants with filtering |
+| GET    | `/api/variants/stats`                   | Get variant statistics           |
+| GET    | `/api/variants/:id`                     | Get a specific variant           |
+| GET    | `/api/variants/region/:chr/:start-:end` | Get variants in region           |
 
 **Query Parameters for `/api/variants`:**
+
 - `gene` - Filter by gene symbol
 - `chromosome` - Filter by chromosome
 - `type` - Filter by variant type (missense, nonsense, frameshift)
@@ -129,6 +138,7 @@ curl "http://localhost:3001/api/genes/region/chr17/7668402-7687550"
 - `offset` - Pagination offset
 
 **Examples:**
+
 ```bash
 # All variants
 curl http://localhost:3001/api/variants
@@ -151,14 +161,15 @@ curl http://localhost:3001/api/variants/var_001
 
 #### Samples
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/samples` | List all samples with filtering |
-| GET | `/api/samples/stats` | Get sample statistics |
-| GET | `/api/samples/:id` | Get a specific sample (enriched) |
-| GET | `/api/samples/:id/variants` | Get variants for a sample |
+| Method | Endpoint                    | Description                      |
+| ------ | --------------------------- | -------------------------------- |
+| GET    | `/api/samples`              | List all samples with filtering  |
+| GET    | `/api/samples/stats`        | Get sample statistics            |
+| GET    | `/api/samples/:id`          | Get a specific sample (enriched) |
+| GET    | `/api/samples/:id/variants` | Get variants for a sample        |
 
 **Query Parameters for `/api/samples`:**
+
 - `project` - Filter by project (e.g., TCGA-BRCA)
 - `cancerType` - Filter by cancer type
 - `sex` - Filter by sex (Male/Female)
@@ -169,6 +180,7 @@ curl http://localhost:3001/api/variants/var_001
 - `offset` - Pagination offset
 
 **Examples:**
+
 ```bash
 # All samples
 curl http://localhost:3001/api/samples
@@ -191,16 +203,17 @@ curl http://localhost:3001/api/samples/TCGA-001
 
 #### Utility Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api` | API overview and documentation |
-| GET | `/api/health` | Health check endpoint |
+| Method | Endpoint      | Description                    |
+| ------ | ------------- | ------------------------------ |
+| GET    | `/api`        | API overview and documentation |
+| GET    | `/api/health` | Health check endpoint          |
 
 ## Response Format
 
 All API responses follow a consistent format:
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -215,6 +228,7 @@ All API responses follow a consistent format:
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -258,11 +272,11 @@ export default router;
 ```javascript
 router.get('/', (req, res) => {
   let result = [...data];
-  
+
   if (req.query.type) {
-    result = result.filter(v => v.type === req.query.type);
+    result = result.filter((v) => v.type === req.query.type);
   }
-  
+
   res.json({ success: true, data: result });
 });
 ```
@@ -284,7 +298,7 @@ class ApiError extends Error {
 app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).json({
     success: false,
-    error: err.message
+    error: err.message,
   });
 });
 ```
@@ -292,30 +306,39 @@ app.use((err, req, res, next) => {
 ## Exercises
 
 ### Exercise 1: Add Chromosome Endpoint
+
 Create a new endpoint that returns all unique chromosomes in the dataset:
+
 ```
 GET /api/chromosomes
 ```
 
 ### Exercise 2: Add Sorting
+
 Add `sort` and `order` query parameters to the genes endpoint:
+
 ```
 GET /api/genes?sort=symbol&order=asc
 ```
 
 ### Exercise 3: Add Search Endpoint
+
 Create a unified search endpoint that searches across genes, variants, and samples:
+
 ```
 GET /api/search?q=TP53
 ```
 
 ### Exercise 4: Add Rate Limiting
+
 Implement rate limiting middleware to prevent abuse:
+
 - 100 requests per minute per IP
 
 ## Data Model
 
 ### Gene
+
 ```javascript
 {
   id: 'ENSG00000141510',
@@ -331,6 +354,7 @@ Implement rate limiting middleware to prevent abuse:
 ```
 
 ### Variant
+
 ```javascript
 {
   id: 'var_001',
@@ -348,6 +372,7 @@ Implement rate limiting middleware to prevent abuse:
 ```
 
 ### Sample
+
 ```javascript
 {
   id: 'TCGA-001',
@@ -360,9 +385,85 @@ Implement rate limiting middleware to prevent abuse:
 }
 ```
 
+## 🎯 ProteinPaint Connection
+
+ProteinPaint has a sophisticated backend architecture for serving genomic data:
+
+| Tutorial Concept | ProteinPaint Usage                                 |
+| ---------------- | -------------------------------------------------- |
+| REST endpoints   | `server/src/app.js` - Express setup                |
+| Route modules    | `server/src/routes/*.ts` - Endpoint organization   |
+| Query handling   | `server/src/termdb.*.js` - Query parameter parsing |
+| CORS middleware  | `server/src/app.js` - Cross-origin support         |
+| Error handling   | Standardized error responses                       |
+
+### ProteinPaint Server Architecture
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                   ProteinPaint Server                      │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │  Express App (app.js)                                 │ │
+│  │  ├── CORS middleware                                  │ │
+│  │  ├── Body parsing (JSON)                             │ │
+│  │  └── Route mounting                                   │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                          │                                 │
+│  ┌──────────────────────┴──────────────────────────────┐ │
+│  │              Routes                                   │ │
+│  │  /termdb      /genomes      /blocks      /mds3      │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                          │                                 │
+│  ┌──────────────────────┴──────────────────────────────┐ │
+│  │              Data Layer                               │ │
+│  │  SQLite DBs       File Parsers       Cache           │ │
+│  └──────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Relevant ProteinPaint Files
+
+- `server/src/app.js` - Express server configuration
+- `server/src/routes/*.ts` - API route definitions
+- `server/src/termdb.*.js` - Term database queries
+
+## Exercises
+
+### Exercise 1: Rate Limiting
+
+Add rate limiting to prevent API abuse:
+
+**Requirements:**
+
+- Use express-rate-limit middleware
+- 100 requests per 15 minutes per IP
+- Custom error message when exceeded
+
+### Exercise 2: API Versioning
+
+Implement API versioning:
+
+**Requirements:**
+
+- Support `/api/v1/genes` and `/api/v2/genes`
+- Version in URL path (not headers)
+- Graceful deprecation warnings
+
+### Exercise 3: Caching Layer
+
+Add response caching:
+
+**Requirements:**
+
+- Cache gene lookups for 5 minutes
+- Cache-Control headers
+- ETag support for conditional requests
+
 ## Next Steps
 
 After completing this tutorial, continue to:
+
 - **Tutorial 2.2: PostgreSQL Database** - Replace in-memory data with a real database
 - **Tutorial 2.3: File Parsing** - Parse VCF, BAM, and GFF files
 - **Tutorial 2.4: R Integration** - Connect to R for statistical analysis
@@ -373,3 +474,7 @@ After completing this tutorial, continue to:
 - [REST API Best Practices](https://restfulapi.net/)
 - [HTTP Status Codes](https://httpstatuses.com/)
 - [CORS Explained](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+
+---
+
+[← Back to Tutorials Index](../../README.md)

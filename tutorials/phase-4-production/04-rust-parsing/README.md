@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 4.4: Rust for High-Performance Parsing
 
 Build high-performance VCF (Variant Call Format) file parsers using Rust, with bindings for Node.js (napi-rs) and WebAssembly for the browser.
@@ -117,10 +121,10 @@ use thiserror::Error;
 pub enum VcfError {
     #[error("Invalid VCF format: {0}")]
     InvalidFormat(String),
-    
+
     #[error("Invalid record at line {line}: {message}")]
     InvalidRecord { line: usize, message: String },
-    
+
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 }
@@ -139,8 +143,8 @@ pub struct VcfParser {
 
 impl VcfParser {
     /// Parse VCF from any reader (file, network, etc.)
-    pub fn parse<R: Read>(&mut self, reader: R) 
-        -> VcfResult<(VcfHeader, Vec<VcfRecord>)> 
+    pub fn parse<R: Read>(&mut self, reader: R)
+        -> VcfResult<(VcfHeader, Vec<VcfRecord>)>
     {
         let buf_reader = BufReader::new(reader);
         // ... parsing logic using memchr for fast tab detection
@@ -273,13 +277,13 @@ wasm-pack build --target nodejs
   async function main() {
     // Initialize WASM
     await init();
-    
+
     // Create parser
     const parser = new WasmVcfParser();
-    
+
     // Parse VCF content
     const result = parser.parse(vcfContent);
-    
+
     console.log(`Parsed ${result.records.length} variants`);
     console.log(`Parse time: ${result.parse_time_ms}ms`);
   }
@@ -318,7 +322,7 @@ node benchmark.js
 ### Expected Results
 
 | File Size | Records | JavaScript | Rust (WASM) | Speedup |
-|-----------|---------|------------|-------------|---------|
+| --------- | ------- | ---------- | ----------- | ------- |
 | 100 KB    | 1,000   | 15 ms      | 3 ms        | 5x      |
 | 1 MB      | 10,000  | 150 ms     | 25 ms       | 6x      |
 | 10 MB     | 100,000 | 1.5 s      | 200 ms      | 7.5x    |
@@ -361,9 +365,9 @@ let qual: Option<f64> = if value == "." { None } else { Some(value.parse()?) };
 
 // Result for fallible operations
 fn parse_position(s: &str) -> Result<u64, VcfError> {
-    s.parse().map_err(|_| VcfError::InvalidPosition { 
-        line: 0, 
-        value: s.to_string() 
+    s.parse().map_err(|_| VcfError::InvalidPosition {
+        line: 0,
+        value: s.to_string()
     })
 }
 ```
@@ -406,23 +410,23 @@ chr1    200     .       AT      A       40      PASS    DP=60   GT:DP   1/1:30
 
 ### Variant Types
 
-| Type | Example | Description |
-|------|---------|-------------|
-| SNP | A → G | Single nucleotide change |
-| Insertion | A → ATG | Bases added |
-| Deletion | ATG → A | Bases removed |
-| Complex | ATG → GCA | Multiple changes |
+| Type      | Example   | Description              |
+| --------- | --------- | ------------------------ |
+| SNP       | A → G     | Single nucleotide change |
+| Insertion | A → ATG   | Bases added              |
+| Deletion  | ATG → A   | Bases removed            |
+| Complex   | ATG → GCA | Multiple changes         |
 
 ### Genotype Notation
 
-| Genotype | Meaning |
-|----------|---------|
-| 0/0 | Homozygous reference |
-| 0/1 | Heterozygous |
-| 1/1 | Homozygous alternate |
-| 1/2 | Heterozygous (two alts) |
-| ./. | Missing |
-| 0\|1 | Phased heterozygous |
+| Genotype | Meaning                 |
+| -------- | ----------------------- |
+| 0/0      | Homozygous reference    |
+| 0/1      | Heterozygous            |
+| 1/1      | Homozygous alternate    |
+| 1/2      | Heterozygous (two alts) |
+| ./.      | Missing                 |
+| 0\|1     | Phased heterozygous     |
 
 ## Exercises
 
@@ -453,8 +457,8 @@ Add efficient region-based filtering:
 
 ```rust
 impl VcfParser {
-    pub fn parse_region(&mut self, reader: R, chrom: &str, start: u64, end: u64) 
-        -> VcfResult<Vec<VcfRecord>> 
+    pub fn parse_region(&mut self, reader: R, chrom: &str, start: u64, end: u64)
+        -> VcfResult<Vec<VcfRecord>>
     {
         // Only return variants within the region
     }
@@ -513,4 +517,8 @@ After completing this tutorial, you can:
 2. Add support for BCF (binary VCF) format
 3. Implement tabix indexing for random access
 4. Build a genome browser with Rust-powered backend
-5. Continue to the **Capstone Project** to build a complete platform
+5. Continue to the [Capstone Project](../../../capstone/README.md) to build a complete platform
+
+---
+
+[← Back to Tutorials Index](../../README.md)

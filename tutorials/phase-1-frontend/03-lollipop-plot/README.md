@@ -1,3 +1,7 @@
+[← Back to Tutorials Index](../../README.md)
+
+---
+
 # Tutorial 1.3: Mutation Lollipop Plot ⭐
 
 > Build ProteinPaint's signature visualization from scratch
@@ -5,6 +9,7 @@
 ## Learning Objectives
 
 By the end of this tutorial, you will be able to:
+
 - [ ] Understand protein structure visualization concepts
 - [ ] Map genomic/protein coordinates to screen coordinates
 - [ ] Render protein domains with annotations
@@ -24,6 +29,7 @@ By the end of this tutorial, you will be able to:
 ### What is a Lollipop Plot?
 
 A lollipop plot visualizes mutations along a protein sequence:
+
 - **X-axis**: Amino acid position (1 to protein length)
 - **Y-axis**: Mutation frequency or count
 - **Lollipop stem**: Connects mutation to protein backbone
@@ -32,52 +38,52 @@ A lollipop plot visualizes mutations along a protein sequence:
 
 ### Mutation Types
 
-| Type | Description | Example | Color |
-|------|-------------|---------|-------|
-| Missense | Amino acid change | R175H | Green |
-| Nonsense | Premature stop | R158* | Red |
-| Frameshift | Reading frame shift | T126fs | Purple |
-| Splice | Affects splicing | splice125 | Orange |
-| Silent | No protein change | (rare in viz) | Gray |
+| Type       | Description         | Example       | Color  |
+| ---------- | ------------------- | ------------- | ------ |
+| Missense   | Amino acid change   | R175H         | Green  |
+| Nonsense   | Premature stop      | R158\*        | Red    |
+| Frameshift | Reading frame shift | T126fs        | Purple |
+| Splice     | Affects splicing    | splice125     | Orange |
+| Silent     | No protein change   | (rare in viz) | Gray   |
 
 ## Implementation Steps
 
 ### Step 1: Data Structure
+
 ```javascript
 const mutationData = {
-  gene: "TP53",
+  gene: 'TP53',
   proteinLength: 393,
-  domains: [
-    { name: "DNA-binding", start: 94, end: 292, color: "#4ECDC4" }
-  ],
-  mutations: [
-    { position: 175, aaChange: "R175H", type: "missense", count: 1542 }
-  ]
+  domains: [{ name: 'DNA-binding', start: 94, end: 292, color: '#4ECDC4' }],
+  mutations: [{ position: 175, aaChange: 'R175H', type: 'missense', count: 1542 }],
 };
 ```
 
 ### Step 2: Scales
+
 ```javascript
 // X scale: protein position → screen x
-const xScale = d3.scaleLinear()
+const xScale = d3
+  .scaleLinear()
   .domain([1, proteinLength])
   .range([margin.left, width - margin.right]);
 
 // Y scale: mutation count → stem height
-const yScale = d3.scaleLinear()
+const yScale = d3
+  .scaleLinear()
   .domain([0, maxCount])
   .range([domainY, domainY - maxStemHeight]);
 
 // Radius scale: count → circle radius
-const radiusScale = d3.scaleSqrt()
-  .domain([1, maxCount])
-  .range([3, 15]);
+const radiusScale = d3.scaleSqrt().domain([1, maxCount]).range([3, 15]);
 ```
 
 ### Step 3: Render Protein Backbone
+
 ```javascript
 // Main backbone line
-svg.append('rect')
+svg
+  .append('rect')
   .attr('class', 'protein-backbone')
   .attr('x', xScale(1))
   .attr('y', domainY)
@@ -87,52 +93,57 @@ svg.append('rect')
 ```
 
 ### Step 4: Render Domains
+
 ```javascript
-svg.selectAll('.domain')
+svg
+  .selectAll('.domain')
   .data(domains)
   .join('rect')
   .attr('class', 'domain')
-  .attr('x', d => xScale(d.start))
+  .attr('x', (d) => xScale(d.start))
   .attr('y', domainY)
-  .attr('width', d => xScale(d.end) - xScale(d.start))
+  .attr('width', (d) => xScale(d.end) - xScale(d.start))
   .attr('height', domainHeight)
-  .attr('fill', d => d.color);
+  .attr('fill', (d) => d.color);
 ```
 
 ### Step 5: Render Lollipops
+
 ```javascript
-const lollipops = svg.selectAll('.lollipop')
-  .data(mutations)
-  .join('g')
-  .attr('class', 'lollipop');
+const lollipops = svg.selectAll('.lollipop').data(mutations).join('g').attr('class', 'lollipop');
 
 // Stems
-lollipops.append('line')
-  .attr('x1', d => xScale(d.position))
+lollipops
+  .append('line')
+  .attr('x1', (d) => xScale(d.position))
   .attr('y1', domainY)
-  .attr('x2', d => xScale(d.position))
-  .attr('y2', d => yScale(d.count))
-  .attr('stroke', d => colorScale(d.type));
+  .attr('x2', (d) => xScale(d.position))
+  .attr('y2', (d) => yScale(d.count))
+  .attr('stroke', (d) => colorScale(d.type));
 
 // Heads
-lollipops.append('circle')
-  .attr('cx', d => xScale(d.position))
-  .attr('cy', d => yScale(d.count))
-  .attr('r', d => radiusScale(d.count))
-  .attr('fill', d => colorScale(d.type));
+lollipops
+  .append('circle')
+  .attr('cx', (d) => xScale(d.position))
+  .attr('cy', (d) => yScale(d.count))
+  .attr('r', (d) => radiusScale(d.count))
+  .attr('fill', (d) => colorScale(d.type));
 ```
 
 ### Step 6: Tooltips
+
 ```javascript
 lollipops
   .on('mouseenter', (event, d) => {
     tooltip
       .style('display', 'block')
-      .html(`
+      .html(
+        `
         <strong>${d.aaChange}</strong><br>
         Type: ${d.type}<br>
         Count: ${d.count}
-      `)
+      `
+      )
       .style('left', `${event.pageX + 10}px`)
       .style('top', `${event.pageY - 10}px`);
   })
@@ -176,6 +187,7 @@ npm run dev
 ## Advanced Features
 
 ### Mutation Clustering
+
 When multiple mutations are at the same or adjacent positions, cluster them to avoid overlap:
 
 ```javascript
@@ -186,10 +198,12 @@ function clusterMutations(mutations, threshold = 5) {
 ```
 
 ### Zoom to Region
+
 Allow users to zoom into specific protein regions:
 
 ```javascript
-const zoom = d3.zoom()
+const zoom = d3
+  .zoom()
   .scaleExtent([1, 10])
   .on('zoom', (event) => {
     const newXScale = event.transform.rescaleX(xScale);
@@ -212,6 +226,72 @@ const zoom = d3.zoom()
 1    43  92  94           292 323 356  393
 ```
 
+## 🎯 ProteinPaint Connection
+
+This tutorial directly maps to ProteinPaint's core visualization:
+
+| Tutorial Concept             | ProteinPaint Equivalent     |
+| ---------------------------- | --------------------------- |
+| `xScale` (position → pixels) | `block.genomic2screen()`    |
+| Domain rectangles            | `mds3/skewer/domains.ts`    |
+| Lollipop stems/heads         | `mds3/skewer/skewer.ts`     |
+| Mutation clustering          | `mds3/skewer/clustering.ts` |
+| Color by type                | `shared/mclass.ts`          |
+| Tooltips                     | `mds3/tip.ts`               |
+
+### Key Patterns Used in ProteinPaint
+
+1. **Data-driven rendering**: Config object → D3 binds → SVG elements
+2. **Scale encapsulation**: Scales live in a reusable module
+3. **Event delegation**: Parent group handles all child events
+4. **State management**: Track zoom/pan state for reproducibility
+
+## Code Walkthrough
+
+### File: `src/01-basics.js` - Foundation
+
+- Creates SVG container with margins
+- Draws protein backbone rectangle
+- Basic coordinate system
+
+### File: `src/02-domains.js` - Domain Rendering
+
+- `renderDomains(svg, domains, xScale)` - Main render function
+- Uses `.join()` for enter/update/exit
+- Adds domain labels centered in each rectangle
+
+### File: `src/03-mutations.js` - Lollipop Rendering ⭐
+
+- `renderMutations(svg, mutations, xScale, yScale)` - Core visualization
+- Creates `<g>` groups for each lollipop
+- Line for stem, circle for head
+- Color scale maps mutation type → color
+
+### File: `src/04-interactive.js` - Interactivity
+
+- Tooltip positioning on hover
+- Click to select/deselect mutations
+- Brush for region selection
+
+### File: `src/05-complete.js` - Full Implementation
+
+- Combines all modules
+- Adds zoom/pan behavior
+- Export functionality
+
+## Common Issues & Solutions
+
+| Issue                    | Solution                           |
+| ------------------------ | ---------------------------------- |
+| Lollipops overlapping    | Implement clustering or jitter     |
+| Domain labels cut off    | Check text-anchor and truncate     |
+| Slow with many mutations | Use Canvas for >500 points         |
+| Colors not visible       | Check color-blind friendly palette |
+
 ## Next Steps
 
-After completing this tutorial, proceed to [Tutorial 1.4: Genome Browser Track](../04-genome-browser/).
+After completing this tutorial, proceed to [Tutorial 1.4: Genome Browser Track](../04-genome-browser/README.md).
+
+---
+
+[← Back to Tutorials Index](../../README.md)
