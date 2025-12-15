@@ -1,0 +1,26 @@
+{
+  "name": "tutorial-binary-formats",
+  "version": "1.0.0",
+  "description": "Tutorial 2.5: Parsing Binary Genomic File Formats (BAM, BigWig)",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "parse:bam": "node src/examples/01-bam-structure.js",
+    "parse:bigwig": "node src/examples/03-bigwig-signals.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@gmod/bam": "^1.1.2",
+    "@gmod/bbi": "^1.0.37",
+    "@gmod/tabix": "^1.5.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "generic-filehandle": "^3.0.0",
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0"
+  }
+}
