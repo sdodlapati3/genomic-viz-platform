@@ -1,11 +1,14 @@
 /**
- * LollipopPlot - Mutation lollipop visualization with brush selection
+ * LollipopPlot - Mutation lollipop visualization with zoom, pan, and brush selection
  *
  * Features:
  * - Protein backbone with domain annotations
  * - Mutations as lollipops (position, count as height)
  * - D3 brush for range selection
+ * - Zoom and pan with mouse wheel / drag
+ * - Mini-map navigation
  * - Linked highlighting with other views
+ * - Smooth transitions
  */
 
 import * as d3 from 'd3';
@@ -17,27 +20,38 @@ export interface LollipopConfig {
   width: number;
   height: number;
   margin: { top: number; right: number; bottom: number; left: number };
+  enableZoom: boolean;
+  enableMiniMap: boolean;
+  transitionDuration: number;
+  clusterThreshold: number; // Minimum pixel distance to cluster mutations
 }
 
 const DEFAULT_CONFIG: LollipopConfig = {
   width: 900,
   height: 350,
   margin: { top: 40, right: 40, bottom: 60, left: 60 },
+  enableZoom: true,
+  enableMiniMap: true,
+  transitionDuration: 300,
+  clusterThreshold: 10,
 };
 
 interface MutationCluster {
   position: number;
   mutations: Mutation[];
   totalCount: number;
+  xPos?: number; // Cached x position for clustering
 }
 
 export class LollipopPlot {
   private container: d3.Selection<HTMLDivElement, unknown, HTMLElement, unknown>;
   private svg!: d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
+  private mainGroup!: d3.Selection<SVGGElement, unknown, HTMLElement, unknown>;
   private config: LollipopConfig;
 
   // Scales
   private xScale!: d3.ScaleLinear<number, number>;
+  private xScaleOriginal!: d3.ScaleLinear<number, number>; // For zoom reference
   private yScale!: d3.ScaleLinear<number, number>;
 
   // Data
@@ -48,10 +62,19 @@ export class LollipopPlot {
   // State
   private selectedMutationIds: Set<string> = new Set();
   private highlightedMutationIds: Set<string> = new Set();
+  private currentTransform: d3.ZoomTransform = d3.zoomIdentity;
+
+  // Zoom
+  private zoom!: d3.ZoomBehavior<SVGSVGElement, unknown>;
 
   // Brush
   private brush!: d3.BrushBehavior<unknown>;
   private brushGroup!: d3.Selection<SVGGElement, unknown, HTMLElement, unknown>;
+
+  // Mini-map
+  private miniMapSvg: d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown> | null = null;
+  private miniMapWidth = 200;
+  private miniMapHeight = 40;
 
   constructor(selector: string, config: Partial<LollipopConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -71,7 +94,9 @@ export class LollipopPlot {
   }
 
   private createSVG(): void {
-    const { width, height } = this.config;
+    const { width, height, margin } = this.config;
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
 
     this.svg = this.container
       .append('svg')
@@ -79,6 +104,143 @@ export class LollipopPlot {
       .attr('height', height)
       .attr('viewBox', `0 0 ${width} ${height}`)
       .style('font-family', 'system-ui, -apple-system, sans-serif');
+
+    // Create clip path for zooming
+    const defs = this.svg.append('defs');
+    defs
+      .append('clipPath')
+      .attr('id', 'lollipop-clip')
+      .append('rect')
+      .attr('width', plotWidth)
+      .attr('height', plotHeight + 60); // Include domain area
+
+    // Create main group that will be clipped
+    this.mainGroup = this.svg
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`)
+      .attr('clip-path', 'url(#lollipop-clip)');
+
+    // Setup zoom if enabled
+    if (this.config.enableZoom) {
+      this.setupZoom();
+    }
+  }
+
+  private setupZoom(): void {
+    const { width, height, margin } = this.config;
+    const plotWidth = width - margin.left - margin.right;
+
+    this.zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([1, 20])
+      .translateExtent([
+        [0, 0],
+        [plotWidth, height],
+      ])
+      .extent([
+        [0, 0],
+        [plotWidth, height],
+      ])
+      .on('zoom', (event) => this.handleZoom(event));
+
+    this.svg.call(this.zoom);
+
+    // Add zoom controls
+    this.addZoomControls();
+  }
+
+  private addZoomControls(): void {
+    const { margin } = this.config;
+
+    const controls = this.container
+      .append('div')
+      .attr('class', 'zoom-controls')
+      .style('position', 'absolute')
+      .style('top', `${margin.top}px`)
+      .style('right', `${margin.right + 10}px`)
+      .style('display', 'flex')
+      .style('flex-direction', 'column')
+      .style('gap', '4px');
+
+    const buttonStyle = `
+      width: 28px;
+      height: 28px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    controls
+      .append('button')
+      .attr('title', 'Zoom In')
+      .attr('style', buttonStyle)
+      .html('+')
+      .on('click', () => this.zoomBy(1.5));
+
+    controls
+      .append('button')
+      .attr('title', 'Zoom Out')
+      .attr('style', buttonStyle)
+      .html('−')
+      .on('click', () => this.zoomBy(0.67));
+
+    controls
+      .append('button')
+      .attr('title', 'Reset Zoom')
+      .attr('style', buttonStyle)
+      .html('⌂')
+      .on('click', () => this.resetZoom());
+  }
+
+  private handleZoom(event: d3.D3ZoomEvent<SVGSVGElement, unknown>): void {
+    this.currentTransform = event.transform;
+
+    // Update x scale based on zoom
+    this.xScale = this.currentTransform.rescaleX(this.xScaleOriginal);
+
+    // Re-render with animation
+    this.updateVisualization();
+
+    // Update mini-map viewport
+    if (this.config.enableMiniMap) {
+      this.updateMiniMapViewport();
+    }
+  }
+
+  private zoomBy(factor: number): void {
+    this.svg.transition().duration(this.config.transitionDuration).call(this.zoom.scaleBy, factor);
+  }
+
+  private resetZoom(): void {
+    this.svg
+      .transition()
+      .duration(this.config.transitionDuration)
+      .call(this.zoom.transform, d3.zoomIdentity);
+  }
+
+  /**
+   * Zoom to a specific amino acid range (public API)
+   */
+  zoomToRange(start: number, end: number): void {
+    const { width, margin } = this.config;
+    const plotWidth = width - margin.left - margin.right;
+
+    const x0 = this.xScaleOriginal(start);
+    const x1 = this.xScaleOriginal(end);
+    const rangeWidth = x1 - x0;
+
+    const scale = plotWidth / rangeWidth;
+    const tx = -x0 * scale;
+
+    this.svg
+      .transition()
+      .duration(this.config.transitionDuration)
+      .call(this.zoom.transform, d3.zoomIdentity.scale(scale).translate(tx / scale, 0));
   }
 
   private setupEventListeners(): void {
@@ -128,16 +290,43 @@ export class LollipopPlot {
   render(): void {
     if (!this.geneData) return;
 
-    this.svg.selectAll('*').remove();
+    // Clear previous content but keep zoom controls
+    this.svg.selectAll('g').remove();
+    this.svg.selectAll('text.title').remove();
 
     const { width, height, margin } = this.config;
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
-    const g = this.svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+    // Recreate clip path
+    this.svg.select('defs').remove();
+    const defs = this.svg.append('defs');
+    defs
+      .append('clipPath')
+      .attr('id', 'lollipop-clip')
+      .append('rect')
+      .attr('width', plotWidth)
+      .attr('height', plotHeight + 60);
+
+    // Main group with clip path
+    this.mainGroup = this.svg
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`)
+      .attr('clip-path', 'url(#lollipop-clip)');
+
+    // Axes group (outside clip for axis labels)
+    const axesGroup = this.svg
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     // Setup scales
-    this.xScale = d3.scaleLinear().domain([1, this.geneData.proteinLength]).range([0, plotWidth]);
+    this.xScaleOriginal = d3
+      .scaleLinear()
+      .domain([1, this.geneData.proteinLength])
+      .range([0, plotWidth]);
+
+    // Apply current zoom transform to x scale
+    this.xScale = this.currentTransform.rescaleX(this.xScaleOriginal);
 
     // Cluster mutations by position
     this.clusters = this.clusterMutations(this.mutations);
@@ -151,12 +340,69 @@ export class LollipopPlot {
 
     // Render components
     this.renderTitle();
-    this.renderAxes(g, plotWidth, plotHeight);
-    this.renderDomains(g, plotHeight);
-    this.renderBackbone(g, plotWidth, plotHeight);
-    this.renderLollipops(g, plotHeight);
-    this.renderBrush(g, plotWidth, plotHeight);
-    this.renderLegend(g, plotWidth);
+    this.renderAxes(axesGroup, plotWidth, plotHeight);
+    this.renderDomains(this.mainGroup, plotHeight);
+    this.renderBackbone(this.mainGroup, plotWidth, plotHeight);
+    this.renderLollipops(this.mainGroup, plotHeight);
+    this.renderBrush(this.mainGroup, plotWidth, plotHeight);
+    this.renderLegend(axesGroup, plotWidth);
+
+    // Render mini-map if enabled
+    if (this.config.enableMiniMap) {
+      this.renderMiniMap();
+    }
+  }
+
+  /**
+   * Update visualization without full re-render (for zoom/pan)
+   */
+  private updateVisualization(): void {
+    if (!this.geneData) return;
+
+    const t = d3.transition().duration(0); // No animation for smooth zoom
+
+    // Update domains
+    this.mainGroup
+      .selectAll('rect.domain')
+      .transition(t as any)
+      .attr('x', (d: unknown) => {
+        const domain = d as ProteinDomain;
+        return this.xScale(domain.start);
+      })
+      .attr('width', (d: unknown) => {
+        const domain = d as ProteinDomain;
+        return Math.max(0, this.xScale(domain.end) - this.xScale(domain.start));
+      });
+
+    this.mainGroup
+      .selectAll('text.domain-label')
+      .transition(t as any)
+      .attr('x', (d: unknown) => {
+        const domain = d as ProteinDomain;
+        return (this.xScale(domain.start) + this.xScale(domain.end)) / 2;
+      })
+      .style('opacity', (d: unknown) => {
+        const domain = d as ProteinDomain;
+        const width = this.xScale(domain.end) - this.xScale(domain.start);
+        return width > 40 ? 1 : 0;
+      });
+
+    // Update lollipop stems
+    this.mainGroup
+      .selectAll('line.stem')
+      .transition(t as any)
+      .attr('x1', (d: unknown) => this.xScale((d as MutationCluster).position))
+      .attr('x2', (d: unknown) => this.xScale((d as MutationCluster).position));
+
+    // Update lollipop heads
+    this.mainGroup
+      .selectAll('circle.head')
+      .transition(t as any)
+      .attr('cx', (d: unknown) => this.xScale((d as MutationCluster).position));
+
+    // Update x-axis
+    const xAxis = d3.axisBottom(this.xScale).ticks(10);
+    this.svg.select<SVGGElement>('.x-axis').call(xAxis);
   }
 
   private clusterMutations(mutations: Mutation[]): MutationCluster[] {
@@ -551,6 +797,117 @@ export class LollipopPlot {
     if (this.brushGroup) {
       this.brushGroup.call(this.brush.move, null);
     }
+  }
+
+  /**
+   * Render mini-map navigation overview
+   */
+  private renderMiniMap(): void {
+    if (!this.geneData) return;
+
+    // Remove existing mini-map
+    this.container.select('.mini-map-container').remove();
+
+    const { margin } = this.config;
+    const miniMapContainer = this.container
+      .append('div')
+      .attr('class', 'mini-map-container')
+      .style('position', 'absolute')
+      .style('bottom', '5px')
+      .style('left', `${margin.left}px`)
+      .style('background', 'white')
+      .style('border', '1px solid #ddd')
+      .style('border-radius', '4px')
+      .style('padding', '4px')
+      .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
+
+    this.miniMapSvg = miniMapContainer
+      .append('svg')
+      .attr('width', this.miniMapWidth)
+      .attr('height', this.miniMapHeight);
+
+    const miniXScale = d3
+      .scaleLinear()
+      .domain([1, this.geneData.proteinLength])
+      .range([0, this.miniMapWidth]);
+
+    // Draw domains in mini-map
+    if (this.geneData.domains) {
+      this.miniMapSvg
+        .selectAll('rect.mini-domain')
+        .data(this.geneData.domains)
+        .join('rect')
+        .attr('class', 'mini-domain')
+        .attr('x', (d) => miniXScale(d.start))
+        .attr('y', this.miniMapHeight / 2 - 5)
+        .attr('width', (d) => miniXScale(d.end) - miniXScale(d.start))
+        .attr('height', 10)
+        .attr('fill', (d) => d.color)
+        .attr('opacity', 0.7);
+    }
+
+    // Draw mutations as small marks
+    const positions = [...new Set(this.mutations.map((m) => m.position))];
+    this.miniMapSvg
+      .selectAll('line.mini-mutation')
+      .data(positions)
+      .join('line')
+      .attr('class', 'mini-mutation')
+      .attr('x1', (d) => miniXScale(d))
+      .attr('x2', (d) => miniXScale(d))
+      .attr('y1', 2)
+      .attr('y2', this.miniMapHeight / 2 - 5)
+      .attr('stroke', '#e74c3c')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.5);
+
+    // Draw viewport rectangle
+    this.miniMapSvg
+      .append('rect')
+      .attr('class', 'viewport-rect')
+      .attr('fill', '#4facfe')
+      .attr('fill-opacity', 0.2)
+      .attr('stroke', '#4facfe')
+      .attr('stroke-width', 1);
+
+    this.updateMiniMapViewport();
+
+    // Make mini-map interactive - drag to navigate
+    const drag = d3.drag<SVGSVGElement, unknown>().on('drag', (event) => {
+      const x = Math.max(0, Math.min(this.miniMapWidth, event.x));
+      const position = miniXScale.invert(x);
+      const domain = this.xScale.domain();
+      const range = domain[1] - domain[0];
+      const newStart = position - range / 2;
+
+      // Convert to zoom transform
+      const scale = this.currentTransform.k;
+      const tx = -this.xScaleOriginal(newStart) * scale;
+
+      this.svg.call(this.zoom.transform, d3.zoomIdentity.scale(scale).translate(tx / scale, 0));
+    });
+
+    this.miniMapSvg.call(drag as any);
+  }
+
+  private updateMiniMapViewport(): void {
+    if (!this.miniMapSvg || !this.geneData) return;
+
+    const miniXScale = d3
+      .scaleLinear()
+      .domain([1, this.geneData.proteinLength])
+      .range([0, this.miniMapWidth]);
+
+    const domain = this.xScale.domain();
+    const x = miniXScale(domain[0]);
+    const width = miniXScale(domain[1]) - miniXScale(domain[0]);
+
+    this.miniMapSvg
+      .select('rect.viewport-rect')
+      .attr('x', Math.max(0, x))
+      .attr('y', 0)
+      .attr('width', Math.min(this.miniMapWidth - x, width))
+      .attr('height', this.miniMapHeight);
   }
 
   destroy(): void {
