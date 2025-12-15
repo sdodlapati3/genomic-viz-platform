@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genomic Viz Platform - Dataset Selector</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>"
+    />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="app-title">
+        <span class="logo">🧬</span>
+        <h1>Genomic Visualization Platform</h1>
+      </div>
+      <div class="app-actions">
+        <span id="status-message">Select a dataset to begin</span>
+        <button id="launch-btn" disabled>Select Dataset & View</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <!-- Left Panel: Dataset Selection -->
+      <section class="panel panel-left">
+        <div class="panel-header">
+          <h2>📊 Available Datasets</h2>
+          <p>Choose a dataset to explore with our visualization tools</p>
+        </div>
+
+        <div class="search-box">
+          <input type="text" id="dataset-search" placeholder="Search datasets..." />
+        </div>
+
+        <div class="category-filters">
+          <!-- Filters will be rendered by JS -->
+        </div>
+
+        <div id="dataset-grid">
+          <!-- Dataset cards will be rendered here -->
+        </div>
+      </section>
+
+      <!-- Right Panel: View Selection -->
+      <section class="panel panel-right" id="view-panel">
+        <!-- View selector content will be rendered here -->
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
