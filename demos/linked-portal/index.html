@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LinkedPortal - Genomic Visualization</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>"
+    />
+
+    <style>
+      /* Critical CSS for initial load */
+      body {
+        margin: 0;
+        font-family:
+          'Inter',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #f8f9fa;
+      }
+      #loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        gap: 16px;
+      }
+      .spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #e9ecef;
+        border-top-color: #4facfe;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #main-content {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading State -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <span>Loading LinkedPortal...</span>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-content">
+          <div class="app-title">
+            <span style="font-size: 28px">🧬</span>
+            <div>
+              <h1>LinkedPortal</h1>
+              <span class="subtitle">Interactive Genomic Visualization</span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="header-btn" onclick="LinkedPortal.CohortStore.clearFilters()">
+              ↺ Reset Filters
+            </button>
+            <button class="header-btn" onclick="alert('Export coming soon!')">↓ Export Data</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Portal Layout -->
+      <main class="portal-layout" style="max-width: 1400px; margin: 0 auto; padding: 24px">
+        <!-- Left Sidebar: Filters -->
+        <aside class="left-sidebar">
+          <div class="card">
+            <div id="filter-container"></div>
+          </div>
+        </aside>
+
+        <!-- Main Area: Lollipop Plot -->
+        <section class="main-area">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">TP53 Mutation Lollipop Plot</h2>
+              <span style="font-size: 12px; color: #666">
+                Drag to select a region • Click on mutations for details
+              </span>
+            </div>
+            <div id="lollipop-container"></div>
+          </div>
+        </section>
+
+        <!-- Right Sidebar: Summary -->
+        <aside class="right-sidebar">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Cohort Summary</h2>
+            </div>
+            <div id="summary-container"></div>
+          </div>
+        </aside>
+
+        <!-- Bottom Area: Sample Table -->
+        <section class="bottom-area">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Sample Browser</h2>
+              <span style="font-size: 12px; color: #666">
+                Click to select • Shift+Click for multi-select
+              </span>
+            </div>
+            <div id="table-container"></div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer style="text-align: center; padding: 20px; color: #999; font-size: 12px">
+        <p>LinkedPortal Demo • Built with D3.js + TypeScript</p>
+        <p style="margin-top: 4px">
+          <a href="https://github.com/sdodlapati3/genomic-viz-platform" style="color: #4facfe"
+            >GitHub</a
+          >
+          • Inspired by ProteinPaint
+        </p>
+      </footer>
+    </div>
+
+    <!-- Main Script -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,310 @@
+{
+  "gene": "TP53",
+  "ensemblId": "ENSG00000141510",
+  "transcriptId": "ENST00000269305",
+  "proteinId": "P04637",
+  "proteinLength": 393,
+  "chromosome": "chr17",
+  "start": 7668402,
+  "end": 7687550,
+  "strand": "-",
+  "domains": [
+    {
+      "name": "TAD1",
+      "description": "Transactivation domain 1",
+      "start": 1,
+      "end": 42,
+      "color": "#FF6B6B"
+    },
+    {
+      "name": "TAD2",
+      "description": "Transactivation domain 2",
+      "start": 43,
+      "end": 63,
+      "color": "#FF8E72"
+    },
+    {
+      "name": "PRD",
+      "description": "Proline-rich domain",
+      "start": 64,
+      "end": 92,
+      "color": "#FFB347"
+    },
+    {
+      "name": "DNA-binding",
+      "description": "DNA-binding domain",
+      "start": 94,
+      "end": 292,
+      "color": "#4ECDC4"
+    },
+    {
+      "name": "NLS",
+      "description": "Nuclear localization signal",
+      "start": 305,
+      "end": 322,
+      "color": "#95E1D3"
+    },
+    {
+      "name": "Tetramerization",
+      "description": "Tetramerization domain",
+      "start": 323,
+      "end": 356,
+      "color": "#A8D8EA"
+    },
+    {
+      "name": "REG",
+      "description": "C-terminal regulatory domain",
+      "start": 357,
+      "end": 393,
+      "color": "#DDA0DD"
+    }
+  ],
+  "mutations": [
+    {
+      "position": 175,
+      "aaRef": "R",
+      "aaAlt": "H",
+      "aaChange": "R175H",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 1542,
+      "frequency": 0.0612,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0001", "TCGA-02-0002", "TCGA-02-0003"]
+    },
+    {
+      "position": 248,
+      "aaRef": "R",
+      "aaAlt": "Q",
+      "aaChange": "R248Q",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 1023,
+      "frequency": 0.0406,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0004", "TCGA-02-0005"]
+    },
+    {
+      "position": 248,
+      "aaRef": "R",
+      "aaAlt": "W",
+      "aaChange": "R248W",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 912,
+      "frequency": 0.0362,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0006", "TCGA-02-0007"]
+    },
+    {
+      "position": 273,
+      "aaRef": "R",
+      "aaAlt": "H",
+      "aaChange": "R273H",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 876,
+      "frequency": 0.0348,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0008"]
+    },
+    {
+      "position": 273,
+      "aaRef": "R",
+      "aaAlt": "C",
+      "aaChange": "R273C",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 534,
+      "frequency": 0.0212,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0009", "TCGA-02-0010"]
+    },
+    {
+      "position": 245,
+      "aaRef": "G",
+      "aaAlt": "S",
+      "aaChange": "G245S",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 412,
+      "frequency": 0.0164,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0011"]
+    },
+    {
+      "position": 282,
+      "aaRef": "R",
+      "aaAlt": "W",
+      "aaChange": "R282W",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 387,
+      "frequency": 0.0154,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0012"]
+    },
+    {
+      "position": 249,
+      "aaRef": "R",
+      "aaAlt": "S",
+      "aaChange": "R249S",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 356,
+      "frequency": 0.0141,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0013"]
+    },
+    {
+      "position": 220,
+      "aaRef": "Y",
+      "aaAlt": "C",
+      "aaChange": "Y220C",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 298,
+      "frequency": 0.0118,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0014"]
+    },
+    {
+      "position": 176,
+      "aaRef": "C",
+      "aaAlt": "F",
+      "aaChange": "C176F",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 234,
+      "frequency": 0.0093,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0015"]
+    },
+    {
+      "position": 179,
+      "aaRef": "H",
+      "aaAlt": "R",
+      "aaChange": "H179R",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 189,
+      "frequency": 0.0075,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0016"]
+    },
+    {
+      "position": 158,
+      "aaRef": "R",
+      "aaAlt": "*",
+      "aaChange": "R158*",
+      "type": "nonsense",
+      "consequence": "stop_gained",
+      "count": 156,
+      "frequency": 0.0062,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0017"]
+    },
+    {
+      "position": 196,
+      "aaRef": "R",
+      "aaAlt": "*",
+      "aaChange": "R196*",
+      "type": "nonsense",
+      "consequence": "stop_gained",
+      "count": 134,
+      "frequency": 0.0053,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0018"]
+    },
+    {
+      "position": 213,
+      "aaRef": "R",
+      "aaAlt": "*",
+      "aaChange": "R213*",
+      "type": "nonsense",
+      "consequence": "stop_gained",
+      "count": 98,
+      "frequency": 0.0039,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0019"]
+    },
+    {
+      "position": 146,
+      "aaRef": "W",
+      "aaAlt": "*",
+      "aaChange": "W146*",
+      "type": "nonsense",
+      "consequence": "stop_gained",
+      "count": 87,
+      "frequency": 0.0035,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0020"]
+    },
+    {
+      "position": 126,
+      "aaRef": "T",
+      "aaAlt": "fs",
+      "aaChange": "T126fs",
+      "type": "frameshift",
+      "consequence": "frameshift_variant",
+      "count": 76,
+      "frequency": 0.0030,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0021"]
+    },
+    {
+      "position": 209,
+      "aaRef": "R",
+      "aaAlt": "fs",
+      "aaChange": "R209fs",
+      "type": "frameshift",
+      "consequence": "frameshift_variant",
+      "count": 65,
+      "frequency": 0.0026,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0022"]
+    },
+    {
+      "position": 125,
+      "aaRef": "splice",
+      "aaAlt": "splice",
+      "aaChange": "splice125",
+      "type": "splice",
+      "consequence": "splice_donor_variant",
+      "count": 54,
+      "frequency": 0.0021,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0023"]
+    },
+    {
+      "position": 152,
+      "aaRef": "P",
+      "aaAlt": "L",
+      "aaChange": "P152L",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 123,
+      "frequency": 0.0049,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0024"]
+    },
+    {
+      "position": 163,
+      "aaRef": "Y",
+      "aaAlt": "C",
+      "aaChange": "Y163C",
+      "type": "missense",
+      "consequence": "missense_variant",
+      "count": 98,
+      "frequency": 0.0039,
+      "clinicalSignificance": "pathogenic",
+      "samples": ["TCGA-02-0025"]
+    }
+  ],
+  "metadata": {
+    "source": "Sample data inspired by COSMIC and ClinVar",
+    "lastUpdated": "2025-12-13",
+    "totalSamples": 25189,
+    "note": "Counts and frequencies are illustrative examples"
+  }
+}

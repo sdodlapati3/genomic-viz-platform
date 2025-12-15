@@ -1,0 +1,30 @@
+{
+  "name": "linked-portal-demo",
+  "version": "1.0.0",
+  "description": "ProteinPaint-style linked genomic visualization portal",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "d3": "^7.8.5"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  },
+  "keywords": [
+    "genomics",
+    "visualization",
+    "d3",
+    "proteinpaint",
+    "lollipop-plot"
+  ],
+  "author": "Sanjeeva Reddy Dodlapati",
+  "license": "MIT"
+}
