@@ -1,53 +1,75 @@
-# Genomic Visualization Platform
+# 🧬 Genomic Visualization Platform
 
 > A comprehensive learning project for building production-quality genomic data visualization tools, inspired by St. Jude's ProteinPaint platform.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
+[![D3.js](https://img.shields.io/badge/D3.js-v7-orange)](https://d3js.org/)
 
-## 🎯 Project Goals
+## 🎯 Project Overview
 
-This project serves as a hands-on learning platform for developing skills required in computational biology software development, specifically targeting:
+This project provides hands-on tutorials for developing skills in **genomic data visualization** and **computational biology software development**. It covers the full stack of technologies used in modern bioinformatics portals like:
 
-- **Interactive Data Visualization**: D3.js, Canvas, SVG
-- **Full-Stack Development**: Node.js, Express, PostgreSQL
-- **Statistical Analysis**: R integration, survival analysis
-- **High-Performance Computing**: Rust for parsing
-- **AI Integration**: LLM-powered data exploration
-- **Production Practices**: Testing, CI/CD, Docker
+- [ProteinPaint](https://proteinpaint.stjude.org/) - St. Jude's genomic visualization platform
+- [GenomePaint](https://viz.stjude.cloud/tools/genomepaint) - Multi-sample cancer genomics browser
+- [GDC Portal](https://portal.gdc.cancer.gov/) - NCI Genomic Data Commons
 
-## 📚 Learning Structure
+### Key Skills Covered
+
+| Category          | Technologies                               |
+| ----------------- | ------------------------------------------ |
+| **Visualization** | D3.js v7, SVG, Canvas, WebGL               |
+| **Frontend**      | JavaScript/TypeScript, Vite                |
+| **Backend**       | Node.js, Express, REST APIs                |
+| **Database**      | PostgreSQL, SQLite                         |
+| **Statistics**    | R integration, Kaplan-Meier, log-rank test |
+| **Performance**   | Rust, WebAssembly, Web Workers             |
+| **AI/ML**         | LLM integration, RAG chatbots              |
+| **DevOps**        | Docker, GitHub Actions, CI/CD              |
+
+## 📚 Tutorial System
+
+The repository contains **25+ tutorials** organized into 4 phases:
 
 ```
-This repository is organized into progressive tutorials:
-
 tutorials/
-├── phase-1-frontend/       # Visualization fundamentals
-│   ├── 01-svg-canvas/      # SVG & Canvas basics
-│   ├── 02-d3-core/         # D3.js core concepts
-│   ├── 03-lollipop-plot/   # Mutation visualization
-│   └── 04-genome-browser/  # Genomic coordinate viz
+├── phase-1-frontend/          # Visualization Fundamentals
+│   ├── 01-svg-canvas/         # SVG & Canvas graphics basics
+│   ├── 02-d3-core/            # D3.js selections, scales, bindings
+│   ├── 03-lollipop-plot/      # ⭐ Mutation visualization (ProteinPaint signature)
+│   ├── 04-genome-browser/     # Track-based genomic navigation
+│   └── 05-performance/        # Canvas optimization, Web Workers
 │
-├── phase-2-backend/        # Data infrastructure
-│   ├── 01-nodejs-api/      # REST API development
-│   ├── 02-postgresql/      # Database design
-│   ├── 03-file-parsing/    # VCF/MAF/BED parsing
-│   └── 04-r-integration/   # Statistical analysis
+├── phase-2-backend/           # Data Infrastructure
+│   ├── 01-rest-api/           # Express.js genomic endpoints
+│   ├── 02-postgresql/         # Genomic data schema design
+│   ├── 03-file-parsing/       # VCF, BED, MAF, GFF parsers
+│   ├── 04-r-integration/      # Statistical analysis bridge
+│   └── 05-binary-formats/     # BigWig, tabix, HDF5
 │
-├── phase-3-advanced-viz/   # Complex visualizations
-│   ├── 01-umap-scatter/    # Dimensionality reduction
-│   ├── 02-heatmap/         # Gene expression clustering
-│   ├── 03-survival-plot/   # Kaplan-Meier curves
-│   ├── 04-volcano-plot/    # Differential expression
-│   └── 05-oncoprint/       # Mutation matrices
+├── phase-3-advanced-viz/      # Production Visualizations
+│   ├── 01-scatter-plot/       # UMAP/t-SNE with WebGL (100k+ points)
+│   ├── 02-heatmap/            # Clustered expression heatmaps
+│   ├── 03-survival-curves/    # Kaplan-Meier with log-rank test
+│   ├── 04-volcano-plot/       # Differential expression
+│   ├── 05-gene-fusion/        # Structural variant arcs
+│   └── 06-oncoprint/          # Sample × gene mutation matrix
 │
-└── phase-4-production/     # Professional skills
-    ├── 01-testing/         # Test strategies
-    ├── 02-cicd/            # GitHub Actions
-    ├── 03-ai-chatbot/      # LLM integration
-    └── 04-rust-parsing/    # High-performance code
+└── phase-4-production/        # Professional Skills
+    ├── 01-testing/            # Vitest, visual regression
+    ├── 02-cicd/               # GitHub Actions pipelines
+    ├── 03-ai-chatbot/         # LLM-powered data exploration
+    ├── 04-rust-parsing/       # High-performance VCF parsing
+    ├── 05-rust-wasm/          # WebAssembly compilation
+    ├── 06-multi-view/         # State management patterns
+    ├── 07-protein-panel/      # TypeScript + D3 components
+    ├── 08-linked-views/       # ⭐ EventBus, coordinated views
+    ├── 09-config-system/      # Zod validation, URL state
+    └── 10-proteinpaint-embed/ # ⭐ GenomePaint API integration
 ```
+
+**📖 Full curriculum:** [tutorials/TUTORIAL_INDEX.md](./tutorials/TUTORIAL_INDEX.md)
 
 ## 🚀 Quick Start
 
@@ -55,88 +77,105 @@ tutorials/
 
 - **Node.js** >= 20.x
 - **npm** >= 10.x
-- **Docker** & **Docker Compose**
-- **Git**
-
-Optional (for full functionality):
-
-- **R** >= 4.x (for statistical analysis)
-- **Rust** (for high-performance parsing)
-- **Python** >= 3.11 (for AI features)
+- **Docker** (optional, for full environment)
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/genomic-viz-platform.git
+git clone https://github.com/sdodlapati3/genomic-viz-platform.git
 cd genomic-viz-platform
 
 # Install dependencies
 npm install
 
-# Start development environment
-docker-compose up -d
-
-# Run the development server
+# Run a specific tutorial
+cd tutorials/phase-1-frontend/03-lollipop-plot
+npm install
 npm run dev
+# Open http://localhost:5173
 ```
 
-### Running Tutorials
-
-Each tutorial can be run independently:
+### Running with Docker
 
 ```bash
-# Navigate to a specific tutorial
-cd tutorials/phase-1-frontend/01-svg-canvas
+# Start PostgreSQL and other services
+docker-compose up -d
 
-# Install tutorial dependencies
-npm install
-
-# Start the tutorial
-npm run dev
+# Access the database
+docker exec -it genomic-viz-postgres psql -U postgres -d genomic_viz
 ```
 
-## 🛠️ Technology Stack
+## 🔬 Sample Visualizations
 
-| Layer         | Technology            | Purpose              |
-| ------------- | --------------------- | -------------------- |
-| Frontend      | JavaScript/TypeScript | Core language        |
-| Visualization | D3.js v7              | Data-driven graphics |
-| Rendering     | Canvas API            | High-performance     |
-| Backend       | Node.js + Express     | REST API             |
-| Database      | PostgreSQL            | Data storage         |
-| Statistics    | R                     | Analysis pipelines   |
-| Performance   | Rust                  | File parsing         |
-| AI            | Python + LLM APIs     | Chatbot              |
-| Container     | Docker                | Development env      |
+After completing the tutorials, you'll be able to build:
 
-## 📊 Sample Visualizations
-
-After completing the tutorials, you'll be able to create:
-
-- **Mutation Lollipop Plots** - Visualize protein mutations
-- **Genome Browser Tracks** - Navigate genomic coordinates
-- **UMAP/t-SNE Scatter** - Single-cell data visualization
-- **Survival Curves** - Kaplan-Meier analysis
-- **Expression Heatmaps** - Clustered gene expression
-- **Volcano Plots** - Differential expression
-- **Oncoprint Matrices** - Mutation patterns
+| Visualization          | Description                               | Tutorial  |
+| ---------------------- | ----------------------------------------- | --------- |
+| **Lollipop Plot**      | Protein mutations with domain annotations | Phase 1.3 |
+| **Genome Browser**     | Track-based coordinate navigation         | Phase 1.4 |
+| **Survival Curves**    | Kaplan-Meier with confidence intervals    | Phase 3.3 |
+| **Expression Heatmap** | Hierarchical clustering with dendrograms  | Phase 3.2 |
+| **Volcano Plot**       | Differential expression with significance | Phase 3.4 |
+| **OncoPrint**          | Sample × gene mutation matrix             | Phase 3.6 |
+| **Scatter Plot**       | UMAP/t-SNE with 100k+ points              | Phase 3.1 |
 
 ## 📁 Project Structure
 
 ```
 genomic-viz-platform/
-├── README.md               # This file
-├── tutorials/TUTORIAL_INDEX.md  # Complete tutorial system
-├── package.json            # Root configuration
-├── docker-compose.yml      # Dev environment
-├── .github/                # CI/CD workflows
-│
-├── tutorials/              # Learning modules
-├── capstone/               # Final project
-├── shared/                 # Common code
-└── datasets/               # Sample data
+├── tutorials/              # 25+ learning modules
+│   ├── TUTORIAL_INDEX.md   # Complete curriculum
+│   └── INTERVIEW_PREP.md   # Technical Q&A guide
+├── capstone/               # Integration project
+├── datasets/               # Sample genomic data
+│   ├── mutations/          # TP53, BRCA1 mutations
+│   ├── clinical/           # Sample metadata
+│   └── references/         # Gene annotations
+├── shared/                 # Common TypeScript types
+├── docs/                   # Technical documentation
+└── docker-compose.yml      # Development environment
 ```
+
+## 🛠️ Technology Stack
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Frontend                              │
+│  D3.js v7 │ Canvas API │ WebGL │ TypeScript │ Vite          │
+├─────────────────────────────────────────────────────────────┤
+│                        Backend                               │
+│  Node.js │ Express │ REST API │ WebSocket                   │
+├─────────────────────────────────────────────────────────────┤
+│                        Data Layer                            │
+│  PostgreSQL │ SQLite │ tabix │ BigWig │ HDF5                │
+├─────────────────────────────────────────────────────────────┤
+│                        Performance                           │
+│  Rust (napi-rs) │ WebAssembly │ Web Workers                 │
+├─────────────────────────────────────────────────────────────┤
+│                        AI Integration                        │
+│  OpenAI API │ RAG │ LangChain │ Embeddings                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 📖 Documentation
+
+| Document                                                                                             | Description                                   |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| [Tutorial Index](./tutorials/TUTORIAL_INDEX.md)                                                      | Complete learning path with progress tracking |
+| [Interview Prep](./tutorials/INTERVIEW_PREP.md)                                                      | Technical Q&A for genomic viz roles           |
+| [GenomePaint Tutorial](./tutorials/phase-4-production/10-proteinpaint-embed/GENOMEPAINT_TUTORIAL.md) | Deep dive into ProteinPaint architecture      |
+| [Feature Analysis](./docs/PROTEINPAINT_FEATURE_ANALYSIS.md)                                          | Comparison with ProteinPaint features         |
+| [Technology Overview](./docs/TECHNOLOGY_OVERVIEW.md)                                                 | Stack decisions and rationale                 |
+
+## 🎓 Inspired By
+
+This project is designed to build skills relevant to genomic visualization platforms:
+
+- **[ProteinPaint](https://github.com/stjude/proteinpaint)** - St. Jude Children's Research Hospital
+- **[GenomePaint](https://genomepaint.stjude.cloud/)** - Multi-sample cancer visualization
+- **[cBioPortal](https://www.cbioportal.org/)** - Cancer genomics portal
+- **[IGV.js](https://github.com/igvteam/igv.js)** - Integrative Genomics Viewer
 
 ## 🧪 Testing
 
@@ -145,24 +184,12 @@ genomic-viz-platform/
 npm test
 
 # Run tests for a specific tutorial
-npm test -- --filter=lollipop
+cd tutorials/phase-4-production/01-testing
+npm test
 
 # Run with coverage
 npm run test:coverage
 ```
-
-## 📖 Documentation
-
-- [Tutorial System](./tutorials/TUTORIAL_INDEX.md) - Complete curriculum with progress tracking
-- [GenomePaint Tutorial](./tutorials/phase-4-production/10-proteinpaint-embed/GENOMEPAINT_TUTORIAL.md) - Interview prep
-- [API Documentation](./docs/api/) - REST API reference
-
-## 🎓 Inspired By
-
-- [ProteinPaint](https://proteinpaint.stjude.org/) - St. Jude Children's Research Hospital
-- [GenomePaint](https://genomepaint.stjude.cloud/) - Multi-omics exploration
-- [cBioPortal](https://www.cbioportal.org/) - Cancer genomics portal
-- [IGV.js](https://github.com/igvteam/igv.js) - Genome visualization
 
 ## 📄 License
 
@@ -170,7 +197,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🤝 Contributing
 
-This is primarily a learning project, but suggestions and improvements are welcome!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -178,10 +205,9 @@ This is primarily a learning project, but suggestions and improvements are welco
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📬 Contact
-
-For questions about this learning project, please open an issue.
-
 ---
+
+**Author:** Sanjeeva Reddy Dodlapati  
+**Repository:** [github.com/sdodlapati3/genomic-viz-platform](https://github.com/sdodlapati3/genomic-viz-platform)
 
 _Built with ❤️ for learning genomic visualization_
