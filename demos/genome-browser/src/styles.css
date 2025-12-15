@@ -1,0 +1,304 @@
+/**
+ * Genome Browser Demo Styles
+ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #f0f2f5;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: #1a1a2e;
+  margin-bottom: 5px;
+}
+
+.header p {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.control-group select,
+.control-group input[type='text'] {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+.control-group input[type='text'] {
+  min-width: 180px;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.control-group button {
+  padding: 8px 16px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.control-group button:hover {
+  background: #1565c0;
+}
+
+.control-group button:active {
+  transform: translateY(1px);
+}
+
+/* Browser Container */
+.browser-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.ruler {
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.tracks {
+  min-height: 300px;
+  cursor: grab;
+}
+
+.tracks:active {
+  cursor: grabbing;
+}
+
+/* Track labels */
+.track-label {
+  font-size: 11px;
+  font-weight: bold;
+  fill: #333;
+}
+
+/* Track Controls Panel */
+.track-controls {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.track-controls h3 {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+#track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.track-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.track-item input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.track-item label {
+  flex: 1;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.track-item .track-type {
+  font-size: 11px;
+  color: #666;
+  background: #e0e0e0;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Info Panel */
+.info-panel {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-panel h3 {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+#feature-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.feature-details h4 {
+  color: #1976d2;
+  margin-bottom: 10px;
+}
+
+.feature-details p {
+  margin-bottom: 5px;
+}
+
+.feature-details strong {
+  color: #333;
+}
+
+/* Tooltip */
+.browser-tooltip {
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+.browser-tooltip strong {
+  color: #1976d2;
+}
+
+/* SVG Styles */
+.ruler-svg {
+  display: block;
+}
+
+.tracks-svg {
+  display: block;
+}
+
+/* Gene track */
+.gene .exon {
+  transition: opacity 0.2s;
+}
+
+.gene .exon:hover {
+  opacity: 0.8;
+}
+
+.gene-label {
+  font-weight: bold;
+}
+
+/* Mutation track */
+.mutation-head {
+  transition: transform 0.2s;
+}
+
+.mutation:hover .mutation-head {
+  transform: scale(1.1);
+}
+
+/* Signal track */
+.signal-area {
+  transition: fill-opacity 0.2s;
+}
+
+.signal-line {
+  pointer-events: none;
+}
+
+/* Annotation track */
+.annotation rect {
+  transition: opacity 0.2s;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .control-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Keyboard shortcuts hint */
+.shortcuts-hint {
+  font-size: 12px;
+  color: #999;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.shortcuts-hint kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 11px;
+}

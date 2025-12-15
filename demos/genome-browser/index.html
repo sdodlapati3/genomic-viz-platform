@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genome Browser - ProteinPaint Clone</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>🧬 Genome Browser</h1>
+        <p>Interactive multi-track genomic visualization</p>
+      </header>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Chromosome:</label>
+          <select id="chromosome">
+            <option value="chr17">chr17 (TP53)</option>
+            <option value="chr12">chr12 (KRAS)</option>
+            <option value="chr7">chr7 (EGFR)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Region:</label>
+          <input type="text" id="region" placeholder="7668402-7687550" />
+          <button id="go-btn">Go</button>
+        </div>
+
+        <div class="control-group">
+          <button id="zoom-in">🔍+</button>
+          <button id="zoom-out">🔍−</button>
+          <button id="pan-left">◀</button>
+          <button id="pan-right">▶</button>
+        </div>
+
+        <div class="control-group">
+          <label>Add Track:</label>
+          <select id="add-track">
+            <option value="">Select...</option>
+            <option value="gene">Gene Track</option>
+            <option value="mutation">Mutation Track</option>
+            <option value="signal">Signal Track (Coverage)</option>
+            <option value="annotation">Annotation Track</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="browser-container">
+        <div id="ruler" class="ruler"></div>
+        <div id="tracks" class="tracks"></div>
+      </div>
+
+      <div class="track-controls">
+        <h3>Track Configuration</h3>
+        <div id="track-list"></div>
+      </div>
+
+      <div class="info-panel">
+        <h3>Feature Info</h3>
+        <div id="feature-info">Hover over features to see details</div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
