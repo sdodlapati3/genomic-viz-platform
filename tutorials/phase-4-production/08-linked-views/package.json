@@ -1,0 +1,27 @@
+{
+  "name": "linked-views",
+  "version": "1.0.0",
+  "description": "Linked brushing between mutation panel and expression rank plot",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5182",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "d3": "^7.8.5"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "genomics",
+    "visualization",
+    "linked-brushing",
+    "expression",
+    "mutations"
+  ]
+}
