@@ -1,0 +1,366 @@
+/* Tutorial 3.6 - Gene Fusion Visualization Styles */
+
+:root {
+  --primary: #3498db;
+  --secondary: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --purple: #9b59b6;
+  --dark: #2c3e50;
+  --light: #ecf0f1;
+  --bg: #f5f6fa;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  line-height: 1.6;
+}
+
+header {
+  background: linear-gradient(135deg, var(--purple), #8e44ad);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  opacity: 0.9;
+}
+
+/* Navigation */
+.example-nav {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+}
+
+.example-nav button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.example-nav button:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.example-nav button.active {
+  background: var(--purple);
+  color: white;
+  border-color: var(--purple);
+}
+
+/* Controls */
+#controls {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: white;
+  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.control-group label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.control-group select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* Visualization */
+#visualization {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.viz-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.viz-container h3 {
+  padding: 0.75rem 1rem;
+  background: var(--light);
+  border-bottom: 1px solid #ddd;
+  font-size: 0.95rem;
+}
+
+.viz-container svg {
+  display: block;
+  width: 100%;
+}
+
+/* Detail Panel */
+.detail-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.detail-panel h3 {
+  padding: 0.75rem 1rem;
+  background: var(--dark);
+  color: white;
+  font-size: 0.95rem;
+}
+
+#fusion-info {
+  padding: 1rem;
+}
+
+#fusion-info .placeholder {
+  color: #999;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.fusion-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.fusion-detail-row:last-child {
+  border-bottom: none;
+}
+
+.fusion-detail-label {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.fusion-detail-value {
+  font-weight: 600;
+}
+
+.fusion-gene-box {
+  background: var(--light);
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.fusion-gene-box h4 {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.fusion-gene-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--purple);
+}
+
+/* Legend */
+#legend {
+  padding: 1rem;
+  background: white;
+  margin: 0 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#legend h4 {
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.legend-items {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+/* Explanation */
+#explanation {
+  margin: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#explanation h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+#explanation ul {
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+#explanation li {
+  margin-bottom: 0.25rem;
+}
+
+/* SVG Elements */
+.arc-path {
+  fill: none;
+  stroke-width: 2;
+  cursor: pointer;
+  transition:
+    stroke-width 0.2s,
+    opacity 0.2s;
+}
+
+.arc-path:hover {
+  stroke-width: 4;
+}
+
+.arc-path.selected {
+  stroke-width: 4;
+}
+
+.arc-path.dimmed {
+  opacity: 0.2;
+}
+
+.gene-label {
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gene-label:hover {
+  fill: var(--purple);
+}
+
+.gene-rect {
+  cursor: pointer;
+}
+
+.gene-rect:hover {
+  stroke: var(--purple);
+  stroke-width: 2;
+}
+
+.exon {
+  fill: var(--primary);
+  stroke: #2980b9;
+  stroke-width: 1;
+}
+
+.exon.breakpoint {
+  fill: var(--danger);
+  stroke: #c0392b;
+}
+
+.intron {
+  stroke: #999;
+  stroke-width: 1;
+}
+
+.breakpoint-line {
+  stroke: var(--danger);
+  stroke-width: 2;
+  stroke-dasharray: 4, 2;
+}
+
+.chromosome-band {
+  stroke: #ddd;
+  stroke-width: 1;
+}
+
+/* Tooltip */
+.fusion-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  pointer-events: none;
+  z-index: 100;
+  max-width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.fusion-tooltip h4 {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 0.25rem;
+}
+
+.fusion-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.25rem 0;
+}
+
+.fusion-tooltip-label {
+  opacity: 0.7;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem;
+  background: var(--dark);
+  color: white;
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  #visualization {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-panel {
+    order: -1;
+  }
+}

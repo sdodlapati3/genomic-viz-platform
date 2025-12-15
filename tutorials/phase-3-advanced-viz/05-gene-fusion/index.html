@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutorial 3.6 - Gene Fusion Visualization</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>🧬 Gene Fusion Visualization</h1>
+      <p>Tutorial 3.6 - Visualize chromosomal translocations and fusion genes</p>
+    </header>
+
+    <nav class="example-nav">
+      <button data-example="arc" class="active">Arc Diagram</button>
+      <button data-example="dual">Dual Gene View</button>
+      <button data-example="exon">Exon Detail</button>
+      <button data-example="circos">Circos View</button>
+    </nav>
+
+    <main>
+      <section id="controls">
+        <div class="control-group">
+          <label for="fusionSelect">Fusion:</label>
+          <select id="fusionSelect">
+            <option value="BCR-ABL1">BCR-ABL1 (CML)</option>
+            <option value="EML4-ALK">EML4-ALK (Lung)</option>
+            <option value="TMPRSS2-ERG">TMPRSS2-ERG (Prostate)</option>
+            <option value="PML-RARA">PML-RARA (APL)</option>
+            <option value="EWSR1-FLI1">EWSR1-FLI1 (Ewing)</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="colorBy">Color by:</label>
+          <select id="colorBy">
+            <option value="type">Fusion Type</option>
+            <option value="support">Read Support</option>
+            <option value="chromosome">Chromosome</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>
+            <input type="checkbox" id="showLabels" checked />
+            Show Labels
+          </label>
+        </div>
+      </section>
+
+      <section id="visualization">
+        <div id="arc-container" class="viz-container">
+          <h3>Arc Diagram - Fusion Connections</h3>
+          <svg id="arc-svg" width="100%" height="400"></svg>
+        </div>
+
+        <div id="dual-container" class="viz-container" style="display: none">
+          <h3>Dual Gene View</h3>
+          <svg id="dual-svg" width="100%" height="300"></svg>
+        </div>
+
+        <div id="detail-panel" class="detail-panel">
+          <h3>Fusion Details</h3>
+          <div id="fusion-info">
+            <p class="placeholder">Select a fusion to see details</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="legend">
+        <h4>Legend</h4>
+        <div class="legend-items">
+          <div class="legend-item">
+            <span class="legend-color" style="background: #2ecc71"></span>
+            <span>In-frame fusion</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: #e74c3c"></span>
+            <span>Out-of-frame fusion</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: #9b59b6"></span>
+            <span>Intergenic</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="explanation">
+        <h3>About Gene Fusions</h3>
+        <div class="explanation-content">
+          <p>
+            Gene fusions result from chromosomal rearrangements that join parts of two different
+            genes. They are important in cancer because:
+          </p>
+          <ul>
+            <li>
+              <strong>Oncogenic drivers:</strong> Many fusions create oncoproteins (e.g., BCR-ABL1)
+            </li>
+            <li>
+              <strong>Drug targets:</strong> Fusion proteins can be targeted by specific inhibitors
+            </li>
+            <li><strong>Diagnostic markers:</strong> Certain fusions define cancer subtypes</li>
+            <li><strong>Prognostic value:</strong> Fusion status can predict patient outcomes</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Genomic Visualization Platform - Tutorial 3.6</p>
+    </footer>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
