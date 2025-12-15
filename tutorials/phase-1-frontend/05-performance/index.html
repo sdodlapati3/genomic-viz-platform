@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutorial 1.5 - Performance Optimization</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>🚀 Performance Optimization for Genomic Visualization</h1>
+      <p>Tutorial 1.5 - Render millions of data points smoothly</p>
+    </header>
+
+    <nav class="example-nav">
+      <button data-example="01" class="active">SVG Limits</button>
+      <button data-example="02">Canvas Basics</button>
+      <button data-example="03">Virtualization</button>
+      <button data-example="04">Web Workers</button>
+      <button data-example="05">Combined</button>
+    </nav>
+
+    <main>
+      <div id="controls">
+        <div class="control-group">
+          <label for="dataSize">Data Points:</label>
+          <select id="dataSize">
+            <option value="100">100</option>
+            <option value="1000">1,000</option>
+            <option value="10000" selected>10,000</option>
+            <option value="100000">100,000</option>
+            <option value="1000000">1,000,000</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="renderer">Renderer:</label>
+          <select id="renderer">
+            <option value="svg">SVG</option>
+            <option value="canvas" selected>Canvas</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </div>
+        <button id="runBenchmark">Run Benchmark</button>
+      </div>
+
+      <div id="stats">
+        <div class="stat">
+          <span class="stat-value" id="fps">0</span>
+          <span class="stat-label">FPS</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="renderTime">0</span>
+          <span class="stat-label">Render (ms)</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="memory">0</span>
+          <span class="stat-label">Memory (MB)</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="elements">0</span>
+          <span class="stat-label">Elements</span>
+        </div>
+      </div>
+
+      <div id="visualization-container">
+        <div id="svg-container" class="viz-panel">
+          <h3>SVG Renderer</h3>
+          <svg id="svg-viz" width="100%" height="300"></svg>
+        </div>
+        <div id="canvas-container" class="viz-panel">
+          <h3>Canvas Renderer</h3>
+          <canvas id="canvas-viz" width="1200" height="300"></canvas>
+        </div>
+      </div>
+
+      <div id="example-content">
+        <!-- Dynamic content loaded here -->
+      </div>
+
+      <div id="explanation" class="collapsed">
+        <h3>How It Works</h3>
+        <div id="explanation-content"></div>
+      </div>
+    </main>
+
+    <footer>
+      <p>Genomic Visualization Platform - Tutorial 1.5</p>
+    </footer>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
