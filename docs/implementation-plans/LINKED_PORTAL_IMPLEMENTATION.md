@@ -31,15 +31,21 @@ What's **missing** for a cohesive demo:
 
 ### Deliverables
 
-| #   | Deliverable                      | Type        | Priority |
-| --- | -------------------------------- | ----------- | -------- |
-| 1   | `demos/linked-portal/`           | New folder  | **P0**   |
-| 2   | Event-driven lollipop with brush | Enhancement | **P0**   |
-| 3   | Filter panel component           | New         | **P0**   |
-| 4   | Cohort/filter store              | New         | **P0**   |
-| 5   | Integrated portal app            | New         | **P0**   |
-| 6   | Enhanced oncoprint matrix        | Enhancement | **P1**   |
-| 7   | Live deployment                  | DevOps      | **P1**   |
+| #   | Deliverable                      | Type        | Priority | Status         |
+| --- | -------------------------------- | ----------- | -------- | -------------- |
+| 1   | `demos/linked-portal/`           | New folder  | **P0**   | ✅ Complete    |
+| 2   | Event-driven lollipop with brush | Enhancement | **P0**   | ✅ Complete    |
+| 3   | Filter panel component           | New         | **P0**   | ✅ Complete    |
+| 4   | Cohort/filter store              | New         | **P0**   | ✅ Complete    |
+| 5   | Integrated portal app            | New         | **P0**   | ✅ Complete    |
+| 6   | Zoom/pan with mini-map           | Enhancement | **P0**   | ✅ Complete    |
+| 7   | MutationSummary component        | New         | **P0**   | ✅ Complete    |
+| 8   | Enhanced Oncoprint matrix        | Enhancement | **P1**   | ❌ Not Started |
+| 9   | Genome Browser with tracks       | Enhancement | **P1**   | ❌ Not Started |
+| 10  | Dataset selector/landing page    | New         | **P1**   | ❌ Not Started |
+| 11  | Live deployment (Vercel)         | DevOps      | **P1**   | ❌ Not Started |
+| 12  | Disco/Circos Plot                | New         | **P2**   | ❌ Not Started |
+| 13  | GSEA Running Sum Plot            | New         | **P2**   | ❌ Not Started |
 
 ---
 
@@ -355,61 +361,204 @@ class CohortStore {
 
 ---
 
+### 6. Oncoprint Matrix (NEW - P1)
+
+**Purpose:** Gene × Sample matrix showing mutation landscape across cohort
+
+**Location:** `demos/oncoprint/` (new demo) or `src/components/Oncoprint.ts`
+
+**Reference:** `client/plots/matrix/` in ProteinPaint (127KB interactivity!)
+
+**UI Mockup:**
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Oncoprint Matrix                                    [Sort] [Export]   │
+├─────────────────────────────────────────────────────────────────────────┤
+│         Sample1  Sample2  Sample3  Sample4  Sample5  ...               │
+│  TP53   ████████ ░░░░░░░░ ████████ ████████ ░░░░░░░░                   │
+│  BRCA1  ░░░░░░░░ ████████ ░░░░░░░░ ████████ ████████                   │
+│  KRAS   ████████ ████████ ░░░░░░░░ ░░░░░░░░ ████████                   │
+│  EGFR   ░░░░░░░░ ░░░░░░░░ ████████ ░░░░░░░░ ░░░░░░░░                   │
+│  ...                                                                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Legend: ■ Missense  ■ Nonsense  ■ Frameshift  ■ Splice  □ No mutation │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Features:**
+
+- Interactive cells: hover shows mutation details, click selects
+- Sortable rows (genes) and columns (samples) by mutation frequency
+- Linked to other views via EventBus
+- Multiple mutation types per cell (layered rendering)
+- Row/column annotations (clinical data, gene function)
+
+**Implementation Approach:**
+
+1. Model: Gene × Sample matrix data structure
+2. View: SVG/Canvas rendering with D3
+3. Interactivity: Hover, click, sort, zoom
+4. Integration: Connect to CohortStore and EventBus
+
+---
+
+### 7. Genome Browser with Tracks (NEW - P1)
+
+**Purpose:** Interactive genome browser showing genomic features, variants, and read alignments
+
+**Location:** `demos/genome-browser/` (enhance existing) or new component
+
+**Reference:** `client/src/block.js` (142KB), `block.tk.*.js` in ProteinPaint
+
+**UI Mockup:**
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Genome Browser                    chr17:7,668,402-7,687,550    [Zoom] │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Genes    │ ←───────── TP53 ──────────→                                │
+│           │ ═══╤═══╤═══════╤═══╤═══════                                │
+├───────────┼─────────────────────────────────────────────────────────────┤
+│  Mutations│     ●   ●●  ●      ●●●  ●                                  │
+│           │     │   ││  │      │││  │                                  │
+├───────────┼─────────────────────────────────────────────────────────────┤
+│  BigWig   │  ▂▃▅▇█▇▅▃▂▁▂▃▄▅▆▇█▇▆▅▄▃▂▁                                  │
+│  (signal) │                                                             │
+├───────────┼─────────────────────────────────────────────────────────────┤
+│  BAM      │  ════════════════════                                       │
+│  (reads)  │    ═══════════════════                                      │
+│           │       ════════════════════                                  │
+└───────────┴─────────────────────────────────────────────────────────────┘
+```
+
+**Features:**
+
+- Coordinate navigation (jump to gene, region)
+- Zoom/pan with smooth rendering
+- Multiple track types:
+  - Gene/transcript track
+  - Mutation track (linked to lollipop)
+  - Signal track (BigWig visualization)
+  - Read alignment track (BAM - simplified)
+- Linked selection with other views
+
+**Implementation Approach:**
+
+1. Track abstraction layer (base class for all track types)
+2. Coordinate system with zoom transform
+3. Data fetching layer (mock data initially)
+4. Connect to existing linked portal via EventBus
+
+---
+
+### 8. Dataset Selector / Landing Page (NEW - P1)
+
+**Purpose:** Entry point for portal showing available datasets and navigation
+
+**Location:** `demos/linked-portal/src/pages/Landing.ts` or separate route
+
+**Reference:** ProteinPaint's GenomePaint, Survivorship Portal patterns
+
+**UI Mockup:**
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        🧬 Genomic Viz Platform                          │
+│                     Explore Cancer Genomics Data                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │
+│  │ 📊 TP53 Cohort  │  │ 📊 Pan-Cancer   │  │ 📊 Custom Data  │         │
+│  │                 │  │                 │  │                 │         │
+│  │  156 mutations  │  │  1,234 samples  │  │  Upload VCF/MAF │         │
+│  │  45 samples     │  │  5 cancer types │  │                 │         │
+│  │                 │  │                 │  │                 │         │
+│  │  [Explore →]    │  │  [Explore →]    │  │  [Upload →]     │         │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘         │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Visualizations:  [Lollipop] [Oncoprint] [Genome Browser] [Survival]   │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Features:**
+
+- Dataset cards with summary stats
+- Quick navigation to visualizations
+- File upload capability (future)
+- Responsive design
+
+---
+
 ## 🗓️ Implementation Schedule
 
-### Day 1 (Dec 15/16): Foundation
+### Day 1 (Dec 15): Foundation ✅ COMPLETE
 
-| Time      | Task                                            | Files                                       |
-| --------- | ----------------------------------------------- | ------------------------------------------- |
-| Morning   | Set up `demos/linked-portal/` project structure | package.json, vite.config.ts, tsconfig.json |
-| Morning   | Copy and adapt types from 08-linked-views       | src/types/                                  |
-| Afternoon | Implement CohortStore                           | src/state/CohortStore.ts                    |
-| Afternoon | Copy and enhance EventBus                       | src/state/EventBus.ts                       |
-| Evening   | Create data loader utility                      | src/utils/dataLoader.ts                     |
-| Evening   | Test data loading                               | Basic console test                          |
+| Time      | Task                                            | Status |
+| --------- | ----------------------------------------------- | ------ |
+| Morning   | Set up `demos/linked-portal/` project structure | ✅     |
+| Morning   | Copy and adapt types from 08-linked-views       | ✅     |
+| Afternoon | Implement CohortStore                           | ✅     |
+| Afternoon | Copy and enhance EventBus                       | ✅     |
+| Evening   | Create data loader utility                      | ✅     |
+| Evening   | Build all 4 core components                     | ✅     |
 
-**Deliverable:** Data loads, CohortStore works, EventBus ready
+**Deliverable:** ✅ Complete linked portal with LollipopPlot, SampleTable, FilterPanel, MutationSummary
 
-### Day 2 (Dec 16/17): LollipopPlot Enhancement
+### Day 2 (Dec 15-16): LollipopPlot Enhancement ✅ COMPLETE
 
-| Time      | Task                              | Files                          |
-| --------- | --------------------------------- | ------------------------------ |
-| Morning   | Port lollipop code to TypeScript  | src/components/LollipopPlot.ts |
-| Morning   | Add D3 brush for selection        | LollipopPlot.ts                |
-| Afternoon | Connect to EventBus (emit events) | LollipopPlot.ts                |
-| Afternoon | Respond to highlight events       | LollipopPlot.ts                |
-| Evening   | Add zoom functionality            | LollipopPlot.ts                |
-| Evening   | Style and polish                  | styles/                        |
+| Time      | Task                              | Status |
+| --------- | --------------------------------- | ------ |
+| Morning   | Port lollipop code to TypeScript  | ✅     |
+| Morning   | Add D3 brush for selection        | ✅     |
+| Afternoon | Connect to EventBus (emit events) | ✅     |
+| Afternoon | Respond to highlight events       | ✅     |
+| Evening   | Add zoom/pan functionality        | ✅     |
+| Evening   | Add mini-map navigation           | ✅     |
 
-**Deliverable:** Lollipop with brush selection, emits events
+**Deliverable:** ✅ Lollipop with zoom, pan, brush, mini-map
 
-### Day 3 (Dec 17/18): FilterPanel & SampleTable
+### Day 3 (Dec 16): Oncoprint Matrix (P1)
+
+| Time      | Task                                    | Files                        |
+| --------- | --------------------------------------- | ---------------------------- |
+| Morning   | Create Oncoprint data model             | demos/oncoprint/src/types.ts |
+| Morning   | Build matrix layout with D3             | src/components/Oncoprint.ts  |
+| Afternoon | Add cell rendering (layered mutations)  | Oncoprint.ts                 |
+| Afternoon | Implement sorting (by gene/sample freq) | Oncoprint.ts                 |
+| Evening   | Add hover/click interactivity           | Oncoprint.ts                 |
+| Evening   | Connect to EventBus for linked views    | Oncoprint.ts                 |
+
+**Deliverable:** Interactive Oncoprint with linked selection
+
+### Day 4 (Dec 17): Genome Browser Enhancement (P1)
+
+| Time      | Task                                | Files                       |
+| --------- | ----------------------------------- | --------------------------- |
+| Morning   | Create track abstraction base class | src/tracks/Track.ts         |
+| Morning   | Implement gene/transcript track     | src/tracks/GeneTrack.ts     |
+| Afternoon | Implement mutation track            | src/tracks/MutationTrack.ts |
+| Afternoon | Add BigWig signal track (mock data) | src/tracks/SignalTrack.ts   |
+| Evening   | Add coordinate navigation & zoom    | GenomeBrowser.ts            |
+| Evening   | Connect to linked portal EventBus   | GenomeBrowser.ts            |
+
+**Deliverable:** Genome browser with multiple track types
+
+### Day 5 (Dec 18): Dataset Selector & Landing Page (P1)
 
 | Time      | Task                           | Files                         |
 | --------- | ------------------------------ | ----------------------------- |
-| Morning   | Build FilterPanel UI           | src/components/FilterPanel.ts |
-| Morning   | Connect to CohortStore         | FilterPanel.ts                |
-| Afternoon | Port SampleTable to TypeScript | src/components/SampleTable.ts |
-| Afternoon | Add sort, highlight features   | SampleTable.ts                |
-| Evening   | Wire up all event connections  | App.ts                        |
-| Evening   | Test full interaction loop     | Manual testing                |
+| Morning   | Create landing page component  | src/pages/Landing.ts          |
+| Morning   | Build dataset cards with stats | src/components/DatasetCard.ts |
+| Afternoon | Add routing between views      | src/router.ts                 |
+| Afternoon | Connect all demos to landing   | main.ts                       |
+| Evening   | Polish UI and transitions      | styles/                       |
+| Evening   | Responsive design testing      | Manual                        |
 
-**Deliverable:** Filters work, table highlights on lollipop hover
+**Deliverable:** Complete portal workflow with landing page
 
-### Day 4 (Dec 18/19): Integration & MutationSummary
-
-| Time      | Task                        | Files                             |
-| --------- | --------------------------- | --------------------------------- |
-| Morning   | Build MutationSummary panel | src/components/MutationSummary.ts |
-| Morning   | Add Legend component        | src/components/Legend.ts          |
-| Afternoon | Create main App layout      | src/App.ts, index.html            |
-| Afternoon | Responsive grid layout      | styles/main.css                   |
-| Evening   | Cross-browser testing       | Manual                            |
-| Evening   | Fix bugs, polish            | Various                           |
-
-**Deliverable:** Complete integrated portal
-
-### Day 5 (Dec 19/20): Polish & Documentation
+### Day 6 (Dec 19): Deployment & Documentation (P1)
 
 | Time      | Task                               | Files          |
 | --------- | ---------------------------------- | -------------- |
@@ -420,15 +569,22 @@ class CohortStore {
 | Evening   | Deploy to Vercel                   | vercel.json    |
 | Evening   | Final testing on deployed version  | Manual         |
 
-**Deliverable:** Polished, deployed demo
+**Deliverable:** Polished, deployed demo on Vercel
 
-### Day 6-7 (Dec 20-22): Buffer & Email
+### Day 7 (Dec 20): Buffer & Polish
 
-| Time   | Task                 |
-| ------ | -------------------- |
-| Sat AM | Final bug fixes      |
-| Sat PM | Email draft revision |
-| Sun    | **SEND EMAIL**       |
+| Time | Task                             |
+| ---- | -------------------------------- |
+| AM   | Final bug fixes                  |
+| PM   | Additional P2 features (if time) |
+
+### Day 8+ (Dec 21-22): P2 Features (If Time)
+
+| Priority | Feature             | Description                       |
+| -------- | ------------------- | --------------------------------- |
+| P2       | Disco/Circos Plot   | Circular chromosome visualization |
+| P2       | GSEA Plot           | Gene set enrichment visualization |
+| P2       | Hi-C Contact Matrix | Chromatin interaction heatmap     |
 
 ---
 
