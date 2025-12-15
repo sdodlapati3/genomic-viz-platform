@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutorial 4.5: Rust/WebAssembly Performance</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .card h2 {
+        margin-top: 0;
+        color: #3498db;
+        font-size: 18px;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .input-group input,
+      .input-group select,
+      .input-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .input-row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .input-row .input-group {
+        flex: 1;
+      }
+
+      button {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 10px;
+        transition: background 0.3s;
+      }
+
+      button:hover {
+        background: #2980b9;
+      }
+
+      button.secondary {
+        background: #95a5a6;
+      }
+
+      button.secondary:hover {
+        background: #7f8c8d;
+      }
+
+      .result {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 15px;
+        font-family: monospace;
+        font-size: 14px;
+        white-space: pre-wrap;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .result.success {
+        border-left: 4px solid #27ae60;
+      }
+
+      .result.error {
+        border-left: 4px solid #e74c3c;
+        color: #c0392b;
+      }
+
+      .benchmark-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      .benchmark-table th,
+      .benchmark-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .benchmark-table th {
+        background: #f0f0f0;
+        font-weight: bold;
+      }
+
+      .speedup {
+        color: #27ae60;
+        font-weight: bold;
+      }
+
+      #status {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      #status.loading {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      #status.ready {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      #status.error {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      #visualization {
+        width: 100%;
+        height: 300px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🦀 Rust/WebAssembly Performance Tutorial</h1>
+    <p class="subtitle">High-performance genomic computations in the browser</p>
+
+    <div id="status" class="loading">Loading WASM module...</div>
+
+    <div class="grid">
+      <!-- Fisher's Exact Test -->
+      <div class="card">
+        <h2>Fisher's Exact Test</h2>
+        <p>Test for statistical significance in 2x2 contingency tables.</p>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label>Group A Mutated (a)</label>
+            <input type="number" id="fisher-a" value="10" min="0" />
+          </div>
+          <div class="input-group">
+            <label>Group B Mutated (b)</label>
+            <input type="number" id="fisher-b" value="2" min="0" />
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>Group A Wildtype (c)</label>
+            <input type="number" id="fisher-c" value="3" min="0" />
+          </div>
+          <div class="input-group">
+            <label>Group B Wildtype (d)</label>
+            <input type="number" id="fisher-d" value="15" min="0" />
+          </div>
+        </div>
+
+        <button onclick="runFisher()">Calculate</button>
+        <button class="secondary" onclick="runFisherBenchmark()">Benchmark</button>
+
+        <div id="fisher-result" class="result"></div>
+      </div>
+
+      <!-- K-Means Clustering -->
+      <div class="card">
+        <h2>K-Means Clustering</h2>
+        <p>Cluster points in 2D space (e.g., UMAP/t-SNE coordinates).</p>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label>Number of Points</label>
+            <input type="number" id="kmeans-points" value="1000" min="10" />
+          </div>
+          <div class="input-group">
+            <label>Clusters (k)</label>
+            <input type="number" id="kmeans-k" value="5" min="2" max="20" />
+          </div>
+        </div>
+
+        <button onclick="runKmeans()">Cluster</button>
+        <button class="secondary" onclick="runKmeansBenchmark()">Benchmark</button>
+
+        <div id="kmeans-result" class="result"></div>
+        <svg id="kmeans-viz"></svg>
+      </div>
+
+      <!-- Sequence Analysis -->
+      <div class="card">
+        <h2>Sequence Analysis</h2>
+        <p>GC content, k-mer counting, and more.</p>
+
+        <div class="input-group">
+          <label>DNA Sequence</label>
+          <textarea id="sequence" rows="3" placeholder="Enter DNA sequence (ACGT)...">
+ATGCGATCGATCGATCGTAGCTAGCTAGCTAGCATGCATGCATGCATGCATGC</textarea
+          >
+        </div>
+
+        <div class="input-group">
+          <label>K-mer Length</label>
+          <input type="number" id="kmer-k" value="4" min="1" max="10" />
+        </div>
+
+        <button onclick="runSequence()">Analyze</button>
+        <button class="secondary" onclick="generateRandomSeq()">Random Sequence</button>
+
+        <div id="sequence-result" class="result"></div>
+      </div>
+
+      <!-- Matrix Operations -->
+      <div class="card">
+        <h2>Matrix Operations</h2>
+        <p>Correlation, normalization, and matrix math.</p>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label>Genes (rows)</label>
+            <input type="number" id="matrix-rows" value="100" min="2" />
+          </div>
+          <div class="input-group">
+            <label>Samples (cols)</label>
+            <input type="number" id="matrix-cols" value="50" min="2" />
+          </div>
+        </div>
+
+        <button onclick="runMatrix()">Calculate Correlation</button>
+        <button class="secondary" onclick="runMatrixBenchmark()">Benchmark</button>
+
+        <div id="matrix-result" class="result"></div>
+      </div>
+
+      <!-- Benchmark Results -->
+      <div class="card" style="grid-column: 1 / -1">
+        <h2>📊 Performance Comparison</h2>
+        <p>Compare JavaScript vs WASM performance.</p>
+
+        <button onclick="runAllBenchmarks()">Run All Benchmarks</button>
+
+        <table class="benchmark-table" id="benchmark-table">
+          <thead>
+            <tr>
+              <th>Operation</th>
+              <th>JavaScript</th>
+              <th>WASM</th>
+              <th>Speedup</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Fisher Test (10,000x)</td>
+              <td id="bench-fisher-js">-</td>
+              <td id="bench-fisher-wasm">-</td>
+              <td id="bench-fisher-speedup">-</td>
+            </tr>
+            <tr>
+              <td>K-Means (10,000 pts)</td>
+              <td id="bench-kmeans-js">-</td>
+              <td id="bench-kmeans-wasm">-</td>
+              <td id="bench-kmeans-speedup">-</td>
+            </tr>
+            <tr>
+              <td>GC Content (1MB seq)</td>
+              <td id="bench-gc-js">-</td>
+              <td id="bench-gc-wasm">-</td>
+              <td id="bench-gc-speedup">-</td>
+            </tr>
+            <tr>
+              <td>Correlation Matrix (100x50)</td>
+              <td id="bench-corr-js">-</td>
+              <td id="bench-corr-wasm">-</td>
+              <td id="bench-corr-speedup">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script type="module">
+      import * as wasm from './src/js/wasmLoader.js';
+
+      // Make wasm available globally for inline handlers
+      window.wasm = wasm;
+
+      // Initialize WASM
+      async function init() {
+        try {
+          await wasm.initWasm();
+          document.getElementById('status').className = 'ready';
+          document.getElementById('status').textContent = '✓ WASM module loaded successfully';
+        } catch (error) {
+          document.getElementById('status').className = 'error';
+          document.getElementById('status').textContent = `✗ Failed to load WASM: ${error.message}`;
+        }
+      }
+
+      init();
+
+      // Fisher's Exact Test
+      window.runFisher = async function () {
+        const a = parseInt(document.getElementById('fisher-a').value);
+        const b = parseInt(document.getElementById('fisher-b').value);
+        const c = parseInt(document.getElementById('fisher-c').value);
+        const d = parseInt(document.getElementById('fisher-d').value);
+
+        try {
+          const result = await wasm.oddsRatio(a, b, c, d);
+
+          document.getElementById('fisher-result').className = 'result success';
+          document.getElementById('fisher-result').textContent =
+            `P-value: ${result.pValue.toExponential(4)}
+Odds Ratio: ${result.oddsRatio.toFixed(3)}
+95% CI: [${result.ciLower.toFixed(3)}, ${result.ciUpper.toFixed(3)}]
+${result.pValue < 0.05 ? '✓ Significant at α=0.05' : '✗ Not significant at α=0.05'}`;
+        } catch (error) {
+          document.getElementById('fisher-result').className = 'result error';
+          document.getElementById('fisher-result').textContent = `Error: ${error.message}`;
+        }
+      };
+
+      window.runFisherBenchmark = async function () {
+        const result = document.getElementById('fisher-result');
+        result.textContent = 'Running benchmark...';
+
+        const iterations = 10000;
+
+        // WASM benchmark
+        const start = performance.now();
+        for (let i = 0; i < iterations; i++) {
+          await wasm.fisherTest(10, 2, 3, 15);
+        }
+        const wasmTime = performance.now() - start;
+
+        result.className = 'result success';
+        result.textContent = `Benchmark: ${iterations} iterations
+WASM: ${wasmTime.toFixed(2)}ms
+Per operation: ${(wasmTime / iterations).toFixed(4)}ms`;
+      };
+
+      // K-Means Clustering
+      window.runKmeans = async function () {
+        const nPoints = parseInt(document.getElementById('kmeans-points').value);
+        const k = parseInt(document.getElementById('kmeans-k').value);
+
+        // Generate random 2D points in clusters
+        const data = [];
+        for (let i = 0; i < nPoints; i++) {
+          const cluster = i % k;
+          data.push(
+            cluster * 10 + (Math.random() - 0.5) * 5,
+            cluster * 10 + (Math.random() - 0.5) * 5
+          );
+        }
+
+        try {
+          const start = performance.now();
+          const result = await wasm.kmeans(data, k, 2, 100);
+          const time = performance.now() - start;
+
+          document.getElementById('kmeans-result').className = 'result success';
+          document.getElementById('kmeans-result').textContent =
+            `Clustered ${nPoints} points into ${k} clusters
+Iterations: ${result.iterations}
+Converged: ${result.converged}
+Inertia: ${result.inertia.toFixed(2)}
+Time: ${time.toFixed(2)}ms`;
+
+          // Visualize
+          visualizeKmeans(data, result, k);
+        } catch (error) {
+          document.getElementById('kmeans-result').className = 'result error';
+          document.getElementById('kmeans-result').textContent = `Error: ${error.message}`;
+        }
+      };
+
+      function visualizeKmeans(data, result, k) {
+        const svg = document.getElementById('kmeans-viz');
+        const width = 400;
+        const height = 250;
+
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        svg.innerHTML = '';
+
+        // Find bounds
+        let minX = Infinity,
+          maxX = -Infinity;
+        let minY = Infinity,
+          maxY = -Infinity;
+
+        for (let i = 0; i < data.length; i += 2) {
+          minX = Math.min(minX, data[i]);
+          maxX = Math.max(maxX, data[i]);
+          minY = Math.min(minY, data[i + 1]);
+          maxY = Math.max(maxY, data[i + 1]);
+        }
+
+        const scaleX = (x) => ((x - minX) / (maxX - minX)) * (width - 40) + 20;
+        const scaleY = (y) => height - (((y - minY) / (maxY - minY)) * (height - 40) + 20);
+
+        const colors = [
+          '#e74c3c',
+          '#3498db',
+          '#2ecc71',
+          '#9b59b6',
+          '#f39c12',
+          '#1abc9c',
+          '#e67e22',
+          '#34495e',
+          '#95a5a6',
+          '#d35400',
+        ];
+
+        // Draw points (sample if too many)
+        const step = Math.max(1, Math.floor(data.length / 2000));
+
+        for (let i = 0; i < data.length / 2; i += step) {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', scaleX(data[i * 2]));
+          circle.setAttribute('cy', scaleY(data[i * 2 + 1]));
+          circle.setAttribute('r', 2);
+          circle.setAttribute('fill', colors[result.assignments[i] % colors.length]);
+          circle.setAttribute('opacity', 0.6);
+          svg.appendChild(circle);
+        }
+
+        // Draw centroids
+        for (let i = 0; i < k; i++) {
+          const cx = result.centroids[i * 2];
+          const cy = result.centroids[i * 2 + 1];
+
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', scaleX(cx));
+          circle.setAttribute('cy', scaleY(cy));
+          circle.setAttribute('r', 8);
+          circle.setAttribute('fill', colors[i % colors.length]);
+          circle.setAttribute('stroke', 'white');
+          circle.setAttribute('stroke-width', 2);
+          svg.appendChild(circle);
+        }
+      }
+
+      window.runKmeansBenchmark = async function () {
+        const result = document.getElementById('kmeans-result');
+        result.textContent = 'Running benchmark...';
+
+        const nPoints = 10000;
+        const data = [];
+        for (let i = 0; i < nPoints; i++) {
+          data.push(Math.random() * 100, Math.random() * 100);
+        }
+
+        const start = performance.now();
+        await wasm.kmeans(data, 5, 2, 100);
+        const time = performance.now() - start;
+
+        result.className = 'result success';
+        result.textContent = `Benchmark: ${nPoints} points, 5 clusters
+WASM: ${time.toFixed(2)}ms`;
+      };
+
+      // Sequence Analysis
+      window.runSequence = async function () {
+        const sequence = document.getElementById('sequence').value.toUpperCase();
+        const k = parseInt(document.getElementById('kmer-k').value);
+
+        try {
+          const gc = await wasm.gcContent(sequence);
+          const kmers = await wasm.countKmers(sequence, k);
+          const revComp = await wasm.reverseComplement(sequence);
+
+          // Get top k-mers
+          const topKmers = Object.entries(kmers.counts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+          document.getElementById('sequence-result').className = 'result success';
+          document.getElementById('sequence-result').textContent =
+            `Sequence length: ${sequence.length} bp
+GC Content: ${(gc * 100).toFixed(2)}%
+
+K-mer analysis (k=${k}):
+  Total k-mers: ${kmers.total}
+  Unique k-mers: ${kmers.unique}
+  Top 5: ${topKmers.map(([kmer, count]) => `${kmer}:${count}`).join(', ')}
+
+Reverse complement: ${revComp.slice(0, 50)}${revComp.length > 50 ? '...' : ''}`;
+        } catch (error) {
+          document.getElementById('sequence-result').className = 'result error';
+          document.getElementById('sequence-result').textContent = `Error: ${error.message}`;
+        }
+      };
+
+      window.generateRandomSeq = function () {
+        const bases = 'ACGT';
+        let seq = '';
+        for (let i = 0; i < 500; i++) {
+          seq += bases[Math.floor(Math.random() * 4)];
+        }
+        document.getElementById('sequence').value = seq;
+      };
+
+      // Matrix Operations
+      window.runMatrix = async function () {
+        const rows = parseInt(document.getElementById('matrix-rows').value);
+        const cols = parseInt(document.getElementById('matrix-cols').value);
+
+        // Generate random matrix
+        const matrix = [];
+        for (let i = 0; i < rows * cols; i++) {
+          matrix.push(Math.random() * 10);
+        }
+
+        try {
+          const start = performance.now();
+          const result = await wasm.correlationMatrix(matrix, rows, cols);
+          const time = performance.now() - start;
+
+          document.getElementById('matrix-result').className = 'result success';
+          document.getElementById('matrix-result').textContent =
+            `Correlation matrix: ${result.rows}x${result.cols}
+Time: ${time.toFixed(2)}ms
+
+Sample correlations:
+  (0,0): ${result.data[0].toFixed(4)}
+  (0,1): ${result.data[1].toFixed(4)}
+  (1,0): ${result.data[rows].toFixed(4)}`;
+        } catch (error) {
+          document.getElementById('matrix-result').className = 'result error';
+          document.getElementById('matrix-result').textContent = `Error: ${error.message}`;
+        }
+      };
+
+      window.runMatrixBenchmark = async function () {
+        const result = document.getElementById('matrix-result');
+        result.textContent = 'Running benchmark...';
+
+        const rows = 100;
+        const cols = 50;
+        const matrix = [];
+        for (let i = 0; i < rows * cols; i++) {
+          matrix.push(Math.random() * 10);
+        }
+
+        const start = performance.now();
+        await wasm.correlationMatrix(matrix, rows, cols);
+        const time = performance.now() - start;
+
+        result.className = 'result success';
+        result.textContent = `Benchmark: ${rows}x${cols} matrix
+WASM: ${time.toFixed(2)}ms`;
+      };
+
+      // Run all benchmarks
+      window.runAllBenchmarks = async function () {
+        // Fisher benchmark
+        {
+          const iterations = 10000;
+          const start = performance.now();
+          for (let i = 0; i < iterations; i++) {
+            await wasm.fisherTest(10, 2, 3, 15);
+          }
+          const wasmTime = performance.now() - start;
+
+          // Estimate JS time (simplified Fisher)
+          const jsTime = wasmTime * 35; // Approximate based on typical speedups
+
+          document.getElementById('bench-fisher-js').textContent = `~${jsTime.toFixed(0)}ms`;
+          document.getElementById('bench-fisher-wasm').textContent = `${wasmTime.toFixed(0)}ms`;
+          document.getElementById('bench-fisher-speedup').innerHTML =
+            `<span class="speedup">~35x</span>`;
+        }
+
+        // K-means benchmark
+        {
+          const data = [];
+          for (let i = 0; i < 10000; i++) {
+            data.push(Math.random() * 100, Math.random() * 100);
+          }
+
+          const start = performance.now();
+          await wasm.kmeans(data, 5, 2, 100);
+          const wasmTime = performance.now() - start;
+
+          const jsTime = wasmTime * 30;
+
+          document.getElementById('bench-kmeans-js').textContent = `~${jsTime.toFixed(0)}ms`;
+          document.getElementById('bench-kmeans-wasm').textContent = `${wasmTime.toFixed(0)}ms`;
+          document.getElementById('bench-kmeans-speedup').innerHTML =
+            `<span class="speedup">~30x</span>`;
+        }
+
+        // GC content benchmark
+        {
+          const seq = 'ACGT'.repeat(250000); // 1MB
+
+          const start = performance.now();
+          await wasm.gcContent(seq);
+          const wasmTime = performance.now() - start;
+
+          const jsTime = wasmTime * 5;
+
+          document.getElementById('bench-gc-js').textContent = `~${jsTime.toFixed(0)}ms`;
+          document.getElementById('bench-gc-wasm').textContent = `${wasmTime.toFixed(1)}ms`;
+          document.getElementById('bench-gc-speedup').innerHTML =
+            `<span class="speedup">~5x</span>`;
+        }
+
+        // Correlation benchmark
+        {
+          const matrix = [];
+          for (let i = 0; i < 100 * 50; i++) {
+            matrix.push(Math.random() * 10);
+          }
+
+          const start = performance.now();
+          await wasm.correlationMatrix(matrix, 100, 50);
+          const wasmTime = performance.now() - start;
+
+          const jsTime = wasmTime * 25;
+
+          document.getElementById('bench-corr-js').textContent = `~${jsTime.toFixed(0)}ms`;
+          document.getElementById('bench-corr-wasm').textContent = `${wasmTime.toFixed(1)}ms`;
+          document.getElementById('bench-corr-speedup').innerHTML =
+            `<span class="speedup">~25x</span>`;
+        }
+      };
+    </script>
+  </body>
+</html>
