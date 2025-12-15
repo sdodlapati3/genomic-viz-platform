@@ -294,6 +294,297 @@ This pattern mirrors ProteinPaint's configuration handling:
 4. **User Feedback** - Clear error messages with paths
 5. **State Management** - Centralized, reactive configuration
 
+---
+
+## 🎯 Interview Preparation Q&A
+
+### Q1: How do you implement runtime schema validation with Zod?
+
+**Answer:**
+
+```typescript
+import { z } from 'zod';
+
+// Define schema
+const MutationSchema = z.object({
+  gene: z.string().min(1),
+  position: z.number().int().positive(),
+  aaChange: z.string().regex(/^[A-Z]\d+[A-Z]$/), // e.g., R175H
+  consequence: z.enum(['missense', 'nonsense', 'frameshift', 'splice']),
+  vaf: z.number().min(0).max(1),
+  samples: z.array(z.string()).optional(),
+});
+
+// Infer TypeScript type from schema
+type Mutation = z.infer<typeof MutationSchema>;
+
+// Validate at runtime
+function processMutation(input: unknown): Mutation {
+  const result = MutationSchema.safeParse(input);
+
+  if (!result.success) {
+    // Detailed error with path
+    const errors = result.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`);
+    throw new Error(`Invalid mutation: ${errors.join(', ')}`);
+  }
+
+  return result.data;
+}
+
+// Usage
+try {
+  const mutation = processMutation({ gene: 'TP53', position: 175 });
+} catch (e) {
+  // "Invalid mutation: aaChange: Required, consequence: Required, vaf: Required"
+}
+```
+
+---
+
+### Q2: How do you implement config migrations between versions?
+
+**Answer:**
+
+```typescript
+interface Migration {
+  fromVersion: number;
+  toVersion: number;
+  migrate: (config: any) => any;
+}
+
+class MigrationRegistry {
+  private migrations: Migration[] = [];
+
+  register(migration: Migration) {
+    this.migrations.push(migration);
+    this.migrations.sort((a, b) => a.fromVersion - b.fromVersion);
+  }
+
+  migrate(config: any, targetVersion: number): any {
+    let current = config;
+    let currentVersion = config.version || 1;
+
+    while (currentVersion < targetVersion) {
+      const migration = this.migrations.find((m) => m.fromVersion === currentVersion);
+
+      if (!migration) {
+        throw new Error(`No migration from v${currentVersion}`);
+      }
+
+      current = migration.migrate(current);
+      currentVersion = migration.toVersion;
+    }
+
+    return { ...current, version: targetVersion };
+  }
+}
+
+// Define migrations
+registry.register({
+  fromVersion: 1,
+  toVersion: 2,
+  migrate: (config) => ({
+    ...config,
+    // v2: Renamed 'mutations' to 'variants'
+    variants: config.mutations,
+    mutations: undefined,
+  }),
+});
+
+registry.register({
+  fromVersion: 2,
+  toVersion: 3,
+  migrate: (config) => ({
+    ...config,
+    // v3: Added required 'genome' field
+    genome: config.genome || 'hg38',
+  }),
+});
+```
+
+---
+
+### Q3: How do you persist visualization state in URLs?
+
+**Answer:**
+
+```typescript
+class URLStateManager {
+  // Serialize state to URL
+  serialize(state: AppConfig): string {
+    // Compress to reduce URL length
+    const json = JSON.stringify(state);
+    const compressed = btoa(json); // Or use lz-string for better compression
+    return compressed;
+  }
+
+  // Deserialize from URL
+  deserialize(param: string): AppConfig | null {
+    try {
+      const json = atob(param);
+      const parsed = JSON.parse(json);
+
+      // Validate and migrate
+      const migrated = this.migrationRegistry.migrate(parsed, CURRENT_VERSION);
+      return AppConfigSchema.parse(migrated);
+    } catch (e) {
+      console.warn('Invalid URL state:', e);
+      return null;
+    }
+  }
+
+  // Update URL without page reload
+  updateURL(state: AppConfig) {
+    const serialized = this.serialize(state);
+    const url = new URL(window.location.href);
+    url.searchParams.set('state', serialized);
+
+    window.history.replaceState({}, '', url.toString());
+  }
+
+  // Load state on page load
+  loadFromURL(): AppConfig {
+    const url = new URL(window.location.href);
+    const stateParam = url.searchParams.get('state');
+
+    if (stateParam) {
+      const state = this.deserialize(stateParam);
+      if (state) return state;
+    }
+
+    return this.getDefaultConfig();
+  }
+}
+```
+
+**Use case:** Shareable links like `https://app.com?state=eyJnZW5l...`
+
+---
+
+### Q4: How do you build a reactive config store with undo/redo?
+
+**Answer:**
+
+```typescript
+class ConfigStore {
+  private state: AppConfig;
+  private history: AppConfig[] = [];
+  private future: AppConfig[] = [];
+  private subscribers: ((state: AppConfig) => void)[] = [];
+
+  constructor(initial: AppConfig) {
+    this.state = initial;
+  }
+
+  update(updater: (state: AppConfig) => AppConfig) {
+    // Save current state for undo
+    this.history.push(structuredClone(this.state));
+    this.future = []; // Clear redo stack
+
+    // Apply update
+    this.state = updater(this.state);
+
+    // Validate new state
+    const result = AppConfigSchema.safeParse(this.state);
+    if (!result.success) {
+      this.state = this.history.pop()!; // Rollback
+      throw new Error('Invalid config update');
+    }
+
+    this.notify();
+  }
+
+  undo() {
+    if (this.history.length === 0) return;
+    this.future.push(structuredClone(this.state));
+    this.state = this.history.pop()!;
+    this.notify();
+  }
+
+  redo() {
+    if (this.future.length === 0) return;
+    this.history.push(structuredClone(this.state));
+    this.state = this.future.pop()!;
+    this.notify();
+  }
+
+  subscribe(callback: (state: AppConfig) => void) {
+    this.subscribers.push(callback);
+    callback(this.state);
+    return () => {
+      this.subscribers = this.subscribers.filter((s) => s !== callback);
+    };
+  }
+
+  private notify() {
+    this.subscribers.forEach((cb) => cb(this.state));
+  }
+}
+```
+
+---
+
+### Q5: How does ProteinPaint handle configuration?
+
+**Answer:**
+**ProteinPaint configuration patterns:**
+
+1. **Layered configuration:**
+
+   ```javascript
+   // Default → Server → URL → User
+   const config = mergeConfigs(
+     defaultConfig, // Hardcoded defaults
+     serverConfig, // From server API
+     urlConfig, // From URL params
+     userPreferences // From localStorage
+   );
+   ```
+
+2. **Track configuration:**
+
+   ```javascript
+   const trackConfig = {
+     type: 'mds3',
+     name: 'Pediatric Mutations',
+     genome: 'hg38',
+     dslabel: 'pediatric',
+
+     // Display options
+     showLabels: true,
+     labelCutoff: 5,
+
+     // Filters
+     filters: {
+       consequence: ['missense', 'nonsense'],
+       minVAF: 0.05,
+     },
+   };
+   ```
+
+3. **URL state preservation:**
+
+   ```javascript
+   // Encode current view state
+   const state = {
+     gene: 'TP53',
+     position: 'chr17:7668421-7687490',
+     tracks: ['mutations', 'expression'],
+     filters: currentFilters,
+   };
+
+   // Generate shareable URL
+   const shareUrl = `${baseUrl}?config=${encode(state)}`;
+   ```
+
+4. **Validation strategy:**
+   - Validate at load time
+   - Fallback to defaults for invalid values
+   - Log warnings for deprecated options
+   - Auto-migrate old config formats
+
+---
+
 ## Next Steps
 
 - Return to [Capstone Project](../../../capstone/README.md)

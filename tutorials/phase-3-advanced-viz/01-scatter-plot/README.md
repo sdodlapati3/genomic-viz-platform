@@ -372,4 +372,184 @@ After completing this tutorial, continue with:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: When would you use WebGL vs Canvas 2D for scatter plots?
+
+**Answer:**
+| Factor | WebGL | Canvas 2D |
+|--------|-------|-----------|
+| Point count | >10,000 points | <10,000 points |
+| Setup complexity | High (shaders) | Low |
+| Custom shapes | Harder | Easier |
+| Color per point | Efficient (GPU) | Works, but slower |
+| Browser support | IE11 issues | Universal |
+
+**WebGL advantages:**
+
+- GPU parallel processing (millions of points)
+- Hardware-accelerated transforms
+- Custom visual effects via shaders
+
+**Canvas 2D advantages:**
+
+- Simpler API
+- Better debugging
+- Text rendering support
+
+---
+
+### Q2: Explain how a quadtree improves hover detection in scatter plots.
+
+**Answer:**
+**Problem:** Finding nearest point to mouse requires checking all points: O(n)
+
+**Quadtree solution:** Spatial index with O(log n) lookup
+
+```javascript
+class Quadtree {
+  constructor(bounds, capacity = 4) {
+    this.bounds = bounds;
+    this.capacity = capacity;
+    this.points = [];
+    this.divided = false;
+  }
+
+  insert(point) {
+    if (!this.contains(point)) return false;
+
+    if (this.points.length < this.capacity) {
+      this.points.push(point);
+      return true;
+    }
+
+    if (!this.divided) this.subdivide();
+
+    return (
+      this.northeast.insert(point) ||
+      this.northwest.insert(point) ||
+      this.southeast.insert(point) ||
+      this.southwest.insert(point)
+    );
+  }
+
+  findNearest(x, y, radius) {
+    // Only search quadrants that overlap with search circle
+    // Dramatically reduces comparisons
+  }
+}
+```
+
+**Performance:**
+
+- 50,000 points without quadtree: ~50ms per hover
+- 50,000 points with quadtree: ~0.1ms per hover
+
+---
+
+### Q3: What is UMAP and why is it used for single-cell data?
+
+**Answer:**
+**UMAP (Uniform Manifold Approximation and Projection):**
+
+- Dimensionality reduction algorithm
+- Reduces 20,000+ genes to 2-3 dimensions
+- Preserves local and global structure
+
+**Why single-cell uses UMAP:**
+
+1. Each cell = 20,000-dimensional point (gene expression values)
+2. Direct visualization impossible
+3. UMAP reveals cell clusters (cell types)
+4. Faster than t-SNE, better global structure
+
+**Comparison with t-SNE:**
+| Feature | UMAP | t-SNE |
+|---------|------|-------|
+| Speed | Fast | Slow |
+| Global structure | Preserved | Lost |
+| Deterministic | More | Less |
+| Hyperparameters | n_neighbors, min_dist | perplexity |
+
+---
+
+### Q4: How do you implement efficient color mapping for cell types?
+
+**Answer:**
+
+```javascript
+// Categorical color scale for cell types
+const cellTypeColors = d3
+  .scaleOrdinal()
+  .domain(['T_cell', 'B_cell', 'Macrophage', 'NK_cell', 'Tumor'])
+  .range(['#e41a1c', '#377eb8', '#4daf4a', '#ff7f00', '#999999']);
+
+// For WebGL: pre-compute colors as Float32Array
+function prepareColorBuffer(points) {
+  const colors = new Float32Array(points.length * 4); // RGBA
+
+  points.forEach((p, i) => {
+    const rgb = d3.color(cellTypeColors(p.cellType));
+    colors[i * 4] = rgb.r / 255;
+    colors[i * 4 + 1] = rgb.g / 255;
+    colors[i * 4 + 2] = rgb.b / 255;
+    colors[i * 4 + 3] = 1.0; // alpha
+  });
+
+  return colors;
+}
+
+// Continuous color for gene expression
+const expressionColor = d3.scaleSequential(d3.interpolateViridis).domain([0, maxExpression]);
+```
+
+---
+
+### Q5: How would you implement linked selection between scatter plot and other views?
+
+**Answer:**
+
+```javascript
+// Event bus for cross-view communication
+const eventBus = new EventEmitter();
+
+// Scatter plot brush selection
+const brush = d3
+  .brush()
+  .extent([
+    [0, 0],
+    [width, height],
+  ])
+  .on('end', (event) => {
+    if (!event.selection) {
+      eventBus.emit('selection:clear');
+      return;
+    }
+
+    const [[x0, y0], [x1, y1]] = event.selection;
+    const selectedIds = points
+      .filter(
+        (p) => xScale(p.x) >= x0 && xScale(p.x) <= x1 && yScale(p.y) >= y0 && yScale(p.y) <= y1
+      )
+      .map((p) => p.id);
+
+    eventBus.emit('selection:update', {
+      source: 'scatter',
+      ids: selectedIds,
+    });
+  });
+
+// Other components listen
+eventBus.on('selection:update', ({ source, ids }) => {
+  if (source !== 'heatmap') {
+    heatmap.highlightSamples(ids);
+  }
+  if (source !== 'table') {
+    table.filterRows(ids);
+  }
+});
+```
+
+---
+
 [← Back to Tutorials Index](../../README.md)

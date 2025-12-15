@@ -492,4 +492,199 @@ Compare two differential expression analyses:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: What does a volcano plot show and why is it useful?
+
+**Answer:**
+**Volcano plot visualizes differential expression results:**
+
+- **X-axis:** log₂(fold change) - magnitude of expression change
+- **Y-axis:** -log₁₀(p-value) - statistical significance
+
+**Why "volcano"?**
+
+- Shape resembles eruption: significant genes fly up and outward
+- Non-significant cluster at bottom center
+
+**Interpretation:**
+| Quadrant | log₂FC | -log₁₀(p) | Meaning |
+|----------|--------|-----------|---------|
+| Upper right | >1 | High | Significantly upregulated |
+| Upper left | <-1 | High | Significantly downregulated |
+| Center bottom | ~0 | Low | No significant change |
+
+**Significance thresholds:**
+
+- |log₂FC| > 1 (2-fold change)
+- Adjusted p < 0.05
+
+---
+
+### Q2: Why use -log₁₀(p-value) instead of p-value directly?
+
+**Answer:**
+**Problems with raw p-values:**
+
+- Highly significant: p = 0.0000001
+- Barely significant: p = 0.04
+- Scale compressed at important end
+
+**Benefits of -log₁₀ transformation:**
+
+- p = 0.05 → 1.3
+- p = 0.001 → 3
+- p = 0.0000001 → 7
+- More significant = higher on plot
+- Spreads out important values
+
+```javascript
+const negLog10 = (pValue) => -Math.log10(pValue);
+// Handle p = 0 (set maximum displayable value)
+const safeNegLog10 = (pValue) => (pValue === 0 ? 300 : -Math.log10(pValue));
+```
+
+---
+
+### Q3: How do you handle 20,000+ genes efficiently in a volcano plot?
+
+**Answer:**
+**Canvas rendering with batching:**
+
+```javascript
+render() {
+  // Group by color to minimize draw calls
+  const groups = {
+    up: points.filter(p => p.sig && p.fc > 0),
+    down: points.filter(p => p.sig && p.fc < 0),
+    ns: points.filter(p => !p.sig)
+  };
+
+  // Draw non-significant first (background)
+  ctx.fillStyle = 'rgba(150,150,150,0.3)';
+  ctx.beginPath();
+  groups.ns.forEach(p => {
+    ctx.moveTo(p.x + 1.5, p.y);
+    ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+  });
+  ctx.fill();
+
+  // Draw significant on top
+  ['down', 'up'].forEach(group => {
+    ctx.fillStyle = group === 'up' ? '#e74c3c' : '#3498db';
+    ctx.beginPath();
+    groups[group].forEach(p => {
+      ctx.moveTo(p.x + 2, p.y);
+      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+    });
+    ctx.fill();
+  });
+}
+```
+
+**Hover optimization:**
+
+```javascript
+// Throttle mouse events
+let lastCheck = 0;
+canvas.addEventListener('mousemove', (e) => {
+  if (Date.now() - lastCheck < 50) return;
+  lastCheck = Date.now();
+
+  // Pre-computed positions make lookup fast
+  const nearest = findNearest(e.offsetX, e.offsetY);
+  if (nearest) showTooltip(nearest);
+});
+```
+
+---
+
+### Q4: Explain multiple hypothesis testing correction for volcano plots.
+
+**Answer:**
+**Problem:** Testing 20,000 genes, expect 1,000 false positives at p < 0.05
+
+**Solutions:**
+
+1. **Bonferroni:** Strict, divides α by number of tests
+   - p_adj = p × n_genes
+   - Very conservative, high false negative rate
+
+2. **Benjamini-Hochberg (FDR):** Controls false discovery rate
+   ```javascript
+   function benjaminiHochberg(pValues) {
+     const n = pValues.length;
+     const sorted = pValues.map((p, i) => ({ p, i })).sort((a, b) => a.p - b.p);
+
+     return sorted.map((item, rank) => {
+       const adjusted = Math.min(1, (item.p * n) / (rank + 1));
+       return { original: item.i, padj: adjusted };
+     });
+   }
+   ```
+3. **q-value:** Storey's method, less conservative than BH
+
+**Standard practice:** Use FDR-adjusted p-values (padj < 0.05)
+
+---
+
+### Q5: How do you implement interactive gene labeling in a volcano plot?
+
+**Answer:**
+
+```javascript
+function labelTopGenes(data, n = 10) {
+  // Label most significant
+  const top = data
+    .filter((d) => d.significant)
+    .sort((a, b) => b.negLogP - a.negLogP)
+    .slice(0, n);
+
+  // Use force simulation to avoid overlaps
+  const labels = svg
+    .selectAll('.gene-label')
+    .data(top)
+    .join('text')
+    .attr('class', 'gene-label')
+    .text((d) => d.gene);
+
+  // Force layout for label positioning
+  const simulation = d3
+    .forceSimulation(top)
+    .force('x', d3.forceX((d) => xScale(d.log2FC)).strength(0.5))
+    .force('y', d3.forceY((d) => yScale(d.negLogP)).strength(0.5))
+    .force('collision', d3.forceCollide(20))
+    .on('tick', () => {
+      labels.attr('x', (d) => d.x).attr('y', (d) => d.y);
+    });
+}
+
+// Gene search functionality
+function highlightGene(geneName) {
+  const gene = data.find((d) => d.gene.toLowerCase() === geneName.toLowerCase());
+
+  if (gene) {
+    // Zoom to gene position
+    const targetX = xScale(gene.log2FC);
+    const targetY = yScale(gene.negLogP);
+
+    // Highlight with ring
+    svg
+      .append('circle')
+      .attr('cx', targetX)
+      .attr('cy', targetY)
+      .attr('r', 20)
+      .attr('fill', 'none')
+      .attr('stroke', '#f39c12')
+      .attr('stroke-width', 3)
+      .transition()
+      .duration(1000)
+      .attr('r', 5)
+      .attr('stroke-width', 2);
+  }
+}
+```
+
+---
+
 [← Back to Tutorials Index](../../README.md)

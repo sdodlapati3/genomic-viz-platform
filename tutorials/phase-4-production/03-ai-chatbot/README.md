@@ -438,4 +438,242 @@ Your genomic visualization platform now has AI-powered query capabilities! 🤖�
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: How would you implement RAG for genomic knowledge retrieval?
+
+**Answer:**
+
+```javascript
+class GenomicRAG {
+  constructor() {
+    this.chunks = [];
+    this.embeddings = null;
+  }
+
+  async loadKnowledgeBase(documents) {
+    // Split documents into chunks
+    this.chunks = documents.flatMap((doc) => this.splitIntoChunks(doc, { size: 500, overlap: 50 }));
+
+    // Generate embeddings for semantic search
+    this.embeddings = await Promise.all(this.chunks.map((chunk) => this.embed(chunk.text)));
+  }
+
+  async retrieve(query, topK = 5) {
+    const queryEmbedding = await this.embed(query);
+
+    // Find most similar chunks
+    const similarities = this.embeddings.map((emb, idx) => ({
+      chunk: this.chunks[idx],
+      score: cosineSimilarity(queryEmbedding, emb),
+    }));
+
+    return similarities
+      .sort((a, b) => b.score - a.score)
+      .slice(0, topK)
+      .map((s) => s.chunk);
+  }
+
+  async answer(query) {
+    const context = await this.retrieve(query);
+
+    return this.llm.generate({
+      system: 'You are a genomics expert. Answer based on context.',
+      context: context.map((c) => c.text).join('\n\n'),
+      query,
+    });
+  }
+}
+```
+
+**Key considerations:**
+
+- Chunk size affects retrieval precision
+- Overlap prevents context fragmentation
+- Embedding model choice (OpenAI, local)
+
+---
+
+### Q2: How do you parse natural language into genomic queries?
+
+**Answer:**
+
+```javascript
+async function parseGenomicQuery(naturalLanguage) {
+  const prompt = `
+Convert this natural language query to a structured genomic query:
+
+User: "${naturalLanguage}"
+
+Output JSON with:
+- gene: string | null
+- chromosome: string | null  
+- position: { start: number, end: number } | null
+- mutationType: string[] | null
+- cancer: string | null
+
+Examples:
+"Show me TP53 mutations in breast cancer"
+→ { "gene": "TP53", "mutationType": null, "cancer": "breast" }
+
+"What missense mutations are between chr17:7500000-7700000?"
+→ { "chromosome": "chr17", "position": { "start": 7500000, "end": 7700000 }, "mutationType": ["missense"] }
+`;
+
+  const response = await llm.generate(prompt);
+  return JSON.parse(response);
+}
+
+// Use structured query for database/API
+const query = await parseGenomicQuery('Show hotspot mutations in BRAF');
+// → { gene: "BRAF", mutationType: ["hotspot"] }
+const results = await database.query(query);
+```
+
+---
+
+### Q3: How do you manage conversation context effectively?
+
+**Answer:**
+
+```javascript
+class ConversationManager {
+  constructor(maxTokens = 4000) {
+    this.messages = [];
+    this.maxTokens = maxTokens;
+  }
+
+  addMessage(role, content) {
+    this.messages.push({ role, content, timestamp: Date.now() });
+    this.trim();
+  }
+
+  trim() {
+    // Estimate tokens (rough: 1 token ≈ 4 chars)
+    const estimateTokens = (msg) => msg.content.length / 4;
+
+    let totalTokens = this.messages.reduce((sum, msg) => sum + estimateTokens(msg), 0);
+
+    // Remove oldest messages (keep system message)
+    while (totalTokens > this.maxTokens && this.messages.length > 1) {
+      const removed = this.messages.splice(1, 1)[0];
+      totalTokens -= estimateTokens(removed);
+    }
+  }
+
+  getContext() {
+    return this.messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+  }
+
+  // Summarize for long conversations
+  async summarize() {
+    const summary = await llm.generate({
+      prompt: `Summarize this conversation: ${JSON.stringify(this.messages)}`,
+    });
+
+    this.messages = [{ role: 'system', content: `Previous context: ${summary}` }];
+  }
+}
+```
+
+---
+
+### Q4: How do you handle hallucinations in genomic AI responses?
+
+**Answer:**
+
+```javascript
+class ValidatedGenomicChat {
+  async respond(query) {
+    const response = await this.llm.generate(query);
+
+    // Extract claims about genomic data
+    const claims = this.extractClaims(response);
+
+    // Validate against authoritative sources
+    const validations = await Promise.all(claims.map((claim) => this.validate(claim)));
+
+    // Flag unverified claims
+    const annotated = this.annotateResponse(response, validations);
+
+    return {
+      response: annotated,
+      confidence: validations.filter((v) => v.verified).length / validations.length,
+      sources: validations.filter((v) => v.verified).map((v) => v.source),
+    };
+  }
+
+  async validate(claim) {
+    // Check against known databases
+    if (claim.type === 'mutation') {
+      const dbResult = await this.checkCOSMIC(claim);
+      return { verified: dbResult.exists, source: 'COSMIC' };
+    }
+    if (claim.type === 'gene_function') {
+      const result = await this.checkUniProt(claim);
+      return { verified: result.matches, source: 'UniProt' };
+    }
+    return { verified: false, source: null };
+  }
+}
+```
+
+**Strategies:**
+
+1. **Ground responses in RAG context**
+2. **Validate claims against databases**
+3. **Show confidence scores**
+4. **Cite sources explicitly**
+
+---
+
+### Q5: How would AI features enhance ProteinPaint?
+
+**Answer:**
+**Potential AI integrations:**
+
+1. **Natural language queries:**
+
+   ```
+   User: "Show me all hotspot mutations in pediatric cancers"
+   → Filters: mutationType=hotspot, cohort=pediatric
+   ```
+
+2. **Intelligent annotation:**
+
+   ```javascript
+   // AI explains mutation significance
+   const explanation = await explainMutation({
+     gene: 'TP53',
+     position: 175,
+     aaChange: 'R175H',
+   });
+   // → "R175H is a hotspot mutation that disrupts DNA binding..."
+   ```
+
+3. **Literature integration:**
+   - RAG over PubMed abstracts
+   - Automated pathway summaries
+   - Clinical trial relevance
+
+4. **Query suggestions:**
+
+   ```javascript
+   // Based on current view, suggest related queries
+   const suggestions = await suggestQueries({
+     currentGene: 'BRCA1',
+     viewedMutations: ['C61G', 'R1699Q'],
+   });
+   // → ["Show BRCA2 mutations", "Compare to breast cancer cohort"]
+   ```
+
+5. **Data quality insights:**
+   - Flag suspicious variants
+   - Suggest quality filters
+
+---
+
 [← Back to Tutorials Index](../../README.md)

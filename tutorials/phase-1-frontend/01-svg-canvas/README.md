@@ -228,4 +228,116 @@ After completing this tutorial, proceed to [Tutorial 1.2: D3.js Core Concepts](.
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: When would you choose SVG over Canvas for genomic visualization?
+
+**Answer:** Choose **SVG** when:
+
+- Rendering fewer than ~1,000 elements (exons, domains, mutation lollipops)
+- Need DOM access for event handling (click, hover on specific elements)
+- Require CSS styling and animations
+- Building accessible visualizations (SVG elements can have ARIA attributes)
+- Elements need to be individually selectable/inspectable
+
+Choose **Canvas** when:
+
+- Rendering thousands of points (scatter plots, coverage tracks)
+- Need pixel-level manipulation (heatmaps, image processing)
+- Performance is critical (real-time animations)
+- Drawing complex graphical effects
+
+**ProteinPaint Example:** Gene tracks use SVG for exon rectangles (need click events), while high-density scatter plots use Canvas for performance.
+
+---
+
+### Q2: Explain the SVG coordinate system and viewBox attribute.
+
+**Answer:**
+
+- SVG coordinate system has origin (0,0) at **top-left**
+- X increases rightward, Y increases **downward** (opposite of math convention)
+- `viewBox="0 0 800 400"` defines:
+  - Min-x: 0, Min-y: 0 (starting point)
+  - Width: 800, Height: 400 (coordinate space)
+- viewBox enables **responsive scaling** - SVG content scales proportionally to container
+- Useful pattern: Set viewBox to logical coordinates (e.g., protein length), let CSS handle actual pixel size
+
+---
+
+### Q3: How would you implement hit detection in Canvas vs SVG?
+
+**Answer:**
+**SVG:** Native DOM events work directly:
+
+```javascript
+rect.addEventListener('click', (e) => console.log(e.target));
+```
+
+**Canvas:** Requires geometric calculation:
+
+```javascript
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  // Check if point is inside any shape
+  shapes.forEach((shape) => {
+    if (x >= shape.x && x <= shape.x + shape.width && y >= shape.y && y <= shape.y + shape.height) {
+      // Hit detected
+    }
+  });
+});
+```
+
+For complex shapes or many elements, use **quadtree spatial indexing** or **offscreen canvas with color-coded hit regions**.
+
+---
+
+### Q4: Describe SVG path commands and their use in genomic visualization.
+
+**Answer:** SVG path commands create complex shapes:
+
+| Command            | Use Case in Genomics                       |
+| ------------------ | ------------------------------------------ |
+| `M` (moveTo)       | Start splice junction arc                  |
+| `L` (lineTo)       | Mutation stems, axis lines                 |
+| `C` (cubic bezier) | Splice junction curves, smooth connections |
+| `A` (arc)          | Fusion gene circular diagrams              |
+| `Z` (closePath)    | Closed domain shapes                       |
+
+**Example:** Splice junction arc between exons:
+
+```javascript
+const path = `M ${x1} ${y} C ${x1} ${y - 50}, ${x2} ${y - 50}, ${x2} ${y}`;
+```
+
+---
+
+### Q5: What Canvas optimization techniques would you use for rendering 50,000 genomic data points?
+
+**Answer:**
+
+1. **Batch drawing by color** - Single `fill()` call per color group
+2. **Use `beginPath()` efficiently** - Group similar shapes
+3. **Frustum culling** - Skip points outside viewport
+4. **Level of detail** - Reduce detail when zoomed out
+5. **OffscreenCanvas** - Render in Web Worker
+6. **RequestAnimationFrame** - Sync with display refresh
+7. **ImageData for pixel operations** - Direct pixel manipulation for heatmaps
+
+```javascript
+// Batch drawing example
+ctx.fillStyle = 'blue';
+ctx.beginPath();
+points.forEach((p) => {
+  ctx.moveTo(p.x + 2, p.y);
+  ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+});
+ctx.fill(); // Single draw call for all blue points
+```
+
+---
+
 [← Back to Tutorials Index](../../README.md)

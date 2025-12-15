@@ -443,4 +443,194 @@ Add full-text search for gene descriptions:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: Why use PostgreSQL vs SQLite for genomic data?
+
+**Answer:**
+| Feature | PostgreSQL | SQLite |
+|---------|-----------|--------|
+| Concurrency | Full MVCC, many writers | Single writer, readers block |
+| Scale | Millions of rows, TB scale | Best under 100GB |
+| JSON support | Native JSONB with indexing | Basic JSON, no index |
+| Full-text search | Built-in tsvector | Requires extension |
+| Network access | Client-server model | File-based, embed only |
+
+**ProteinPaint choice:** Uses SQLite for pre-built dataset databases (shipped with data), PostgreSQL for dynamic/user data.
+
+**Use PostgreSQL when:**
+
+- Multiple concurrent users
+- Complex queries with joins
+- Need transactions for data integrity
+- JSON data with querying needs
+
+---
+
+### Q2: How would you design a schema for mutation data?
+
+**Answer:**
+
+```sql
+CREATE TABLE genes (
+    id SERIAL PRIMARY KEY,
+    symbol VARCHAR(50) UNIQUE NOT NULL,
+    ensembl_id VARCHAR(20),
+    chromosome VARCHAR(5),
+    start_pos INTEGER,
+    end_pos INTEGER,
+    strand CHAR(1)
+);
+
+CREATE TABLE variants (
+    id SERIAL PRIMARY KEY,
+    variant_id VARCHAR(50) UNIQUE,  -- rs123, COSM123
+    gene_id INTEGER REFERENCES genes(id),
+    chromosome VARCHAR(5) NOT NULL,
+    position INTEGER NOT NULL,
+    ref_allele VARCHAR(1000),
+    alt_allele VARCHAR(1000),
+    consequence VARCHAR(50),       -- missense, nonsense
+    aa_change VARCHAR(50),         -- R175H
+    clinical_significance VARCHAR(50)
+);
+
+CREATE TABLE sample_variants (
+    sample_id INTEGER REFERENCES samples(id),
+    variant_id INTEGER REFERENCES variants(id),
+    vaf DECIMAL(5,4),              -- Variant allele frequency
+    depth INTEGER,
+    PRIMARY KEY (sample_id, variant_id)
+);
+
+-- Essential indexes for genomic queries
+CREATE INDEX idx_variants_region ON variants(chromosome, position);
+CREATE INDEX idx_variants_gene ON variants(gene_id);
+CREATE INDEX idx_variants_consequence ON variants(consequence);
+```
+
+---
+
+### Q3: Explain SQL injection prevention in genomic queries.
+
+**Answer:**
+
+```javascript
+// ❌ DANGEROUS - SQL injection vulnerable
+const query = `SELECT * FROM genes WHERE symbol = '${userInput}'`;
+// User could input: '; DROP TABLE genes; --
+
+// ✅ SAFE - Parameterized query
+const result = await pool.query('SELECT * FROM genes WHERE symbol = $1', [userInput]);
+
+// ✅ SAFE - Dynamic query building
+function buildVariantQuery(filters) {
+  let sql = 'SELECT * FROM variants WHERE 1=1';
+  const params = [];
+  let i = 1;
+
+  if (filters.gene) {
+    sql += ` AND gene_symbol = $${i++}`;
+    params.push(filters.gene);
+  }
+  if (filters.chromosome) {
+    sql += ` AND chromosome = $${i++}`;
+    params.push(filters.chromosome);
+  }
+
+  return { sql, params };
+}
+```
+
+---
+
+### Q4: How would you optimize a query for variants in a genomic region?
+
+**Answer:**
+
+```sql
+-- 1. Create composite index on (chromosome, position)
+CREATE INDEX idx_variants_region
+ON variants(chromosome, position);
+
+-- 2. Use BETWEEN for range queries
+SELECT * FROM variants
+WHERE chromosome = 'chr17'
+  AND position BETWEEN 7668402 AND 7687550;
+
+-- 3. For very large tables, use partial index
+CREATE INDEX idx_chr17_variants
+ON variants(position)
+WHERE chromosome = 'chr17';
+
+-- 4. Consider table partitioning by chromosome
+CREATE TABLE variants (
+    ...
+) PARTITION BY LIST (chromosome);
+
+CREATE TABLE variants_chr17 PARTITION OF variants
+    FOR VALUES IN ('chr17');
+```
+
+**Query plan analysis:**
+
+```sql
+EXPLAIN ANALYZE
+SELECT * FROM variants
+WHERE chromosome = 'chr17' AND position BETWEEN 7668402 AND 7687550;
+-- Should show "Index Scan" not "Seq Scan"
+```
+
+---
+
+### Q5: How do you handle database transactions for genomic data imports?
+
+**Answer:**
+
+```javascript
+async function importVcfToDatabase(variants) {
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Batch insert with ON CONFLICT for upserts
+    const insertQuery = `
+      INSERT INTO variants (variant_id, chromosome, position, ref, alt)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (variant_id) DO UPDATE 
+      SET position = EXCLUDED.position
+      RETURNING id
+    `;
+
+    for (const variant of variants) {
+      await client.query(insertQuery, [
+        variant.id,
+        variant.chr,
+        variant.pos,
+        variant.ref,
+        variant.alt,
+      ]);
+    }
+
+    await client.query('COMMIT');
+    console.log(`Imported ${variants.length} variants`);
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+```
+
+**Best practices:**
+
+- Use transactions for multi-table inserts
+- Batch inserts (100-1000 rows per statement)
+- Disable indexes during bulk load, rebuild after
+- Use COPY command for very large imports
+
+---
+
 [← Back to Tutorials Index](../../README.md)

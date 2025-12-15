@@ -207,6 +207,272 @@ This pattern is fundamental to ProteinPaint's multi-view architecture:
 | Coordinated views | Linked panels  | Multi-track views |
 | Brush selection   | D3 brush       | Custom brush      |
 
+---
+
+## 🎯 Interview Preparation Q&A
+
+### Q1: How do you implement an event bus for view coordination?
+
+**Answer:**
+
+```typescript
+class EventBus {
+  private listeners: Map<string, Set<Function>> = new Map();
+
+  on(event: string, callback: Function): () => void {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)!.add(callback);
+
+    // Return unsubscribe function
+    return () => this.listeners.get(event)?.delete(callback);
+  }
+
+  emit(event: string, data: any, source?: string): void {
+    const callbacks = this.listeners.get(event);
+    if (callbacks) {
+      callbacks.forEach((cb) => cb(data, source));
+    }
+  }
+
+  // Typed events for safety
+  emitSelection(samples: string[], source: string): void {
+    this.emit('selection:change', { samples, source }, source);
+  }
+}
+
+// Usage
+const bus = new EventBus();
+
+// Subscribe
+const unsubscribe = bus.on('selection:change', ({ samples, source }) => {
+  if (source !== 'table') {
+    // Prevent self-update
+    table.highlight(samples);
+  }
+});
+
+// Emit
+scatterPlot.on('brush', (samples) => {
+  bus.emitSelection(samples, 'scatter');
+});
+```
+
+---
+
+### Q2: How do you manage shared selection state across views?
+
+**Answer:**
+
+```typescript
+class SelectionStore {
+  private state = {
+    selectedSamples: new Set<string>(),
+    selectedGene: null as string | null,
+    highlightedRegion: null as { start: number; end: number } | null,
+  };
+
+  private subscribers: ((state: typeof this.state) => void)[] = [];
+
+  // Immutable updates
+  selectSamples(samples: string[], mode: 'replace' | 'add' | 'toggle' = 'replace') {
+    const newSet = new Set(mode === 'replace' ? samples : this.state.selectedSamples);
+
+    if (mode === 'add') {
+      samples.forEach((s) => newSet.add(s));
+    } else if (mode === 'toggle') {
+      samples.forEach((s) => {
+        newSet.has(s) ? newSet.delete(s) : newSet.add(s);
+      });
+    }
+
+    this.state = { ...this.state, selectedSamples: newSet };
+    this.notify();
+  }
+
+  subscribe(callback: (state: typeof this.state) => void) {
+    this.subscribers.push(callback);
+    callback(this.state); // Initial call
+    return () => {
+      this.subscribers = this.subscribers.filter((s) => s !== callback);
+    };
+  }
+
+  private notify() {
+    this.subscribers.forEach((cb) => cb(this.state));
+  }
+}
+```
+
+**Selection modes:**
+
+- Replace: Clear existing, select new
+- Add: Union with existing
+- Toggle: XOR with existing
+
+---
+
+### Q3: How do you implement D3 brush-based selection?
+
+**Answer:**
+
+```typescript
+function setupBrush(
+  svg: d3.Selection<SVGGElement>,
+  xScale: d3.ScaleLinear<number, number>,
+  yScale: d3.ScaleLinear<number, number>,
+  data: DataPoint[],
+  onSelect: (selected: DataPoint[]) => void
+) {
+  const brush = d3
+    .brush()
+    .extent([
+      [0, 0],
+      [width, height],
+    ])
+    .on('brush', brushed)
+    .on('end', brushEnded);
+
+  svg.append('g').attr('class', 'brush').call(brush);
+
+  function brushed(event: d3.D3BrushEvent<unknown>) {
+    if (!event.selection) return;
+
+    const [[x0, y0], [x1, y1]] = event.selection as [[number, number], [number, number]];
+
+    // Find points within brush rectangle
+    const selected = data.filter((d) => {
+      const x = xScale(d.x);
+      const y = yScale(d.y);
+      return x >= x0 && x <= x1 && y >= y0 && y <= y1;
+    });
+
+    // Highlight during brush
+    svg.selectAll('circle').classed('brushed', (d) => selected.includes(d));
+  }
+
+  function brushEnded(event: d3.D3BrushEvent<unknown>) {
+    if (!event.selection) {
+      onSelect([]); // Clear if brush dismissed
+      return;
+    }
+    // Final selection
+    const selected = getSelectedPoints(event.selection);
+    onSelect(selected);
+  }
+}
+```
+
+---
+
+### Q4: How do you handle performance with many linked views?
+
+**Answer:**
+
+```typescript
+class OptimizedLinkedViews {
+  private updateQueue: Set<string> = new Set();
+  private rafId: number | null = null;
+
+  // Batch updates to single animation frame
+  scheduleUpdate(viewId: string) {
+    this.updateQueue.add(viewId);
+
+    if (!this.rafId) {
+      this.rafId = requestAnimationFrame(() => {
+        this.flushUpdates();
+        this.rafId = null;
+      });
+    }
+  }
+
+  private flushUpdates() {
+    const views = [...this.updateQueue];
+    this.updateQueue.clear();
+
+    // Update all pending views
+    views.forEach((viewId) => {
+      this.views.get(viewId)?.render();
+    });
+  }
+
+  // Debounce rapid selection changes
+  private debouncedSelect = debounce((samples: string[]) => {
+    this.store.selectSamples(samples);
+  }, 16); // ~60fps
+
+  // Use requestIdleCallback for non-critical updates
+  updateTable(data: any[]) {
+    requestIdleCallback(
+      () => {
+        this.table.setData(data);
+      },
+      { timeout: 100 }
+    );
+  }
+}
+```
+
+**Optimization strategies:**
+
+1. Batch updates with requestAnimationFrame
+2. Debounce rapid selection changes
+3. Use requestIdleCallback for non-critical updates
+4. Virtual rendering for large tables/lists
+
+---
+
+### Q5: How does ProteinPaint implement its linked view system?
+
+**Answer:**
+**ProteinPaint linking patterns:**
+
+1. **Block-level coordination:**
+
+   ```javascript
+   // All tracks in a block share region
+   block.on('region-change', (region) => {
+     tracks.forEach((track) => track.setRegion(region));
+   });
+   ```
+
+2. **Cross-block communication:**
+
+   ```javascript
+   // Matrix view ↔ Lollipop plot
+   matrixView.on('sample-select', (samples) => {
+     lollipopPlot.highlightSamples(samples);
+   });
+
+   lollipopPlot.on('mutation-click', (mutation) => {
+     matrixView.filterByMutation(mutation);
+   });
+   ```
+
+3. **App-level state:**
+
+   ```javascript
+   // Global app state
+   app.state = {
+     selectedSamples: [],
+     selectedGenes: [],
+     filters: {},
+     region: { chr, start, end },
+   };
+
+   // Views subscribe to relevant state slices
+   scatterPlot.observe((state) => state.selectedSamples);
+   ```
+
+4. **Performance patterns:**
+   - Lazy data loading per region
+   - Virtual scrolling in sample lists
+   - Canvas rendering for dense data
+   - Request coalescing for API calls
+
+---
+
 ## Next Steps
 
 - [Tutorial 4.9: Config Schema & Validation](../09-config-system/README.md)

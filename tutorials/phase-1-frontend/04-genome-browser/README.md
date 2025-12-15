@@ -436,4 +436,175 @@ Congratulations! You've completed Phase 1. Proceed to [Phase 2: Backend & Data P
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: Explain the difference between 0-based and 1-based genomic coordinate systems.
+
+**Answer:**
+| System | Format | Files | Example chr1:100-200 |
+|--------|--------|-------|---------------------|
+| **0-based, half-open** | [start, end) | BED, BAM | Includes positions 100-199 |
+| **1-based, inclusive** | [start, end] | VCF, GFF | Includes positions 100-200 |
+
+**Why it matters:**
+
+- Off-by-one errors are common source of bugs
+- Must convert when combining data from different sources
+- ProteinPaint internally uses 0-based coordinates
+
+**Conversion:**
+
+```javascript
+// 1-based to 0-based
+const zeroBased = { start: oneBased.start - 1, end: oneBased.end };
+
+// 0-based to 1-based
+const oneBased = { start: zeroBased.start + 1, end: zeroBased.end };
+```
+
+---
+
+### Q2: How would you implement efficient region-based queries for a genome browser?
+
+**Answer:** Multiple strategies depending on scale:
+
+1. **Binary search with sorted data:**
+
+```javascript
+function getGenesInRegion(genes, start, end) {
+  // genes sorted by start position
+  const startIdx = binarySearchLeft(genes, start);
+  const endIdx = binarySearchRight(genes, end);
+  return genes.slice(startIdx, endIdx).filter((g) => g.end > start && g.start < end);
+}
+```
+
+2. **Interval tree (R-tree):**
+
+- O(log n + k) query time for k results
+- Best for overlapping intervals (genes, features)
+
+3. **Tabix indexing:**
+
+- For file-based access (VCF, BED)
+- Chromosome + position index
+- Used by ProteinPaint for large datasets
+
+4. **Binning schemes:**
+
+- UCSC hierarchical binning
+- Pre-compute bins for fast lookup
+
+---
+
+### Q3: Describe how you would render gene structures (exons, introns, UTRs).
+
+**Answer:**
+
+```javascript
+function renderGene(gene, xScale, y) {
+  const g = svg.append('g').attr('class', 'gene');
+
+  // 1. Gene body line (thin, represents introns)
+  g.append('line')
+    .attr('x1', xScale(gene.start))
+    .attr('x2', xScale(gene.end))
+    .attr('y1', y)
+    .attr('y2', y)
+    .attr('stroke', '#333');
+
+  // 2. Exons (rectangles)
+  gene.exons.forEach((exon) => {
+    const height = exon.isCoding ? 20 : 10; // UTR thinner
+    g.append('rect')
+      .attr('x', xScale(exon.start))
+      .attr('width', xScale(exon.end) - xScale(exon.start))
+      .attr('y', y - height / 2)
+      .attr('height', height)
+      .attr('fill', exon.isCoding ? '#2196F3' : '#90CAF9');
+  });
+
+  // 3. Strand arrow
+  g.append('text')
+    .attr('x', xScale(gene.start) - 15)
+    .attr('y', y + 5)
+    .text(gene.strand === '+' ? '→' : '←');
+}
+```
+
+**Visual hierarchy:** CDS (thick) > UTR (thin) > intron (line) > intergenic (empty)
+
+---
+
+### Q4: How does the ProteinPaint "block" pattern work?
+
+**Answer:** ProteinPaint's `block` is the core genome browser container:
+
+```javascript
+const block = {
+  // Genomic region
+  startidx: 7668402, // Start coordinate
+  stopidx: 7687550, // End coordinate
+
+  // Core scale: genomic → screen
+  exonsf: d3.scaleLinear().domain([startidx, stopidx]).range([0, width]),
+
+  // Convert coordinates
+  genomic2screen(pos) {
+    return this.exonsf(pos);
+  },
+
+  // Tracks rendered in this block
+  tklst: [],
+
+  // Navigation methods
+  zoomIn() {
+    /* reduce domain range */
+  },
+  pan(dx) {
+    /* shift domain */
+  },
+};
+```
+
+**Key insight:** All tracks share the same `exonsf` scale, ensuring synchronized rendering and navigation.
+
+---
+
+### Q5: What performance optimizations would you use for a genome browser rendering millions of features?
+
+**Answer:**
+
+1. **Level of detail (LOD):**
+   - Zoomed out: aggregate features (coverage track)
+   - Zoomed in: individual features
+
+2. **Viewport culling:**
+
+   ```javascript
+   const visible = features.filter((f) => f.end > region.start && f.start < region.end);
+   ```
+
+3. **Binned data requests:**
+   - Request data at appropriate resolution
+   - 1bp resolution only when fully zoomed
+
+4. **Canvas for dense tracks:**
+   - SVG for genes (interactive)
+   - Canvas for coverage (performance)
+
+5. **Progressive rendering:**
+   - Render visible region first
+   - Load adjacent regions in background
+
+6. **Data structures:**
+   - Interval trees for overlap queries
+   - Indexed files (tabix, bigwig)
+
+7. **Caching:**
+   - Cache parsed data by region
+   - Invalidate on zoom beyond cached resolution
+
+---
+
 [← Back to Tutorials Index](../../README.md)

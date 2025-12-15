@@ -399,4 +399,171 @@ Survival analysis is a key feature in ProteinPaint for clinical genomics:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: What is censoring in survival analysis and why does it matter?
+
+**Answer:**
+**Censoring:** When we don't observe the event (death, relapse) for a patient.
+
+**Types:**
+
+- **Right censoring** (most common): Patient still alive at study end
+- **Left censoring:** Event occurred before observation started
+- **Interval censoring:** Event occurred between observations
+
+**Why it matters:**
+Without proper handling, we'd either:
+
+- Exclude censored patients (bias toward poor outcomes)
+- Treat censored time as event time (underestimate survival)
+
+**Kaplan-Meier handles this:**
+
+```javascript
+// At each time point:
+// - Remove censored patients from at-risk pool
+// - Don't count them as events
+if (patient.event === 0) {
+  // Censored
+  atRisk--;
+  // survival probability unchanged
+} else {
+  // Event occurred
+  survival *= (atRisk - 1) / atRisk;
+  atRisk--;
+}
+```
+
+---
+
+### Q2: Explain the log-rank test p-value interpretation.
+
+**Answer:**
+**Null hypothesis:** Survival distributions are identical between groups.
+
+**Interpretation:**
+
+- p < 0.05: Statistically significant difference
+- p ≥ 0.05: No significant difference (curves may still look different!)
+
+**Caveats:**
+
+1. **Sample size:** Small samples → wide confidence intervals
+2. **Multiple testing:** Comparing many groups inflates false positives
+3. **Clinical significance:** Statistical ≠ clinical importance
+4. **Crossing curves:** Log-rank assumes proportional hazards
+
+**Example interpretation:**
+"TP53 mutation status significantly impacts overall survival (log-rank p = 0.003). Patients with TP53 mutations had median survival of 32 months compared to 52 months for wild-type."
+
+---
+
+### Q3: How do you render a step function survival curve in D3?
+
+**Answer:**
+
+```javascript
+const line = d3
+  .line()
+  .x((d) => xScale(d.time))
+  .y((d) => yScale(d.survival))
+  .curve(d3.curveStepAfter); // Key: step function
+
+svg
+  .append('path')
+  .datum(survivalData)
+  .attr('d', line)
+  .attr('fill', 'none')
+  .attr('stroke', 'steelblue')
+  .attr('stroke-width', 2);
+
+// Add censoring marks
+svg
+  .selectAll('.censor-mark')
+  .data(censoredPatients)
+  .join('line')
+  .attr('x1', (d) => xScale(d.time))
+  .attr('x2', (d) => xScale(d.time))
+  .attr('y1', (d) => yScale(d.survival) - 5)
+  .attr('y2', (d) => yScale(d.survival) + 5)
+  .attr('stroke', 'steelblue');
+```
+
+**Why step function?**
+
+- Survival probability only changes at event times
+- Horizontal segments between events
+- Drops only when deaths occur
+
+---
+
+### Q4: What is the hazard ratio and how is it calculated?
+
+**Answer:**
+**Hazard ratio (HR):** Relative risk of event between groups.
+
+**Interpretation:**
+
+- HR = 1: No difference
+- HR > 1: Higher risk in treatment group
+- HR < 1: Lower risk in treatment group (protective)
+
+**From Cox regression:**
+$$HR = e^{\beta}$$
+
+Where β is the coefficient from Cox proportional hazards model.
+
+**Example:**
+
+- HR = 2.5 for TP53 mutation
+- Interpretation: TP53-mutated patients have 2.5× the hazard of death compared to wild-type
+
+**95% CI:**
+
+- HR = 2.5 (1.8-3.4): Statistically significant (doesn't include 1)
+- HR = 1.2 (0.7-2.1): Not significant (includes 1)
+
+---
+
+### Q5: How would you implement confidence intervals for survival curves?
+
+**Answer:**
+**Greenwood's formula for variance:**
+$$Var[S(t)] = S(t)^2 \sum_{t_i \leq t} \frac{d_i}{n_i(n_i - d_i)}$$
+
+```javascript
+function calculateCI(survivalData) {
+  let varSum = 0;
+
+  return survivalData.map((point) => {
+    if (point.events > 0) {
+      varSum += point.events / (point.atRisk * (point.atRisk - point.events));
+    }
+
+    const se = point.survival * Math.sqrt(varSum);
+    const z = 1.96; // 95% CI
+
+    // Log-log transformation (keeps CI in [0,1])
+    const logS = Math.log(point.survival);
+    const lower = Math.exp(logS * Math.exp((z * se) / (point.survival * logS)));
+    const upper = Math.exp(logS * Math.exp((-z * se) / (point.survival * logS)));
+
+    return { ...point, lower, upper };
+  });
+}
+
+// Render as area
+const area = d3
+  .area()
+  .x((d) => xScale(d.time))
+  .y0((d) => yScale(d.lower))
+  .y1((d) => yScale(d.upper))
+  .curve(d3.curveStepAfter);
+
+svg.append('path').datum(dataWithCI).attr('d', area).attr('fill', 'steelblue').attr('opacity', 0.2);
+```
+
+---
+
 [← Back to Tutorials Index](../../README.md)

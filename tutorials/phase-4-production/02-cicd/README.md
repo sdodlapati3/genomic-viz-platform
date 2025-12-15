@@ -413,4 +413,198 @@ Your genomic visualization projects now have production-grade CI/CD! 🚀
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: How would you set up CI/CD for a genomic visualization platform?
+
+**Answer:**
+
+```yaml
+# .github/workflows/ci.yml
+name: Genomic Viz CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+
+  build:
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist/
+```
+
+---
+
+### Q2: How do you handle large genomic datasets in Docker images?
+
+**Answer:** **Multi-stage builds:**
+
+```dockerfile
+# Stage 1: Build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Stage 2: Production (minimal image)
+FROM node:20-alpine AS production
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY package.json ./
+
+# Don't include reference data in image!
+VOLUME ["/data"]
+
+EXPOSE 3000
+CMD ["node", "dist/server.js"]
+```
+
+**Data handling strategy:**
+
+1. **Don't bake data into images** - Mount as volumes
+2. **Use separate data container** for reference genomes
+3. **Cloud storage** for large files (S3, GCS)
+4. **CDN** for static reference data
+
+---
+
+### Q3: How do you implement zero-downtime deployments?
+
+**Answer:**
+
+```yaml
+# Blue-Green Deployment
+deploy:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Deploy to staging (green)
+      run: |
+        docker tag app:${{ github.sha }} app:green
+        docker-compose -f docker-compose.green.yml up -d
+
+    - name: Health check
+      run: |
+        for i in {1..30}; do
+          if curl -f http://localhost:3001/health; then
+            echo "Green is healthy"
+            exit 0
+          fi
+          sleep 2
+        done
+        exit 1
+
+    - name: Switch traffic
+      run: ./scripts/switch-traffic.sh green
+```
+
+**Strategies:**
+
+1. **Blue-Green**: Two identical environments, switch traffic
+2. **Rolling**: Update instances one at a time
+3. **Canary**: Route % of traffic to new version
+
+---
+
+### Q4: What checks should run before merging visualization code?
+
+**Answer:**
+
+```yaml
+pr-checks:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Unit tests
+      run: npm run test:unit
+
+    - name: TypeScript check
+      run: npm run typecheck
+
+    - name: ESLint
+      run: npm run lint
+
+    - name: Visual regression tests
+      run: npm run test:visual
+
+    - name: Bundle size check
+      uses: preactjs/compressed-size-action@v2
+
+    - name: Performance check
+      run: npm run lighthouse -- --threshold=90
+```
+
+**Critical for genomic viz:**
+
+- Type safety (complex data structures)
+- Bundle size (large dependency risk)
+- Performance (rendering speed)
+
+---
+
+### Q5: How does ProteinPaint handle deployment and releases?
+
+**Answer:** **ProteinPaint deployment considerations:**
+
+1. **Monorepo structure:** Server, client, Rust parsers, shared types
+2. **Build pipeline:** Rust compilation → TypeScript → Bundling
+
+3. **Health checks:**
+
+```javascript
+app.get('/health', (req, res) => {
+  const checks = {
+    database: checkDbConnection(),
+    referenceData: checkReferenceFiles(),
+    memory: process.memoryUsage().heapUsed < threshold,
+  };
+
+  const healthy = Object.values(checks).every(Boolean);
+  res.status(healthy ? 200 : 503).json(checks);
+});
+```
+
+4. **Environment configs:** Development vs production data paths, caching
+
+---
+
 [← Back to Tutorials Index](../../README.md)

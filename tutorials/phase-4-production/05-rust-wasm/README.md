@@ -350,3 +350,123 @@ After completing this tutorial:
 2. Implement additional statistical tests
 3. Explore SIMD optimizations for parallel processing
 4. Consider using `rayon` for multi-threaded Rust operations
+
+---
+
+## 🎯 Interview Preparation Q&A
+
+### Q1: When should you use WebAssembly vs JavaScript for genomic visualizations?
+
+**Answer:**
+**Use WASM for:**
+
+- Statistical calculations (Fisher's exact, chi-square)
+- Matrix operations (distance calculations, PCA)
+- Data transformation (filtering 100k+ mutations)
+- File parsing (VCF, BAM sections)
+- Clustering algorithms (k-means, hierarchical)
+
+**Keep in JavaScript:**
+
+- DOM manipulation and event handling
+- Small data transformations (<1000 items)
+- API calls and UI state management
+
+**Decision rule:** WASM has ~1ms startup overhead. Use for operations where `dataSize * complexity` justifies the overhead.
+
+---
+
+### Q2: How do you efficiently pass large arrays between JS and WASM?
+
+**Answer:**
+
+```rust
+use js_sys::Float64Array;
+
+#[wasm_bindgen]
+pub fn process_matrix(data: Float64Array, rows: usize) -> Float64Array {
+    // Convert to Rust vec (minimal copy)
+    let mut values: Vec<f64> = data.to_vec();
+
+    // Process in place when possible
+    for row in values.chunks_mut(rows) {
+        let mean: f64 = row.iter().sum::<f64>() / row.len() as f64;
+        row.iter_mut().for_each(|v| *v -= mean);
+    }
+
+    Float64Array::from(&values[..])
+}
+```
+
+**Tips:** Use typed arrays, batch operations, reuse memory.
+
+---
+
+### Q3: How do you implement statistical tests in Rust/WASM?
+
+**Answer:**
+
+```rust
+#[wasm_bindgen]
+pub fn fisher_exact_test(a: u32, b: u32, c: u32, d: u32) -> f64 {
+    // 2x2 contingency table
+    let log_factorial = |n: u32| (1..=n).map(|i| (i as f64).ln()).sum::<f64>();
+
+    let n = a + b + c + d;
+    let log_p = log_factorial(a+b) + log_factorial(c+d) +
+                log_factorial(a+c) + log_factorial(b+d) -
+                log_factorial(n) - log_factorial(a) -
+                log_factorial(b) - log_factorial(c) - log_factorial(d);
+    log_p.exp()
+}
+```
+
+**Batch processing** for multiple tests provides maximum speedup.
+
+---
+
+### Q4: How do you debug and profile WASM code?
+
+**Answer:**
+
+```rust
+use web_sys::console;
+
+#[wasm_bindgen]
+pub fn process_with_logging(data: &[f64]) -> Vec<f64> {
+    console::time_with_label("rust_processing");
+    let result = /* processing */;
+    console::time_end_with_label("rust_processing");
+    result
+}
+```
+
+**Browser profiling:**
+
+```javascript
+console.time('wasm_call');
+const result = wasmModule.process(data);
+console.timeEnd('wasm_call');
+```
+
+Build with `wasm-pack build --dev` for debug symbols.
+
+---
+
+### Q5: How does ProteinPaint use WASM for performance?
+
+**Answer:**
+**Use cases:**
+
+1. **Coverage aggregation** - Millions of values to display bins
+2. **Variant filtering** - Fast filtering of large datasets
+3. **Distance matrices** - O(n²) clustering calculations
+4. **File parsing** - Bigwig/BAM binary data
+
+**Architecture:**
+
+```
+User Action → JS (UI) → Decision → WASM (heavy compute) → JS (render)
+```
+
+Performance gains: 10-50x for statistical operations, 5-10x for data transformation.

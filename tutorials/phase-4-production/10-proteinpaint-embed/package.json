@@ -1,0 +1,12 @@
+{
+  "name": "proteinpaint-embed",
+  "version": "1.0.0",
+  "description": "GenomePaint Launcher - ProteinPaint Embed API Demo",
+  "scripts": {
+    "start": "npx serve . -p 5185",
+    "dev": "npx serve . -p 5185"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}

@@ -521,4 +521,232 @@ After completing this tutorial, you can:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: Why use Rust instead of JavaScript for genomic file parsing?
+
+**Answer:**
+| Aspect | JavaScript | Rust |
+|--------|------------|------|
+| **Speed** | ~10-100x slower | Native performance |
+| **Memory** | GC overhead, unpredictable | Zero-cost, predictable |
+| **Parsing** | String-heavy, slow | Zero-copy, efficient |
+| **Parallelism** | Single-threaded (main) | True multi-threading |
+| **Type Safety** | Runtime errors | Compile-time guarantees |
+
+**Example performance difference:**
+
+```javascript
+// JavaScript - 15 seconds for 1GB VCF
+for (const line of file.split('\n')) {
+  const fields = line.split('\t');
+  // Parse each field...
+}
+
+// Rust - 0.8 seconds for same file
+parser.par_iter()  // Parallel iterator
+  .filter(|v| v.quality > 30.0)
+  .collect()
+```
+
+**When to use each:**
+
+- JavaScript: Quick prototypes, small files, UI logic
+- Rust: Production parsing, large files, performance-critical
+
+---
+
+### Q2: Explain Rust's ownership model and why it matters for parsers.
+
+**Answer:**
+
+```rust
+// OWNERSHIP: Each value has exactly one owner
+fn parse_vcf(path: String) -> Vec<Variant> {
+    // `path` is owned here, dropped at end of function
+    let contents = std::fs::read_to_string(&path).unwrap();
+    // `contents` owned here
+
+    // Return ownership to caller
+    parse_lines(&contents)
+}
+
+// BORROWING: Temporary access without ownership
+fn parse_lines(data: &str) -> Vec<Variant> {
+    // `data` is borrowed (reference), not owned
+    // Can read but not drop/move
+    data.lines()
+        .filter(|line| !line.starts_with('#'))
+        .map(|line| parse_variant(line))
+        .collect()
+}
+
+// LIFETIMES: Compiler ensures references valid
+struct VariantRef<'a> {
+    chrom: &'a str,  // Reference lives as long as 'a
+    alt: &'a str,
+}
+```
+
+**Why it matters:**
+
+1. **No garbage collector** - Predictable memory use
+2. **No null pointers** - Option<T> instead
+3. **No data races** - Compiler prevents concurrent mutation
+4. **Zero-copy parsing** - Reference original buffer
+
+---
+
+### Q3: How do you integrate Rust with Node.js using napi-rs?
+
+**Answer:**
+
+```rust
+// Rust side: node-binding/src/lib.rs
+use napi_derive::napi;
+use napi::bindgen_prelude::*;
+
+#[napi]
+pub struct VcfParser {
+    inner: rust_vcf_parser::Parser,
+}
+
+#[napi]
+impl VcfParser {
+    #[napi(constructor)]
+    pub fn new() -> Self {
+        Self { inner: rust_vcf_parser::Parser::new() }
+    }
+
+    #[napi]
+    pub fn parse_file(&self, path: String) -> Result<Vec<Variant>> {
+        self.inner.parse(&path)
+            .map(|variants| variants.into_iter().map(Variant::from).collect())
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    // Async for large files
+    #[napi]
+    pub async fn parse_async(&self, path: String) -> Result<Vec<Variant>> {
+        tokio::task::spawn_blocking(move || {
+            self.inner.parse(&path)
+        }).await?
+    }
+}
+```
+
+```javascript
+// JavaScript side
+const { VcfParser } = require('./rust-vcf-parser');
+
+const parser = new VcfParser();
+const variants = await parser.parseAsync('./large.vcf');
+console.log(`Parsed ${variants.length} variants`);
+```
+
+---
+
+### Q4: How do you compile Rust to WebAssembly for browser use?
+
+**Answer:**
+
+```rust
+// wasm/src/lib.rs
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub struct WasmParser {
+    parser: rust_vcf_parser::Parser,
+}
+
+#[wasm_bindgen]
+impl WasmParser {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self { parser: rust_vcf_parser::Parser::new() }
+    }
+
+    // Parse VCF content (not file - browser security)
+    #[wasm_bindgen]
+    pub fn parse(&self, content: &str) -> JsValue {
+        let variants = self.parser.parse_string(content);
+        serde_wasm_bindgen::to_value(&variants).unwrap()
+    }
+
+    // Streaming for large files
+    #[wasm_bindgen]
+    pub fn parse_chunk(&mut self, chunk: &str) -> JsValue {
+        let partial = self.parser.parse_chunk(chunk);
+        serde_wasm_bindgen::to_value(&partial).unwrap()
+    }
+}
+```
+
+```javascript
+// Browser usage
+import init, { WasmParser } from './pkg/wasm_parser.js';
+
+await init(); // Load WASM module
+const parser = new WasmParser();
+
+// Parse file from user upload
+const file = await fileInput.files[0].text();
+const variants = parser.parse(file);
+```
+
+**Build:** `wasm-pack build --target web`
+
+---
+
+### Q5: How does ProteinPaint use Rust for performance?
+
+**Answer:**
+**ProteinPaint Rust integration:**
+
+1. **Bigwig/BigBed parsing:**
+
+   ```rust
+   // High-performance binary file reading
+   pub fn read_bigwig_section(
+       file: &mut BufReader<File>,
+       chrom: &str,
+       start: u32,
+       end: u32
+   ) -> Vec<DataPoint> {
+       // R-tree index lookup
+       // Decompress relevant blocks only
+       // Return aggregated data
+   }
+   ```
+
+2. **VCF streaming:**
+
+   ```rust
+   // Stream variants without loading entire file
+   pub fn stream_variants<F>(
+       path: &Path,
+       region: GenomicRegion,
+       callback: F
+   ) where F: FnMut(Variant) {
+       // Use tabix index for random access
+       // Decompress only needed blocks
+   }
+   ```
+
+3. **Performance gains:**
+   - Bigwig queries: 50-100x faster than JavaScript
+   - VCF parsing: 10-20x faster
+   - Memory usage: 5-10x lower
+
+4. **Integration pattern:**
+   ```
+   Browser Request → Node.js Server → Rust Native Module
+                                    ↓
+                              Parse Binary Files
+                                    ↓
+                              JSON Response → Browser
+   ```
+
+---
+
 [← Back to Tutorials Index](../../README.md)

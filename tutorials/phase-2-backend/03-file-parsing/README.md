@@ -429,4 +429,203 @@ Process a large VCF without loading into memory:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: What are the key differences between VCF, GFF3, and BED formats?
+
+**Answer:**
+| Feature | VCF | GFF3 | BED |
+|---------|-----|------|-----|
+| Purpose | Genetic variants | Gene annotations | Genomic intervals |
+| Coordinate system | 1-based, inclusive | 1-based, inclusive | 0-based, half-open |
+| Structure | Header + records | Hierarchical (gene→transcript→exon) | Flat records |
+| Sample data | Yes (genotypes) | No | No |
+| Typical use | Variant calling output | Gene models | Regions, peaks |
+
+**Conversion note:** When converting BED to VCF coordinates: `vcf_pos = bed_start + 1`
+
+---
+
+### Q2: How would you efficiently parse a 10GB VCF file?
+
+**Answer:**
+
+```javascript
+import { createReadStream } from 'fs';
+import { createInterface } from 'readline';
+
+async function* parseVcfStream(filePath) {
+  const rl = createInterface({
+    input: createReadStream(filePath),
+    crlfDelay: Infinity,
+  });
+
+  let lineNum = 0;
+  for await (const line of rl) {
+    lineNum++;
+
+    // Skip headers
+    if (line.startsWith('#')) {
+      if (line.startsWith('#CHROM')) {
+        yield { type: 'header', columns: line.split('\t') };
+      }
+      continue;
+    }
+
+    // Parse data line
+    try {
+      yield { type: 'record', data: parseVcfLine(line), lineNum };
+    } catch (error) {
+      yield { type: 'error', lineNum, message: error.message };
+    }
+  }
+}
+
+// Usage with backpressure handling
+for await (const item of parseVcfStream('large.vcf')) {
+  if (item.type === 'record') {
+    await processVariant(item.data); // Async allows memory release
+  }
+}
+```
+
+**Key techniques:**
+
+- **Streaming:** Never load entire file
+- **Generators:** Yield records one at a time
+- **Async iteration:** Handle backpressure
+- **Error recovery:** Skip bad lines, continue parsing
+
+---
+
+### Q3: Explain the VCF INFO field and how to parse it.
+
+**Answer:**
+
+```
+INFO=DP=150;AF=0.35;CSQ=missense_variant|ENST00000269305|TP53|R175H
+```
+
+```javascript
+function parseInfo(infoStr) {
+  const info = {};
+
+  for (const pair of infoStr.split(';')) {
+    if (pair.includes('=')) {
+      const [key, value] = pair.split('=', 2);
+
+      // Handle VEP/CSQ annotations
+      if (key === 'CSQ') {
+        info[key] = value.split(',').map((v) => {
+          const fields = v.split('|');
+          return {
+            consequence: fields[0],
+            transcript: fields[1],
+            gene: fields[2],
+            aaChange: fields[3],
+          };
+        });
+      }
+      // Handle numeric values
+      else if (!isNaN(value)) {
+        info[key] = parseFloat(value);
+      }
+      // Handle lists
+      else if (value.includes(',')) {
+        info[key] = value.split(',');
+      } else {
+        info[key] = value;
+      }
+    } else {
+      // Flag (no value)
+      info[pair] = true;
+    }
+  }
+
+  return info;
+}
+```
+
+---
+
+### Q4: How do you build a hierarchical gene model from GFF3?
+
+**Answer:**
+
+```javascript
+function buildGeneModels(features) {
+  const byId = new Map();
+  const genes = [];
+
+  // First pass: index all features
+  for (const feature of features) {
+    byId.set(feature.id, { ...feature, children: [] });
+  }
+
+  // Second pass: build hierarchy
+  for (const feature of features) {
+    const parent = feature.attributes?.Parent;
+
+    if (parent && byId.has(parent)) {
+      byId.get(parent).children.push(byId.get(feature.id));
+    } else if (feature.type === 'gene') {
+      genes.push(byId.get(feature.id));
+    }
+  }
+
+  // Structure result
+  return genes.map((gene) => ({
+    id: gene.id,
+    symbol: gene.attributes.Name,
+    start: gene.start,
+    end: gene.end,
+    strand: gene.strand,
+    transcripts: gene.children
+      .filter((c) => c.type === 'mRNA')
+      .map((t) => ({
+        id: t.id,
+        exons: t.children.filter((c) => c.type === 'exon').sort((a, b) => a.start - b.start),
+      })),
+  }));
+}
+```
+
+---
+
+### Q5: What indexing strategies does ProteinPaint use for genomic files?
+
+**Answer:** ProteinPaint leverages several indexing approaches:
+
+1. **Tabix indexing (VCF, BED, GFF):**
+   - Compressed with bgzip
+   - Indexed by chromosome + position
+   - O(log n) region queries
+
+   ```bash
+   bgzip variants.vcf
+   tabix -p vcf variants.vcf.gz
+   ```
+
+2. **BigWig/BigBed:**
+   - Binary format with built-in index
+   - Supports zoom levels for different resolutions
+   - Efficient for coverage tracks
+
+3. **BAM/CRAM:**
+   - BAI/CRAI index files
+   - Random access by coordinate
+
+4. **Custom SQLite indexes:**
+   - Pre-computed for dataset-specific queries
+   - Bundled with ProteinPaint datasets
+
+**Access pattern:**
+
+```javascript
+// ProteinPaint tabix query
+const variants = await tabix.query('chr17', 7668402, 7687550);
+```
+
+---
+
 [← Back to Tutorials Index](../../README.md)

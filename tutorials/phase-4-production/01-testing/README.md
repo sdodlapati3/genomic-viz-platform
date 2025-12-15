@@ -251,4 +251,227 @@ it('should handle single value', () => {
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: How do you test D3.js visualization components?
+
+**Answer:**
+
+```javascript
+describe('LollipopPlot', () => {
+  let container;
+
+  beforeEach(() => {
+    // Set up DOM
+    container = document.createElement('div');
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    container.remove();
+  });
+
+  it('should render correct number of lollipops', () => {
+    const plot = new LollipopPlot(container);
+    plot.setData([
+      { position: 175, aaChange: 'R175H', count: 100 },
+      { position: 248, aaChange: 'R248Q', count: 50 },
+    ]);
+
+    const circles = container.querySelectorAll('circle');
+    expect(circles.length).toBe(2);
+  });
+
+  it('should scale radius by count', () => {
+    // Test that larger count = larger circle
+    const circles = container.querySelectorAll('circle');
+    const r1 = +circles[0].getAttribute('r');
+    const r2 = +circles[1].getAttribute('r');
+    expect(r1).toBeGreaterThan(r2);
+  });
+});
+```
+
+**Test categories:**
+
+1. Data transformation functions (pure, easy)
+2. Scale calculations
+3. DOM structure
+4. User interactions (mock events)
+
+---
+
+### Q2: How do you mock Canvas context for testing?
+
+**Answer:**
+
+```javascript
+class MockCanvasContext {
+  constructor() {
+    this._calls = [];
+    this.fillStyle = '';
+    this.strokeStyle = '';
+  }
+
+  _track(method, ...args) {
+    this._calls.push({ method, args });
+  }
+
+  beginPath() {
+    this._track('beginPath');
+  }
+  moveTo(x, y) {
+    this._track('moveTo', x, y);
+  }
+  arc(x, y, r, start, end) {
+    this._track('arc', x, y, r, start, end);
+  }
+  fill() {
+    this._track('fill');
+  }
+
+  // Assert method for tests
+  getCallsFor(method) {
+    return this._calls.filter((c) => c.method === method);
+  }
+}
+
+// Test usage
+it('should draw circles for each point', () => {
+  const ctx = new MockCanvasContext();
+  renderScatterPlot(ctx, points);
+
+  const arcCalls = ctx.getCallsFor('arc');
+  expect(arcCalls.length).toBe(points.length);
+});
+```
+
+---
+
+### Q3: What makes a good test for data transformation functions?
+
+**Answer:**
+
+```javascript
+// Testing negLog10 transformation
+describe('negLog10', () => {
+  // Normal cases
+  it('should calculate -log10 correctly', () => {
+    expect(negLog10(0.01)).toBeCloseTo(2);
+    expect(negLog10(0.001)).toBeCloseTo(3);
+    expect(negLog10(1)).toBeCloseTo(0);
+  });
+
+  // Edge cases
+  it('should handle p-value of 0', () => {
+    expect(negLog10(0)).toBe(Infinity);
+  });
+
+  it('should handle very small p-values', () => {
+    expect(negLog10(1e-300)).toBeCloseTo(300);
+  });
+
+  // Invalid inputs
+  it('should handle negative values', () => {
+    expect(() => negLog10(-1)).toThrow();
+  });
+
+  // Boundary conditions
+  it('should handle p-value at significance threshold', () => {
+    expect(negLog10(0.05)).toBeCloseTo(1.301, 2);
+  });
+});
+```
+
+**Good tests:**
+
+- Test normal expected behavior
+- Test edge cases (0, empty, undefined)
+- Test boundary conditions
+- Test error handling
+
+---
+
+### Q4: How do you achieve good test coverage for visualization code?
+
+**Answer:**
+**Strategy: Test layers separately**
+
+1. **Data layer (90%+ coverage):**
+   - Pure transformation functions
+   - Easy to test, high value
+2. **Scale layer (80%+ coverage):**
+   - Domain/range calculations
+   - Inversion functions
+
+3. **Rendering layer (60%+ coverage):**
+   - DOM structure verification
+   - Attribute values
+   - Hard to test visual appearance
+
+4. **Interaction layer (70%+ coverage):**
+   - Event handler logic (mock events)
+   - State changes
+
+```javascript
+// Example coverage strategy
+// src/lollipop/scales.js - 100% coverage
+// src/lollipop/data.js - 95% coverage
+// src/lollipop/render.js - 70% coverage
+// src/lollipop/interactions.js - 80% coverage
+```
+
+**Coverage isn't everything:**
+
+- 100% coverage ≠ bug-free
+- Focus on critical paths
+- Integration tests catch missed cases
+
+---
+
+### Q5: How would you test asynchronous data loading in visualizations?
+
+**Answer:**
+
+```javascript
+// Mock fetch for API calls
+vi.mock('fetch', () => ({
+  default: vi.fn(),
+}));
+
+describe('GeneViewer', () => {
+  it('should load and display gene data', async () => {
+    // Setup mock response
+    fetch.mockResolvedValue({
+      json: () =>
+        Promise.resolve({
+          gene: 'TP53',
+          mutations: [{ position: 175, type: 'missense' }],
+        }),
+    });
+
+    const viewer = new GeneViewer(container);
+    await viewer.loadGene('TP53');
+
+    // Wait for DOM update
+    await waitFor(() => {
+      expect(container.querySelector('.gene-name').textContent).toBe('TP53');
+    });
+
+    expect(fetch).toHaveBeenCalledWith('/api/genes/TP53');
+  });
+
+  it('should handle loading errors gracefully', async () => {
+    fetch.mockRejectedValue(new Error('Network error'));
+
+    const viewer = new GeneViewer(container);
+    await viewer.loadGene('INVALID');
+
+    expect(container.querySelector('.error-message')).toBeTruthy();
+  });
+});
+```
+
+---
+
 [← Back to Tutorials Index](../../README.md)

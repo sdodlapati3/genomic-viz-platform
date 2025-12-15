@@ -382,4 +382,188 @@ After completing this tutorial, continue with:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: Why use z-score normalization for gene expression heatmaps?
+
+**Answer:**
+**Problem:** Genes have vastly different expression ranges:
+
+- Gene A: 10-50 counts
+- Gene B: 10,000-50,000 counts
+
+Without normalization, Gene B dominates the color scale.
+
+**Z-score formula:**
+$$z = \frac{x - \mu}{\sigma}$$
+
+**Benefits:**
+
+- Centers each gene at mean = 0
+- Standard deviation = 1
+- Allows comparison across genes
+- Highlights relative changes, not absolute values
+
+```javascript
+function zScoreNormalize(matrix) {
+  return matrix.map((row) => {
+    const mean = d3.mean(row);
+    const std = d3.deviation(row);
+    return row.map((val) => (val - mean) / std);
+  });
+}
+```
+
+**Color interpretation:**
+
+- Red (z > 0): Above average for that gene
+- Blue (z < 0): Below average for that gene
+
+---
+
+### Q2: Explain hierarchical clustering and linkage methods.
+
+**Answer:**
+**Algorithm (agglomerative):**
+
+1. Start: Each item is own cluster
+2. Find closest pair of clusters
+3. Merge them
+4. Repeat until single cluster
+
+**Linkage methods:**
+| Method | Distance Between Clusters | Use Case |
+|--------|--------------------------|----------|
+| Single | Minimum distance | Elongated clusters |
+| Complete | Maximum distance | Compact, spherical |
+| Average (UPGMA) | Mean distance | Balanced |
+| Ward | Minimizes variance | Minimizes total within-cluster variance |
+
+```javascript
+function averageLinkageDistance(cluster1, cluster2, distMatrix) {
+  let sum = 0;
+  for (const i of cluster1) {
+    for (const j of cluster2) {
+      sum += distMatrix[i][j];
+    }
+  }
+  return sum / (cluster1.length * cluster2.length);
+}
+```
+
+**For gene expression:** Complete linkage with correlation distance is common.
+
+---
+
+### Q3: What color scales are appropriate for expression heatmaps?
+
+**Answer:**
+**Diverging scales (most common):**
+
+- Data centered around zero (z-scores)
+- Blue-White-Red: Standard for expression
+- Purple-White-Green: Alternative
+
+```javascript
+const colorScale = d3
+  .scaleSequential()
+  .domain([-3, 3]) // Typical z-score range
+  .interpolator(d3.interpolateRdBu)
+  .clamp(true); // Prevent extreme outliers from dominating
+```
+
+**Sequential scales:**
+
+- For non-centered data (raw counts)
+- Viridis: Perceptually uniform, colorblind-safe
+
+**Considerations:**
+
+- Colorblind accessibility (avoid red-green only)
+- Perceptual uniformity
+- Print compatibility
+
+---
+
+### Q4: How would you handle a heatmap with 10,000 genes and 500 samples?
+
+**Answer:**
+**Performance strategies:**
+
+1. **Filter to variable genes:**
+
+```javascript
+const topVariableGenes = genes
+  .map((g, i) => ({ index: i, variance: d3.variance(matrix[i]) }))
+  .sort((a, b) => b.variance - a.variance)
+  .slice(0, 500)
+  .map((g) => g.index);
+```
+
+2. **Use Canvas instead of SVG:**
+
+```javascript
+function renderHeatmapCanvas(matrix, ctx, colorScale) {
+  const imageData = ctx.createImageData(width, height);
+
+  matrix.forEach((row, i) => {
+    row.forEach((val, j) => {
+      const color = d3.color(colorScale(val));
+      const idx = (i * width + j) * 4;
+      imageData.data[idx] = color.r;
+      imageData.data[idx + 1] = color.g;
+      imageData.data[idx + 2] = color.b;
+      imageData.data[idx + 3] = 255;
+    });
+  });
+
+  ctx.putImageData(imageData, 0, 0);
+}
+```
+
+3. **Virtual scrolling:**
+   - Only render visible rows/columns
+   - Update on scroll
+
+4. **Pre-compute clustering:**
+   - Cluster server-side
+   - Send only dendrogram structure
+
+---
+
+### Q5: How do you implement the dendrogram visualization?
+
+**Answer:**
+
+```javascript
+function drawDendrogram(node, x, yScale, ctx) {
+  if (node.children) {
+    const [left, right] = node.children;
+    const leftY = yScale(left.leafMidpoint);
+    const rightY = yScale(right.leafMidpoint);
+    const mergeX = x - node.height * xScale;
+
+    // Vertical line connecting children
+    ctx.beginPath();
+    ctx.moveTo(x, leftY);
+    ctx.lineTo(mergeX, leftY);
+    ctx.lineTo(mergeX, rightY);
+    ctx.lineTo(x, rightY);
+    ctx.stroke();
+
+    // Recurse
+    drawDendrogram(left, mergeX, yScale, ctx);
+    drawDendrogram(right, mergeX, yScale, ctx);
+  }
+}
+```
+
+**Key considerations:**
+
+- Leaf ordering for optimal visualization
+- Height represents merge distance
+- Click to expand/collapse branches
+
+---
+
 [← Back to Tutorials Index](../../README.md)

@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GenomePaint Launcher - ProteinPaint Embed Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        color: #e0e0e0;
+      }
+
+      .header {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+
+      .logo-text {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        color: #888;
+      }
+
+      .server-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 20px;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #888;
+      }
+
+      .status-dot.connected {
+        background: #00ff88;
+        box-shadow: 0 0 10px #00ff88;
+      }
+
+      .status-dot.error {
+        background: #ff4444;
+        box-shadow: 0 0 10px #ff4444;
+      }
+
+      .main-content {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        height: calc(100vh - 81px);
+      }
+
+      .sidebar {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 24px;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        overflow-y: auto;
+      }
+
+      .section-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #666;
+        margin-bottom: 12px;
+      }
+
+      .launcher-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+
+      .launcher-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .launcher-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #4facfe;
+        transform: translateX(4px);
+      }
+
+      .launcher-card.active {
+        background: rgba(79, 172, 254, 0.1);
+        border-color: #4facfe;
+      }
+
+      .card-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+
+      .card-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .card-desc {
+        font-size: 12px;
+        color: #888;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 6px;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #4facfe;
+      }
+
+      .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .launch-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        border-radius: 10px;
+        color: #000;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .launch-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+      }
+
+      .launch-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .viz-container {
+        padding: 24px;
+        overflow: auto;
+      }
+
+      .viz-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .viz-title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .viz-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: #fff;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .action-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      #pp-holder {
+        background: #fff;
+        border-radius: 12px;
+        min-height: 500px;
+        overflow: hidden;
+      }
+
+      .placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 500px;
+        color: #333;
+      }
+
+      .placeholder-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.3;
+      }
+
+      .placeholder-text {
+        font-size: 16px;
+        color: #666;
+      }
+
+      .code-preview {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 24px;
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 11px;
+        overflow-x: auto;
+      }
+
+      .code-preview pre {
+        color: #00ff88;
+        white-space: pre-wrap;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 12px;
+      }
+
+      .tab {
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: none;
+        border-radius: 6px 6px 0 0;
+        color: #888;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .tab.active {
+        background: rgba(0, 0, 0, 0.4);
+        color: #00ff88;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">🧬</div>
+        <div>
+          <div class="logo-text">GenomePaint Launcher</div>
+          <div class="subtitle">ProteinPaint Embed API Demo</div>
+        </div>
+      </div>
+      <div class="server-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Checking server...</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <aside class="sidebar">
+        <div class="section-title">Visualization Types</div>
+        <div class="launcher-cards">
+          <div class="launcher-card active" data-type="gene">
+            <div class="card-icon">🔬</div>
+            <div class="card-title">Gene Browser</div>
+            <div class="card-desc">Navigate genomic coordinates with tracks</div>
+          </div>
+          <div class="launcher-card" data-type="lollipop">
+            <div class="card-icon">🍭</div>
+            <div class="card-title">Lollipop Plot</div>
+            <div class="card-desc">Visualize mutations on protein domains</div>
+          </div>
+          <div class="launcher-card" data-type="matrix">
+            <div class="card-icon">📊</div>
+            <div class="card-title">Sample Matrix</div>
+            <div class="card-desc">OncoMatrix-style sample overview</div>
+          </div>
+          <div class="launcher-card" data-type="scatter">
+            <div class="card-icon">⚡</div>
+            <div class="card-title">Scatter Plot</div>
+            <div class="card-desc">Gene expression visualization</div>
+          </div>
+        </div>
+
+        <div class="section-title">Configuration</div>
+        <div class="form-group">
+          <label class="form-label">Gene Symbol</label>
+          <input
+            type="text"
+            class="form-input"
+            id="geneInput"
+            value="TP53"
+            placeholder="e.g., TP53, BRCA1, KRAS"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Dataset</label>
+          <select class="form-select" id="datasetSelect">
+            <option value="TermdbTest">TermdbTest (Public)</option>
+            <option value="ProtectedTest">ProtectedTest (Auth Required)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Genome</label>
+          <select class="form-select" id="genomeSelect">
+            <option value="hg38-test">hg38-test</option>
+          </select>
+        </div>
+
+        <button class="launch-btn" id="launchBtn" disabled>🚀 Launch Visualization</button>
+
+        <div class="code-preview">
+          <div class="tabs">
+            <button class="tab active" data-tab="api">API Call</button>
+            <button class="tab" data-tab="embed">Embed Code</button>
+          </div>
+          <pre id="codeDisplay">// Select a visualization type to see the API call</pre>
+        </div>
+      </aside>
+
+      <section class="viz-container">
+        <div class="viz-header">
+          <div class="viz-title" id="vizTitle">Select a Visualization</div>
+          <div class="viz-actions">
+            <button class="action-btn" id="clearBtn">Clear</button>
+            <button class="action-btn" id="exportBtn">Export SVG</button>
+          </div>
+        </div>
+        <div id="pp-holder">
+          <div class="placeholder">
+            <div class="placeholder-icon">🧬</div>
+            <div class="placeholder-text">Select a visualization type and click Launch</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Load ProteinPaint from local server -->
+    <script src="http://localhost:3000/bin/proteinpaint.js" charset="utf-8"></script>
+
+    <script>
+      // State
+      let currentType = 'gene';
+      let ppInstance = null;
+      let serverConnected = false;
+
+      // DOM elements
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const launchBtn = document.getElementById('launchBtn');
+      const geneInput = document.getElementById('geneInput');
+      const datasetSelect = document.getElementById('datasetSelect');
+      const genomeSelect = document.getElementById('genomeSelect');
+      const codeDisplay = document.getElementById('codeDisplay');
+      const vizTitle = document.getElementById('vizTitle');
+      const ppHolder = document.getElementById('pp-holder');
+      const clearBtn = document.getElementById('clearBtn');
+      const cards = document.querySelectorAll('.launcher-card');
+      const tabs = document.querySelectorAll('.tab');
+
+      // Check server connection
+      async function checkServer() {
+        try {
+          const response = await fetch('http://localhost:3000/genomes');
+          if (response.ok) {
+            serverConnected = true;
+            statusDot.classList.add('connected');
+            statusText.textContent = 'Connected to localhost:3000';
+            launchBtn.disabled = false;
+          }
+        } catch (error) {
+          serverConnected = false;
+          statusDot.classList.add('error');
+          statusText.textContent = 'Server not available';
+          launchBtn.disabled = true;
+        }
+      }
+
+      // Generate API call code
+      function generateCode(type, gene, dataset, genome) {
+        const configs = {
+          gene: {
+            api: `runproteinpaint({
+    host: "http://localhost:3000",
+    holder: document.getElementById("pp-holder"),
+    genome: "${genome}",
+    gene: "${gene}",
+    tracks: [
+        {
+            type: "mds3",
+            dslabel: "${dataset}",
+            callbackOnRender: (tk) => console.log("Track rendered:", tk)
+        }
+    ]
+})`,
+            embed: `<script src="http://localhost:3000/bin/proteinpaint.js"><\/script>
+<div id="pp-holder"></div>
+<script>
+runproteinpaint({
+    host: "http://localhost:3000",
+    holder: document.getElementById("pp-holder"),
+    genome: "${genome}",
+    gene: "${gene}"
+});
+<\/script>`,
+          },
+          lollipop: {
+            api: `runproteinpaint({
+    host: "http://localhost:3000",
+    holder: document.getElementById("pp-holder"),
+    genome: "${genome}",
+    gene: "${gene}",
+    tracks: [
+        {
+            type: "mds3",
+            dslabel: "${dataset}",
+            // Mutation data will be fetched automatically
+        }
+    ]
+})`,
+            embed: `<script src="http://localhost:3000/bin/proteinpaint.js"><\/script>
+<div id="pp-holder"></div>
+<script>
+runproteinpaint({
+    host: "http://localhost:3000",
+    holder: document.getElementById("pp-holder"),
+    genome: "${genome}",
+    gene: "${gene}",
+    tracks: [{type: "mds3", dslabel: "${dataset}"}]
+});
+<\/script>`,
+          },
+          matrix: {
+            api: `runproteinpaint({
+    host: "http://localhost:3000",
+    holder: document.getElementById("pp-holder"),
+    genome: "${genome}",
+    mass: {
+        state: {
+            vocab: {
+                genome: "${genome}",
+                dslabel: "${dataset}"
+            },
+            plots: [
+                {
+                    chartType: "matrix",
+                    settings: {
+                        matrix: {
+                            maxSample: 50
+                        }
+                    }
+                }
+            ]
+        }
+    }
+})`,
+            embed: `<script src="http://localhost:3000/bin/proteinpaint.js"><\/script>
+<div id="pp-holder"></div>
+<script>
+runproteinpaint({
+    host: "http://localhost:3000",
+    holder: document.getElementById("pp-holder"),
+    genome: "${genome}",
+    mass: {
+        state: {
+            vocab: {genome: "${genome}", dslabel: "${dataset}"},
+            plots: [{chartType: "matrix"}]
+        }
+    }
+});
+<\/script>`,
+          },
+          scatter: {
+            api: `runproteinpaint({
+    host: "http://localhost:3000", 
+    holder: document.getElementById("pp-holder"),
+    genome: "${genome}",
+    mass: {
+        state: {
+            vocab: {
+                genome: "${genome}",
+                dslabel: "${dataset}"
+            },
+            plots: [
+                {
+                    chartType: "sampleScatter",
+                    colorTW: { id: "diaggrp" }
+                }
+            ]
+        }
+    }
+})`,
+            embed: `<script src="http://localhost:3000/bin/proteinpaint.js"><\/script>
+<div id="pp-holder"></div>
+<script>
+runproteinpaint({
+    host: "http://localhost:3000",
+    holder: document.getElementById("pp-holder"),
+    genome: "${genome}",
+    mass: {
+        state: {
+            vocab: {genome: "${genome}", dslabel: "${dataset}"},
+            plots: [{chartType: "sampleScatter"}]
+        }
+    }
+});
+<\/script>`,
+          },
+        };
+
+        return configs[type] || configs.gene;
+      }
+
+      // Update code display
+      function updateCodeDisplay() {
+        const gene = geneInput.value || 'TP53';
+        const dataset = datasetSelect.value;
+        const genome = genomeSelect.value;
+        const activeTab = document.querySelector('.tab.active').dataset.tab;
+        const code = generateCode(currentType, gene, dataset, genome);
+        codeDisplay.textContent = code[activeTab];
+      }
+
+      // Launch visualization
+      async function launchVisualization() {
+        if (!serverConnected) return;
+
+        const gene = geneInput.value || 'TP53';
+        const dataset = datasetSelect.value;
+        const genome = genomeSelect.value;
+
+        // Clear previous
+        ppHolder.innerHTML = '';
+
+        // Update title
+        const titles = {
+          gene: `Gene Browser: ${gene}`,
+          lollipop: `Lollipop Plot: ${gene}`,
+          matrix: `Sample Matrix: ${dataset}`,
+          scatter: `Sample Scatter: ${dataset}`,
+        };
+        vizTitle.textContent = titles[currentType];
+
+        try {
+          let config;
+
+          switch (currentType) {
+            case 'gene':
+            case 'lollipop':
+              config = {
+                host: 'http://localhost:3000',
+                holder: ppHolder,
+                genome: genome,
+                gene: gene,
+                tracks: [
+                  {
+                    type: 'mds3',
+                    dslabel: dataset,
+                  },
+                ],
+              };
+              break;
+
+            case 'matrix':
+              config = {
+                host: 'http://localhost:3000',
+                holder: ppHolder,
+                genome: genome,
+                mass: {
+                  state: {
+                    vocab: {
+                      genome: genome,
+                      dslabel: dataset,
+                    },
+                    plots: [
+                      {
+                        chartType: 'matrix',
+                        settings: {
+                          matrix: {
+                            maxSample: 50,
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              };
+              break;
+
+            case 'scatter':
+              config = {
+                host: 'http://localhost:3000',
+                holder: ppHolder,
+                genome: genome,
+                mass: {
+                  state: {
+                    vocab: {
+                      genome: genome,
+                      dslabel: dataset,
+                    },
+                    plots: [
+                      {
+                        chartType: 'sampleScatter',
+                        colorTW: { id: 'diaggrp' },
+                      },
+                    ],
+                  },
+                },
+              };
+              break;
+          }
+
+          console.log('Launching with config:', config);
+          ppInstance = await runproteinpaint(config);
+          console.log('PP Instance:', ppInstance);
+        } catch (error) {
+          console.error('Error launching visualization:', error);
+          ppHolder.innerHTML = `
+                    <div class="placeholder">
+                        <div class="placeholder-icon">⚠️</div>
+                        <div class="placeholder-text">Error: ${error.message}</div>
+                    </div>
+                `;
+        }
+      }
+
+      // Event listeners
+      cards.forEach((card) => {
+        card.addEventListener('click', () => {
+          cards.forEach((c) => c.classList.remove('active'));
+          card.classList.add('active');
+          currentType = card.dataset.type;
+          updateCodeDisplay();
+        });
+      });
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          tabs.forEach((t) => t.classList.remove('active'));
+          tab.classList.add('active');
+          updateCodeDisplay();
+        });
+      });
+
+      geneInput.addEventListener('input', updateCodeDisplay);
+      datasetSelect.addEventListener('change', updateCodeDisplay);
+      genomeSelect.addEventListener('change', updateCodeDisplay);
+
+      launchBtn.addEventListener('click', launchVisualization);
+
+      clearBtn.addEventListener('click', () => {
+        ppHolder.innerHTML = `
+                <div class="placeholder">
+                    <div class="placeholder-icon">🧬</div>
+                    <div class="placeholder-text">Select a visualization type and click Launch</div>
+                </div>
+            `;
+        vizTitle.textContent = 'Select a Visualization';
+      });
+
+      // Initialize
+      checkServer();
+      updateCodeDisplay();
+    </script>
+  </body>
+</html>

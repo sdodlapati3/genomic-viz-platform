@@ -477,4 +477,170 @@ After completing this tutorial, continue to:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: How would you design a REST API endpoint for genomic region queries?
+
+**Answer:**
+
+```
+GET /api/genes/region/{chromosome}/{start}-{end}
+```
+
+**Design considerations:**
+
+- Use path parameters for required coordinates
+- Support query params for optional filters: `?biotype=protein_coding`
+- Return paginated results for large regions
+- Include total count in response for UI
+
+```javascript
+router.get('/region/:chr/:start-:end', async (req, res) => {
+  const { chr, start, end } = req.params;
+  const { biotype, limit = 100, offset = 0 } = req.query;
+
+  // Validate coordinates
+  if (end - start > 10_000_000) {
+    return res.status(400).json({ error: 'Region too large (max 10Mb)' });
+  }
+
+  const genes = await queryGenesInRegion(chr, start, end, { biotype });
+  res.json({
+    region: { chr, start: +start, end: +end },
+    total: genes.length,
+    data: genes.slice(offset, offset + limit),
+  });
+});
+```
+
+---
+
+### Q2: How do you handle CORS for a genomic visualization API?
+
+**Answer:** CORS (Cross-Origin Resource Sharing) is essential when frontend and backend are on different domains:
+
+```javascript
+import cors from 'cors';
+
+// Simple: Allow all origins (development)
+app.use(cors());
+
+// Production: Whitelist specific origins
+app.use(
+  cors({
+    origin: ['https://viz.stjude.org', 'https://portal.stjude.cloud'],
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
+```
+
+**ProteinPaint context:** The embed API loads from different domains, so ProteinPaint server must return proper CORS headers.
+
+---
+
+### Q3: What error handling patterns would you use for a genomic API?
+
+**Answer:**
+
+```javascript
+// Custom error class
+class GenomicApiError extends Error {
+  constructor(statusCode, message, details = null) {
+    super(message);
+    this.statusCode = statusCode;
+    this.details = details;
+  }
+}
+
+// Validation errors
+if (!isValidGeneSymbol(symbol)) {
+  throw new GenomicApiError(400, 'Invalid gene symbol', {
+    provided: symbol,
+    expected: 'HGNC symbol like TP53, BRCA1',
+  });
+}
+
+// Centralized error handler
+app.use((err, req, res, next) => {
+  const status = err.statusCode || 500;
+  res.status(status).json({
+    success: false,
+    error: err.message,
+    details: err.details,
+    timestamp: new Date().toISOString(),
+  });
+});
+```
+
+---
+
+### Q4: How would you implement pagination for variant queries?
+
+**Answer:**
+
+```javascript
+// Offset-based pagination
+router.get('/variants', async (req, res) => {
+  const { limit = 100, offset = 0 } = req.query;
+
+  const [variants, total] = await Promise.all([
+    db.query('SELECT * FROM variants LIMIT $1 OFFSET $2', [limit, offset]),
+    db.query('SELECT COUNT(*) FROM variants'),
+  ]);
+
+  res.json({
+    data: variants,
+    pagination: {
+      total: parseInt(total.rows[0].count),
+      limit: +limit,
+      offset: +offset,
+      hasMore: offset + variants.length < total,
+    },
+  });
+});
+
+// Cursor-based pagination (better for large datasets)
+router.get('/variants', async (req, res) => {
+  const { cursor, limit = 100 } = req.query;
+
+  const variants = await db.query('SELECT * FROM variants WHERE id > $1 ORDER BY id LIMIT $2', [
+    cursor || 0,
+    limit + 1,
+  ]);
+
+  const hasMore = variants.length > limit;
+  res.json({
+    data: variants.slice(0, limit),
+    nextCursor: hasMore ? variants[limit - 1].id : null,
+  });
+});
+```
+
+---
+
+### Q5: How does ProteinPaint's server architecture handle different data types?
+
+**Answer:** ProteinPaint uses a modular route structure:
+
+```
+/termdb    - Term database queries (clinical variables)
+/genomes   - Reference genome information
+/mds3      - Multi-dataset version 3 (mutations, fusions, CNV)
+/bigwig    - Coverage track data
+/bam       - Alignment data
+/vcf       - Variant call format queries
+```
+
+**Key patterns:**
+
+1. **Route separation:** Each data type has dedicated handlers
+2. **SQLite databases:** Pre-indexed for fast queries
+3. **File streaming:** Large files (BAM, BigWig) streamed, not loaded
+4. **Caching:** Frequently accessed data cached in memory
+5. **Format conversion:** Server converts binary formats to JSON for client
+
+---
+
 [← Back to Tutorials Index](../../README.md)

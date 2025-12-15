@@ -61,6 +61,14 @@ Build robust configuration management with Zod validation and migrations.
 - **Port:** 5184
 - **Key Skills:** Zod schemas, Version migrations, URL state, Config editor UI
 
+#### [4.10 ProteinPaint & GenomePaint Integration](10-proteinpaint-embed/README.md) 🆕⭐⭐
+
+Master St. Jude's ProteinPaint embed API and understand GenomePaint architecture.
+
+- **Port:** 5185
+- **Key Skills:** Embed API, Docker setup, GenomePaint deep dive, Interview prep
+- **Includes:** Comprehensive [GenomePaint Tutorial](10-proteinpaint-embed/GENOMEPAINT_TUTORIAL.md) with 15+ interview Q&A
+
 ---
 
 ## Quick Start for New Tutorials
@@ -77,6 +85,10 @@ npm install && npm run dev  # Opens on localhost:5183
 # Tutorial 4.9 - Config System
 cd tutorials/phase-4-production/09-config-system
 npm install && npm run dev  # Opens on localhost:5184
+
+# Tutorial 4.10 - ProteinPaint Embed (requires Docker)
+cd tutorials/phase-4-production/10-proteinpaint-embed
+./start-tutorial.sh  # Opens on localhost:5185 (ProteinPaint on :3000)
 ```
 
 ## Prerequisites
@@ -97,6 +109,8 @@ By completing this phase, you will be able to:
 - **Build type-safe visualizations with TypeScript + D3.js** ⭐
 - **Implement coordinated multi-panel visualizations** ⭐
 - **Create robust configuration systems with schema validation** ⭐
+- **Integrate ProteinPaint embed API into custom applications** ⭐⭐
+- **Understand GenomePaint architecture for interview preparation** ⭐⭐
 
 ## Connection to St. Jude ProteinPaint
 

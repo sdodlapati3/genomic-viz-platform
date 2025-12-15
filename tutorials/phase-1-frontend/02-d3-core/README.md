@@ -315,4 +315,128 @@ After completing this tutorial, proceed to [Tutorial 1.3: Mutation Lollipop Plot
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: Explain the D3.js data join pattern (enter/update/exit).
+
+**Answer:** D3's data join synchronizes DOM elements with data:
+
+```javascript
+const selection = svg.selectAll('rect').data(data);
+
+// ENTER: New data items without DOM elements
+selection.enter().append('rect').attr('fill', 'green'); // New elements appear green
+
+// UPDATE: Existing elements with matching data
+selection.attr('fill', 'blue'); // Existing turn blue
+
+// EXIT: DOM elements without matching data
+selection.exit().remove(); // Remove orphaned elements
+```
+
+**Modern `join()` pattern** (cleaner):
+
+```javascript
+svg
+  .selectAll('rect')
+  .data(data)
+  .join(
+    (enter) => enter.append('rect').attr('fill', 'green'),
+    (update) => update.attr('fill', 'blue'),
+    (exit) => exit.remove()
+  );
+```
+
+**Why it matters:** Efficient updates when data changes (e.g., filtering mutations, zooming to region).
+
+---
+
+### Q2: What D3 scale types would you use for a mutation lollipop plot?
+
+**Answer:**
+| Purpose | Scale Type | Example |
+|---------|-----------|---------|
+| Protein position → X pixel | `d3.scaleLinear()` | `domain([1, 393]).range([0, 800])` |
+| Mutation count → Stem height | `d3.scaleLinear()` | `domain([0, maxCount]).range([baseY, topY])` |
+| Mutation count → Lollipop radius | `d3.scaleSqrt()` | Area scales with count (perceptually accurate) |
+| Mutation type → Color | `d3.scaleOrdinal()` | Maps 'missense'→green, 'nonsense'→red |
+| Expression level → Color gradient | `d3.scaleSequential()` | Uses `d3.interpolateBlues` |
+
+**Key insight:** Use `scaleSqrt` for radius because humans perceive circle **area**, not radius. Doubling radius quadruples visual area.
+
+---
+
+### Q3: How does D3's `selection.call()` work and why is it useful?
+
+**Answer:** `call()` invokes a function with the selection as argument, enabling reusable components:
+
+```javascript
+// Define reusable axis component
+const xAxis = d3.axisBottom(xScale).ticks(10);
+
+// Apply to selection
+svg.append('g').attr('transform', `translate(0, ${height})`).call(xAxis); // Equivalent to: xAxis(svg.append('g')...)
+```
+
+**Benefits:**
+
+- **Composability:** Chain multiple behaviors
+- **Reusability:** Same axis function for multiple charts
+- **Encapsulation:** Axis logic stays in one place
+
+**ProteinPaint pattern:** Track rendering functions take selections and apply complex visualization logic.
+
+---
+
+### Q4: How would you implement smooth transitions when data updates?
+
+**Answer:**
+
+```javascript
+const t = d3.transition().duration(750).ease(d3.easeCubicInOut);
+
+svg
+  .selectAll('rect')
+  .data(newData)
+  .join('rect')
+  .transition(t)
+  .attr('x', (d) => xScale(d.position))
+  .attr('height', (d) => yScale(d.count))
+  .attr('fill', (d) => colorScale(d.type));
+```
+
+**Key considerations:**
+
+- **Interpolation:** D3 automatically interpolates numbers, colors, transforms
+- **Key function:** Use `.data(data, d => d.id)` for object constancy during transitions
+- **Staggered delays:** `.delay((d, i) => i * 50)` for sequential animations
+- **Easing:** `easeCubicInOut` for natural motion, `easeElastic` for emphasis
+
+---
+
+### Q5: Explain the difference between `d3.select()` and `d3.selectAll()`.
+
+**Answer:**
+| Method | Returns | Use Case |
+|--------|---------|----------|
+| `d3.select('#chart')` | First matching element | Get specific container |
+| `d3.selectAll('.bar')` | All matching elements | Binddata to multiple elements |
+
+**Important behaviors:**
+
+- Empty selection on no match (doesn't throw error)
+- Selections are **array-like** but not arrays
+- Methods return the selection for chaining
+- `selectAll` within a selection scopes to descendants
+
+```javascript
+// Nested selection example
+svg
+  .selectAll('.gene-group')
+  .selectAll('.exon') // Only exons within each gene group
+  .attr('fill', 'blue');
+```
+
+---
+
 [← Back to Tutorials Index](../../README.md)

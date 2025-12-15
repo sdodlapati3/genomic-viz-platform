@@ -294,4 +294,141 @@ After completing this tutorial, proceed to [Tutorial 1.4: Genome Browser Track](
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: Why is the lollipop plot the signature visualization for mutation data?
+
+**Answer:** Lollipop plots effectively communicate three dimensions simultaneously:
+
+1. **X-axis (position):** Where mutation occurs on protein
+2. **Y-axis (stem height):** Frequency/recurrence across samples
+3. **Circle properties:** Mutation type (color), sample count (size)
+
+**Advantages over alternatives:**
+
+- Shows hotspots clearly (tall stems cluster at recurrent positions)
+- Protein domain context visible on backbone
+- Handles overlapping positions via clustering
+- Intuitive: taller = more significant finding
+
+**Clinical relevance:** Pathogenic mutations like TP53 R175H, R248Q cluster in DNA-binding domain, visible immediately in lollipop plot.
+
+---
+
+### Q2: How would you handle overlapping mutations at the same or adjacent positions?
+
+**Answer:** Several strategies:
+
+1. **Clustering:** Group mutations within threshold distance
+
+```javascript
+function clusterMutations(mutations, threshold = 5) {
+  // Combine mutations within 5 amino acids
+  return clustered.map((group) => ({
+    position: d3.mean(group, (d) => d.position),
+    count: d3.sum(group, (d) => d.count),
+    mutations: group,
+  }));
+}
+```
+
+2. **Jittering:** Offset overlapping circles horizontally
+3. **Stacking:** Stack circles vertically at same position
+4. **Force simulation:** D3 force layout to prevent overlap
+5. **Aggregation:** Single larger circle representing multiple
+
+**ProteinPaint approach:** Intelligent clustering with expandable groups - click to see individual mutations.
+
+---
+
+### Q3: Explain how you'd implement zoom and pan on a lollipop plot.
+
+**Answer:**
+
+```javascript
+const zoom = d3
+  .zoom()
+  .scaleExtent([1, 20]) // 1x to 20x zoom
+  .on('zoom', (event) => {
+    // Update x-scale domain based on transform
+    const newXScale = event.transform.rescaleX(xScale);
+
+    // Re-render with new scale
+    renderDomains(newXScale);
+    renderLollipops(newXScale);
+    updateAxis(newXScale);
+  });
+
+svg.call(zoom);
+
+// Programmatic zoom to region
+function zoomToRegion(start, end) {
+  const [[x0, x1]] = [xScale(start), xScale(end)];
+  svg.transition().call(zoom.transform, d3.zoomIdentity.scale(width / (x1 - x0)).translate(-x0, 0));
+}
+```
+
+**Key considerations:**
+
+- Maintain minimum visible domain (don't zoom past single amino acid)
+- Update axis tick format based on zoom level
+- Debounce render updates for performance
+
+---
+
+### Q4: What color scheme would you use for mutation consequence types?
+
+**Answer:** Use established conventions for clinical interpretation:
+
+| Consequence    | Color      | Rationale                                     |
+| -------------- | ---------- | --------------------------------------------- |
+| Missense       | Green/Teal | Common, variable pathogenicity                |
+| Nonsense       | Red        | Typically pathogenic (stop codon)             |
+| Frameshift     | Purple     | Usually pathogenic (reading frame disruption) |
+| Splice         | Orange     | Affects splicing, often pathogenic            |
+| Silent         | Gray       | Usually benign                                |
+| In-frame indel | Blue       | Variable pathogenicity                        |
+
+**Best practices:**
+
+- Use colorblind-safe palette (avoid red-green only distinction)
+- Match ClinVar/COSMIC conventions when possible
+- Provide legend with clear labels
+- Allow filtering by consequence type
+
+---
+
+### Q5: How does ProteinPaint handle the relationship between genomic and protein coordinates?
+
+**Answer:** ProteinPaint manages coordinate transformation:
+
+1. **Genomic coordinates:** chr17:7668402-7687550 (VCF positions)
+2. **Transcript coordinates:** Position within mRNA
+3. **Protein coordinates:** Amino acid position (1-393 for TP53)
+
+**Transformation pipeline:**
+
+```
+Genomic position
+    ↓ (Transcript mapping via gene model)
+Exon/intron annotation
+    ↓ (CDS extraction)
+Coding position (codon)
+    ↓ (÷3, handle phase)
+Amino acid position
+    ↓ (Scale mapping)
+Screen X coordinate
+```
+
+**Key challenges:**
+
+- Multiple transcripts per gene (canonical selection)
+- Splice variants affecting protein length
+- UTRs vs coding regions
+- Reverse strand genes (TP53 is minus strand)
+
+**ProteinPaint solution:** `block.exonsf` scale handles genomic↔screen mapping, with protein coordinates layered on top.
+
+---
+
 [← Back to Tutorials Index](../../README.md)

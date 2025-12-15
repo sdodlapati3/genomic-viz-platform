@@ -1,30 +1,37 @@
 name: genomic-viz
 channels:
+  - bioconda
   - conda-forge
   - defaults
 dependencies:
   # Python core
   - python=3.11
   - pip
-  
+
   # Data science essentials
   - numpy
   - pandas
   - scipy
-  
+
   # Visualization
   - matplotlib
   - seaborn
-  
+
   # Jupyter for notebooks
   - jupyterlab
   - ipykernel
-  
+
+  # Bioinformatics tools (for ProteinPaint compatibility)
+  - samtools>=1.20
+  - bcftools>=1.20
+  - htslib>=1.20
+  # Note: tabix comes with htslib
+
   # AI/ML dependencies (for Phase 4)
   - pip:
-    - openai
-    - langchain
-    - chromadb
+      - openai
+      - langchain
+      - chromadb
 
 # Environment variables
 variables:

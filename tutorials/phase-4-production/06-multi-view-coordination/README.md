@@ -609,3 +609,259 @@ After completing this tutorial:
 - Explore the capstone project combining all techniques
 - Review production patterns in ProteinPaint
 - Consider adding undo/redo support
+
+---
+
+## 🎯 Interview Preparation Q&A
+
+### Q1: How do you implement linked brushing between multiple views?
+
+**Answer:**
+
+```javascript
+class LinkedViews {
+  constructor() {
+    this.views = new Map();
+    this.selection = new Set();
+  }
+
+  register(viewId, view) {
+    this.views.set(viewId, view);
+  }
+
+  // Called when user brushes in any view
+  onBrush(sourceViewId, selectedIds) {
+    this.selection = new Set(selectedIds);
+
+    // Update all other views
+    for (const [viewId, view] of this.views) {
+      if (viewId !== sourceViewId) {
+        view.highlightSelection(this.selection);
+      }
+    }
+  }
+}
+
+// View implementation
+class ScatterPlot {
+  highlightSelection(selectedIds) {
+    this.svg
+      .selectAll('circle')
+      .classed('highlighted', (d) => selectedIds.has(d.id))
+      .style('opacity', (d) => (selectedIds.has(d.id) ? 1 : 0.2));
+  }
+}
+```
+
+**Key patterns:**
+
+1. Central coordinator tracks selection state
+2. Source view excluded from updates (prevent loops)
+3. Each view implements highlight interface
+
+---
+
+### Q2: How do you prevent infinite update loops in coordinated views?
+
+**Answer:**
+
+```javascript
+class EventBus {
+  constructor() {
+    this.listeners = new Map();
+    this.updating = new Set(); // Track in-progress updates
+  }
+
+  emit(event, data, source) {
+    // Prevent recursion
+    const updateKey = `${event}-${source}`;
+    if (this.updating.has(updateKey)) return;
+
+    this.updating.add(updateKey);
+
+    const handlers = this.listeners.get(event) || [];
+    for (const handler of handlers) {
+      // Don't notify the source
+      if (handler.source !== source) {
+        handler.callback(data);
+      }
+    }
+
+    this.updating.delete(updateKey);
+  }
+}
+
+// Usage
+bus.emit('selection', selectedIds, 'scatterPlot');
+// scatterPlot won't receive its own event
+```
+
+**Strategies:**
+
+1. **Source tracking** - Don't notify event source
+2. **Update flags** - Track in-progress updates
+3. **Debouncing** - Limit rapid successive updates
+4. **Batching** - Combine multiple updates
+
+---
+
+### Q3: What state management pattern works best for genomic visualizations?
+
+**Answer:**
+
+```javascript
+// Redux-like pattern for complex apps
+class GenomicStore {
+  constructor() {
+    this.state = {
+      selectedGene: null,
+      selectedRegion: { chr: null, start: 0, end: 0 },
+      selectedSamples: [],
+      filters: { minVAF: 0, cancerTypes: [] },
+      zoomLevel: 1,
+    };
+    this.subscribers = [];
+  }
+
+  // Immutable updates
+  dispatch(action) {
+    const oldState = this.state;
+
+    switch (action.type) {
+      case 'SELECT_GENE':
+        this.state = { ...this.state, selectedGene: action.gene };
+        break;
+      case 'SET_REGION':
+        this.state = { ...this.state, selectedRegion: action.region };
+        break;
+      case 'TOGGLE_SAMPLE':
+        const samples = new Set(this.state.selectedSamples);
+        action.selected ? samples.add(action.id) : samples.delete(action.id);
+        this.state = { ...this.state, selectedSamples: [...samples] };
+        break;
+    }
+
+    // Notify only if changed
+    if (this.state !== oldState) {
+      this.subscribers.forEach((fn) => fn(this.state, oldState));
+    }
+  }
+}
+```
+
+**Choose based on complexity:**
+
+- Simple: Event bus
+- Medium: Observable state
+- Complex: Redux-like store with actions
+
+---
+
+### Q4: How do you handle zoom coordination across views?
+
+**Answer:**
+
+```javascript
+class ZoomCoordinator {
+  constructor() {
+    this.views = [];
+    this.currentRegion = { chr: 'chr17', start: 7500000, end: 7700000 };
+  }
+
+  registerView(view) {
+    this.views.push(view);
+
+    // Set up zoom behavior
+    view.zoom = d3
+      .zoom()
+      .scaleExtent([1, 1000])
+      .on('zoom', (event) => {
+        // Calculate new region from zoom transform
+        const newRegion = this.transformToRegion(event.transform, view);
+        this.setRegion(newRegion, view);
+      });
+  }
+
+  setRegion(region, sourceView) {
+    this.currentRegion = region;
+
+    // Update all views
+    this.views.forEach((view) => {
+      if (view !== sourceView) {
+        // Programmatically update zoom without firing event
+        const transform = this.regionToTransform(region, view);
+        view.svg.call(view.zoom.transform, transform);
+      }
+      view.renderRegion(region);
+    });
+  }
+
+  // Convert pixel zoom to genomic coordinates
+  transformToRegion(transform, view) {
+    const scale = view.xScale.copy();
+    const newScale = transform.rescaleX(scale);
+    return {
+      chr: this.currentRegion.chr,
+      start: Math.floor(newScale.domain()[0]),
+      end: Math.ceil(newScale.domain()[1]),
+    };
+  }
+}
+```
+
+---
+
+### Q5: How does ProteinPaint coordinate its multiple track views?
+
+**Answer:**
+**ProteinPaint coordination architecture:**
+
+1. **Block-level coordination:**
+
+   ```javascript
+   // All tracks share genomic region
+   block.setRegion({ chr, start, end });
+   // Triggers update in: genes, mutations, coverage, etc.
+   ```
+
+2. **Track communication:**
+
+   ```javascript
+   // Tracks register with block
+   class Track {
+     constructor(block) {
+       this.block = block;
+       block.registerTrack(this);
+     }
+
+     // Called by block on region change
+     onRegionChange(region) {
+       this.fetchData(region).then(() => this.render());
+     }
+
+     // Emit selection to other tracks
+     onMutationClick(mutation) {
+       this.block.emit('mutation-select', mutation);
+     }
+   }
+   ```
+
+3. **Performance optimizations:**
+   - Lazy loading - fetch data only for visible region
+   - Request coalescing - batch rapid zoom updates
+   - Virtual rendering - only render visible items
+   - Caching - remember previously fetched regions
+
+4. **Shared state:**
+   ```javascript
+   // GenomePaint global state
+   state = {
+     genome: 'hg38',
+     region: { chr, start, end },
+     selectedSamples: [],
+     tracks: [],
+     filters: {},
+   };
+   ```
+
+---

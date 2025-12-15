@@ -489,4 +489,211 @@ Create complete JS fallback:
 
 ---
 
+## 🎯 Interview Preparation Q&A
+
+### Q1: Why integrate R with a Node.js application for genomic analysis?
+
+**Answer:**
+| Analysis Type | R Advantage | JS Alternative |
+|--------------|-------------|----------------|
+| Survival analysis | `survival` package (gold standard) | Limited libraries |
+| Differential expression | DESeq2, edgeR (Bioconductor) | None comparable |
+| Statistical tests | Comprehensive, validated | Basic implementations |
+| Plotting | ggplot2 publication-quality | D3.js for interactive |
+
+**Integration pattern:**
+
+```javascript
+async function runRAnalysis(script, data) {
+  const tempFile = await writeTemp(JSON.stringify(data));
+
+  const result = await new Promise((resolve, reject) => {
+    const r = spawn('Rscript', ['--vanilla', script, tempFile]);
+    let stdout = '';
+
+    r.stdout.on('data', (d) => (stdout += d));
+    r.on('close', (code) => {
+      code === 0 ? resolve(JSON.parse(stdout)) : reject(new Error('R script failed'));
+    });
+  });
+
+  return result;
+}
+```
+
+---
+
+### Q2: Explain Kaplan-Meier survival analysis and when to use it.
+
+**Answer:**
+**Purpose:** Estimate survival probability over time with censored data.
+
+**Key concepts:**
+
+- **Event:** Death, relapse, progression
+- **Censored:** Lost to follow-up, study ended before event
+- **At-risk:** Number of patients still being observed
+
+**Formula:**
+$$S(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i}\right)$$
+
+**Clinical applications:**
+
+- Compare survival by mutation status (TP53 mut vs WT)
+- Assess treatment efficacy
+- Stratify patients by gene expression
+
+**JavaScript implementation:**
+
+```javascript
+function kaplanMeier(data) {
+  const sorted = data.sort((a, b) => a.time - b.time);
+  let survival = 1.0;
+  let atRisk = sorted.length;
+  const curve = [{ time: 0, survival: 1.0 }];
+
+  for (const { time, event } of sorted) {
+    if (event) {
+      // Death occurred
+      survival *= (atRisk - 1) / atRisk;
+    }
+    atRisk--;
+    curve.push({ time, survival, atRisk });
+  }
+
+  return curve;
+}
+```
+
+---
+
+### Q3: How would you implement a JavaScript fallback for R analysis?
+
+**Answer:**
+
+```javascript
+class AnalysisService {
+  constructor() {
+    this.rAvailable = await this.checkR();
+  }
+
+  async checkR() {
+    try {
+      await exec('Rscript --version');
+      return true;
+    } catch {
+      console.warn('R not available, using JS fallback');
+      return false;
+    }
+  }
+
+  async survivalAnalysis(data) {
+    if (this.rAvailable) {
+      return this.runR('survival.R', data);
+    }
+    return this.jsSurvival(data);
+  }
+
+  jsSurvival(data) {
+    // Kaplan-Meier in JavaScript
+    // Note: Less features than R survival package
+    return {
+      curve: kaplanMeier(data),
+      logrank: logRankTest(data),
+      engine: 'JavaScript',
+      warning: 'Cox regression not available without R'
+    };
+  }
+}
+```
+
+**Trade-offs:**
+
+- JS: Always available, limited statistical methods
+- R: Full statistical power, requires installation
+
+---
+
+### Q4: What is the log-rank test and when is it used?
+
+**Answer:**
+**Purpose:** Compare survival distributions between groups.
+
+**Hypothesis:**
+
+- H₀: Survival curves are identical
+- H₁: Survival curves differ
+
+**Test statistic:**
+$$\chi^2 = \sum_{g=1}^{G} \frac{(O_g - E_g)^2}{E_g}$$
+
+Where:
+
+- $O_g$ = observed events in group g
+- $E_g$ = expected events under H₀
+
+**Interpretation:**
+
+- p < 0.05: Statistically significant difference
+- Used to assess: mutation impact, treatment effect, biomarker validity
+
+```javascript
+function logRankTest(group1, group2) {
+  // Calculate observed vs expected at each time point
+  const observed1 = group1.filter((d) => d.event).length;
+  const expected1 = calculateExpected(group1, group2);
+
+  const chiSquare = Math.pow(observed1 - expected1, 2) / expected1;
+  const pValue = 1 - chiSquareCDF(chiSquare, 1);
+
+  return { chiSquare, df: 1, pValue };
+}
+```
+
+---
+
+### Q5: How does ProteinPaint integrate statistical analysis?
+
+**Answer:**
+ProteinPaint's statistical architecture:
+
+```
+┌─────────────────────────────────────────────────┐
+│                 Client Request                   │
+│  "Compare survival: TP53 mut vs WT"            │
+└─────────────────┬───────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────┐
+│              Server Router                       │
+│  /termdb/survival → survivalAnalysis.js        │
+└─────────────────┬───────────────────────────────┘
+                  │
+        ┌─────────┴─────────┐
+        │                   │
+┌───────▼─────────┐ ┌───────▼─────────┐
+│  R Available?   │ │  R Available?   │
+│     YES         │ │      NO         │
+└───────┬─────────┘ └───────┬─────────┘
+        │                   │
+┌───────▼─────────┐ ┌───────▼─────────┐
+│  spawn Rscript  │ │  JS Fallback    │
+│  survival.R     │ │  simple-stats   │
+└───────┬─────────┘ └───────┬─────────┘
+        │                   │
+        └─────────┬─────────┘
+                  │
+┌─────────────────▼───────────────────────────────┐
+│              JSON Response                       │
+│  { curves, pValue, medianSurvival, engine }    │
+└─────────────────────────────────────────────────┘
+```
+
+**Key files:**
+
+- `server/src/run_R.js` - R process management
+- `server/r-scripts/` - Statistical scripts
+- `client/plots/survival.js` - Visualization
+
+---
+
 [← Back to Tutorials Index](../../README.md)

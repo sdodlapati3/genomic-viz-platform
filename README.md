@@ -59,6 +59,7 @@ tutorials/
 - **Git**
 
 Optional (for full functionality):
+
 - **R** >= 4.x (for statistical analysis)
 - **Rust** (for high-performance parsing)
 - **Python** >= 3.11 (for AI features)
@@ -97,17 +98,17 @@ npm run dev
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| Frontend | JavaScript/TypeScript | Core language |
-| Visualization | D3.js v7 | Data-driven graphics |
-| Rendering | Canvas API | High-performance |
-| Backend | Node.js + Express | REST API |
-| Database | PostgreSQL | Data storage |
-| Statistics | R | Analysis pipelines |
-| Performance | Rust | File parsing |
-| AI | Python + LLM APIs | Chatbot |
-| Container | Docker | Development env |
+| Layer         | Technology            | Purpose              |
+| ------------- | --------------------- | -------------------- |
+| Frontend      | JavaScript/TypeScript | Core language        |
+| Visualization | D3.js v7              | Data-driven graphics |
+| Rendering     | Canvas API            | High-performance     |
+| Backend       | Node.js + Express     | REST API             |
+| Database      | PostgreSQL            | Data storage         |
+| Statistics    | R                     | Analysis pipelines   |
+| Performance   | Rust                  | File parsing         |
+| AI            | Python + LLM APIs     | Chatbot              |
+| Container     | Docker                | Development env      |
 
 ## 📊 Sample Visualizations
 
@@ -125,8 +126,8 @@ After completing the tutorials, you'll be able to create:
 
 ```
 genomic-viz-platform/
-├── LEARNING_ROADMAP.md     # Detailed learning plan
 ├── README.md               # This file
+├── tutorials/TUTORIAL_INDEX.md  # Complete tutorial system
 ├── package.json            # Root configuration
 ├── docker-compose.yml      # Dev environment
 ├── .github/                # CI/CD workflows
@@ -152,9 +153,9 @@ npm run test:coverage
 
 ## 📖 Documentation
 
-- [Learning Roadmap](./LEARNING_ROADMAP.md) - Complete curriculum
+- [Tutorial System](./tutorials/TUTORIAL_INDEX.md) - Complete curriculum with progress tracking
+- [GenomePaint Tutorial](./tutorials/phase-4-production/10-proteinpaint-embed/GENOMEPAINT_TUTORIAL.md) - Interview prep
 - [API Documentation](./docs/api/) - REST API reference
-- [Component Guide](./docs/components/) - Visualization components
 
 ## 🎓 Inspired By
 
@@ -183,4 +184,4 @@ For questions about this learning project, please open an issue.
 
 ---
 
-*Built with ❤️ for learning genomic visualization*
+_Built with ❤️ for learning genomic visualization_
