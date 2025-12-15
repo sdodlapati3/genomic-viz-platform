@@ -120,6 +120,31 @@ After completing the tutorials, you'll be able to build:
 | **OncoPrint**          | Sample × gene mutation matrix             | Phase 3.6 |
 | **Scatter Plot**       | UMAP/t-SNE with 100k+ points              | Phase 3.1 |
 
+## 🎨 Interactive Demos
+
+Production-ready demos showcasing ProteinPaint-inspired visualizations:
+
+| Demo | Port | Description | Run |
+|------|------|-------------|-----|
+| **[Linked Portal](./demos/linked-portal/)** | 5180 | Multi-panel dashboard with EventBus coordination | `cd demos/linked-portal && npm run dev` |
+| **[Oncoprint Matrix](./demos/oncoprint/)** | 5181 | Gene × Sample mutation matrix with layered rendering | `cd demos/oncoprint && npm run dev` |
+| **[Genome Browser](./demos/genome-browser/)** | 5182 | Track-based viewer with gene, mutation, signal tracks | `cd demos/genome-browser && npm run dev` |
+| **[Dataset Selector](./demos/dataset-selector/)** | 5183 | Landing page with dataset cards and view navigation | `cd demos/dataset-selector && npm run dev` |
+
+### Quick Start - Run All Demos
+
+```bash
+# Install dependencies
+for dir in linked-portal oncoprint genome-browser dataset-selector; do
+  (cd demos/$dir && npm install)
+done
+
+# Run any demo
+cd demos/linked-portal && npm run dev   # http://localhost:5180
+```
+
+See [demos/README.md](./demos/README.md) for detailed documentation.
+
 ## 📁 Project Structure
 
 ```

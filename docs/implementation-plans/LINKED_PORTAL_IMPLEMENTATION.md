@@ -40,12 +40,13 @@ What's **missing** for a cohesive demo:
 | 5   | Integrated portal app            | New         | **P0**   | ✅ Complete    |
 | 6   | Zoom/pan with mini-map           | Enhancement | **P0**   | ✅ Complete    |
 | 7   | MutationSummary component        | New         | **P0**   | ✅ Complete    |
-| 8   | Enhanced Oncoprint matrix        | Enhancement | **P1**   | ❌ Not Started |
-| 9   | Genome Browser with tracks       | Enhancement | **P1**   | ❌ Not Started |
-| 10  | Dataset selector/landing page    | New         | **P1**   | ❌ Not Started |
-| 11  | Live deployment (Vercel)         | DevOps      | **P1**   | ❌ Not Started |
+| 8   | Enhanced Oncoprint matrix        | New demo    | **P1**   | ✅ Complete    |
+| 9   | Genome Browser with tracks       | New demo    | **P1**   | ✅ Complete    |
+| 10  | Dataset selector/landing page    | New demo    | **P1**   | ✅ Complete    |
+| 11  | Documentation & README           | Docs        | **P1**   | ✅ Complete    |
 | 12  | Disco/Circos Plot                | New         | **P2**   | ❌ Not Started |
 | 13  | GSEA Running Sum Plot            | New         | **P2**   | ❌ Not Started |
+| 14  | Hi-C Contact Matrix              | New         | **P2**   | ❌ Not Started |
 
 ---
 
