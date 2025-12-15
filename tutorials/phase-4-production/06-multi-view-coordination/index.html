@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutorial 4.6: Multi-View Coordination</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f2f5;
+        color: #333;
+      }
+
+      #app {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Header */
+      .app-header {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        color: white;
+        padding: 20px 30px;
+      }
+
+      .app-header h1 {
+        margin-bottom: 5px;
+      }
+
+      .app-header p {
+        opacity: 0.9;
+      }
+
+      /* Main Layout */
+      .app-main {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 250px;
+        background: white;
+        padding: 20px;
+        border-right: 1px solid #ddd;
+        overflow-y: auto;
+      }
+
+      .filter-panel h3 {
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+
+      .filter-group {
+        margin-bottom: 20px;
+      }
+
+      .filter-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #555;
+      }
+
+      .filter-group input[type='number'],
+      .filter-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .range-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .range-row input {
+        flex: 1;
+      }
+
+      .range-slider-container {
+        position: relative;
+        height: 30px;
+        margin-top: 8px;
+      }
+
+      .range-slider {
+        position: absolute;
+        width: 100%;
+        pointer-events: none;
+        -webkit-appearance: none;
+        background: transparent;
+      }
+
+      .range-slider::-webkit-slider-thumb {
+        pointer-events: auto;
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        background: #3498db;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 5px;
+      }
+
+      .filter-reset {
+        width: 100%;
+        padding: 10px;
+        background: #95a5a6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .filter-reset:hover {
+        background: #7f8c8d;
+      }
+
+      .active-filters {
+        margin-top: 15px;
+      }
+
+      .filter-tag {
+        display: inline-block;
+        background: #e8f4fc;
+        color: #3498db;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin: 2px;
+      }
+
+      /* View Grid */
+      .view-grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .view-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .view-container.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .view-container h3 {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        color: #2c3e50;
+        font-size: 16px;
+      }
+
+      .chart-area {
+        padding: 15px;
+      }
+
+      .table-area {
+        padding: 0;
+      }
+
+      /* Scatter Plot */
+      .scatter-plot circle.point {
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .scatter-plot circle.point:hover {
+        filter: brightness(0.9);
+      }
+
+      .scatter-plot circle.point.hovered {
+        stroke: #e74c3c;
+        stroke-width: 3px;
+      }
+
+      /* Heatmap */
+      .heatmap .cell {
+        cursor: pointer;
+        transition: stroke 0.15s ease;
+      }
+
+      .heatmap .row-label,
+      .heatmap .col-label {
+        cursor: pointer;
+        transition: fill 0.15s ease;
+      }
+
+      .heatmap .row-label:hover,
+      .heatmap .col-label:hover {
+        fill: #3498db;
+      }
+
+      .heatmap .row-label.selected,
+      .heatmap .col-label.selected {
+        fill: #e74c3c;
+      }
+
+      .heatmap .cell.hovered-row,
+      .heatmap .cell.hovered-col {
+        stroke: #e74c3c;
+        stroke-width: 1px;
+      }
+
+      /* Data Table */
+      .data-table-container {
+        overflow: hidden;
+      }
+
+      .table-controls {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .table-search {
+        flex: 1;
+        max-width: 300px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .selection-info {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .table-wrapper {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 10px 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .data-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      .data-table th.sortable {
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .data-table th.sortable:hover {
+        background: #e8f4fc;
+      }
+
+      .sort-indicator::after {
+        content: '↕';
+        margin-left: 5px;
+        opacity: 0.3;
+      }
+
+      .sort-indicator.sort-asc::after {
+        content: '↑';
+        opacity: 1;
+      }
+
+      .sort-indicator.sort-desc::after {
+        content: '↓';
+        opacity: 1;
+      }
+
+      .data-table tr {
+        cursor: pointer;
+        transition: background 0.1s ease;
+      }
+
+      .data-table tr:hover {
+        background: #f0f7ff;
+      }
+
+      .data-table tr.selected {
+        background: #e8f4fc;
+      }
+
+      .data-table tr.hovered {
+        background: #fff3cd;
+      }
+
+      .data-table tr.selected.hovered {
+        background: #d4edda;
+      }
+
+      .select-col {
+        width: 40px;
+        text-align: center;
+      }
+
+      .table-pagination {
+        padding: 10px 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .table-pagination button {
+        padding: 5px 15px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .table-pagination button:hover:not(:disabled) {
+        background: #e8f4fc;
+      }
+
+      .table-pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .page-info {
+        color: #666;
+      }
+
+      /* Selection Bar */
+      .selection-bar {
+        padding: 12px 30px;
+        background: white;
+        border-top: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .selection-bar .clear-selection {
+        padding: 4px 12px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .selection-bar .clear-selection:hover {
+        background: #c0392b;
+      }
+
+      /* Responsive */
+      @media (max-width: 1200px) {
+        .view-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .app-main {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid #ddd;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "tutorial-multi-view-coordination",
+  "version": "1.0.0",
+  "description": "Multi-View Coordination Tutorial - State management and linked brushing for genomic visualizations",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5178",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "d3": "^7.8.5"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "genomics",
+    "visualization",
+    "multi-view",
+    "linked-brushing",
+    "state-management",
+    "d3"
+  ]
+}
