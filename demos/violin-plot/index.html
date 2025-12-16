@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Violin Plot Demo - Genomic Viz Platform</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>🎻 Violin Plot Visualization</h1>
+        <p class="subtitle">Distribution comparison for gene expression and genomic data</p>
+      </header>
+
+      <div class="controls-panel">
+        <div class="control-group">
+          <label for="dataset-select">Dataset:</label>
+          <select id="dataset-select">
+            <option value="gene-expression">Gene Expression by Cancer Type</option>
+            <option value="mutation-burden">Mutation Burden Distribution</option>
+            <option value="survival-time">Survival Time by Stage</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="show-box">Show Box:</label>
+          <input type="checkbox" id="show-box" checked />
+        </div>
+        <div class="control-group">
+          <label for="show-points">Show Points:</label>
+          <input type="checkbox" id="show-points" />
+        </div>
+        <div class="control-group">
+          <label for="bandwidth">Bandwidth:</label>
+          <input type="range" id="bandwidth" min="0.1" max="2" step="0.1" value="0.7" />
+          <span id="bandwidth-value">0.7</span>
+        </div>
+      </div>
+
+      <main class="main-content">
+        <div class="chart-container">
+          <div id="violin-chart"></div>
+        </div>
+
+        <aside class="stats-panel">
+          <h3>Group Statistics</h3>
+          <div id="stats"></div>
+
+          <h3>Legend</h3>
+          <div id="legend"></div>
+        </aside>
+      </main>
+
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
