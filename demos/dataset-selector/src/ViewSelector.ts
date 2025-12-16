@@ -66,7 +66,7 @@ export class ViewSelector {
     this.container.html(`
       <div class="view-header">
         <h2>Visualizations for ${dataset.shortName}</h2>
-        <p>Select a view to explore the data</p>
+        <p>Click a visualization to launch it</p>
       </div>
       <div class="view-grid"></div>
     `);
@@ -74,17 +74,26 @@ export class ViewSelector {
     const grid = this.container.select('.view-grid');
 
     views.forEach((view) => {
-      const card = grid.append('div').attr('class', 'view-card').attr('data-view-id', view.id);
+      const card = grid
+        .append('div')
+        .attr('class', `view-card ${view.demoUrl ? 'has-demo' : ''}`)
+        .attr('data-view-id', view.id);
 
       card.html(`
         <div class="view-icon">${view.icon}</div>
         <h3 class="view-name">${view.name}</h3>
         <p class="view-description">${view.description}</p>
-        ${view.demoUrl ? '<span class="demo-badge">Demo Available</span>' : ''}
+        ${view.demoUrl ? '<span class="demo-badge">🚀 Click to Launch</span>' : '<span class="coming-soon-badge">Coming Soon</span>'}
       `);
 
-      card.on('click', () => this.handleViewClick(view));
-      card.on('dblclick', () => this.handleLaunch(view));
+      // Single click launches the demo directly
+      card.on('click', () => {
+        if (view.demoUrl) {
+          this.handleLaunch(view);
+        } else {
+          this.handleViewClick(view);
+        }
+      });
     });
   }
 

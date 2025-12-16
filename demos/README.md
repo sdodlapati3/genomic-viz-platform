@@ -5,11 +5,13 @@ Interactive demonstrations of genomic visualization components inspired by [Prot
 ## 🎯 Demo Applications
 
 ### 1. Linked Portal (Port 5180)
+
 **Multi-panel dashboard with coordinated views**
 
 ![Linked Portal](./screenshots/linked-portal.png)
 
 Features:
+
 - **LollipopPlot**: Protein domain visualization with mutation lollipops
 - **SampleTable**: Interactive sample listing with sorting and selection
 - **FilterPanel**: Dynamic filtering by disease, stage, consequence type
@@ -28,11 +30,13 @@ npm run dev
 ---
 
 ### 2. Oncoprint Matrix (Port 5181)
+
 **Gene × Sample mutation matrix visualization**
 
 ![Oncoprint](./screenshots/oncoprint.png)
 
 Features:
+
 - **Layered Mutations**: Multiple mutations per cell with priority rendering
 - **Color Coding**: Distinct colors for mutation types (missense, truncating, etc.)
 - **Sorting**: By mutation frequency, gene name, or sample ID
@@ -50,11 +54,13 @@ npm run dev
 ---
 
 ### 3. Genome Browser (Port 5182)
+
 **Track-based genomic data visualization**
 
 ![Genome Browser](./screenshots/genome-browser.png)
 
 Features:
+
 - **Gene Track**: Gene models with exons, introns, and strand direction
 - **Mutation Track**: Lollipop-style mutation markers
 - **Signal Track**: Coverage/expression data as area charts
@@ -72,11 +78,13 @@ npm run dev
 ---
 
 ### 4. Dataset Selector (Port 5183)
+
 **Landing page for dataset and view selection**
 
 ![Dataset Selector](./screenshots/dataset-selector.png)
 
 Features:
+
 - **Dataset Cards**: Visual cards for available datasets
 - **Disease Filter**: Filter datasets by disease type
 - **View Selector**: Choose visualization type (Lollipop, Oncoprint, Browser)
@@ -95,6 +103,7 @@ npm run dev
 ## 🏗️ Architecture
 
 ### Component Communication
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        EventBus                              │
@@ -117,6 +126,7 @@ npm run dev
 ```
 
 ### Track System (Genome Browser)
+
 ```typescript
 interface Track {
   render(ctx: RenderContext): void;
@@ -134,13 +144,13 @@ class SignalTrack implements Track { ... }
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Build** | Vite 5.x |
-| **Language** | TypeScript 5.x |
-| **Visualization** | D3.js v7 |
+| Layer                | Technology                      |
+| -------------------- | ------------------------------- |
+| **Build**            | Vite 5.x                        |
+| **Language**         | TypeScript 5.x                  |
+| **Visualization**    | D3.js v7                        |
 | **State Management** | Custom EventBus + Store pattern |
-| **Styling** | CSS3 with CSS Variables |
+| **Styling**          | CSS3 with CSS Variables         |
 
 ---
 
@@ -202,17 +212,17 @@ cd demos/dataset-selector && npm run dev   # Port 5183
 
 ## 🔗 ProteinPaint Feature Alignment
 
-| ProteinPaint Feature | Demo Implementation | Status |
-|---------------------|---------------------|--------|
-| Lollipop Plot | linked-portal/LollipopPlot | ✅ Complete |
-| Mutation Matrix (Oncoprint) | oncoprint/ | ✅ Complete |
-| Genome Browser | genome-browser/ | ✅ Complete |
-| Sample Table | linked-portal/SampleTable | ✅ Complete |
-| Filter Controls | linked-portal/FilterPanel | ✅ Complete |
-| Dataset Selector | dataset-selector/ | ✅ Complete |
-| Disco/Circos Plot | - | 🔲 Planned |
-| GSEA Visualization | - | 🔲 Planned |
-| Hi-C Contact Matrix | - | 🔲 Planned |
+| ProteinPaint Feature        | Demo Implementation        | Status      |
+| --------------------------- | -------------------------- | ----------- |
+| Lollipop Plot               | linked-portal/LollipopPlot | ✅ Complete |
+| Mutation Matrix (Oncoprint) | oncoprint/                 | ✅ Complete |
+| Genome Browser              | genome-browser/            | ✅ Complete |
+| Sample Table                | linked-portal/SampleTable  | ✅ Complete |
+| Filter Controls             | linked-portal/FilterPanel  | ✅ Complete |
+| Dataset Selector            | dataset-selector/          | ✅ Complete |
+| Disco/Circos Plot           | -                          | 🔲 Planned  |
+| GSEA Visualization          | -                          | 🔲 Planned  |
+| Hi-C Contact Matrix         | -                          | 🔲 Planned  |
 
 ---
 

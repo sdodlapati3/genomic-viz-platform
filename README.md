@@ -124,12 +124,12 @@ After completing the tutorials, you'll be able to build:
 
 Production-ready demos showcasing ProteinPaint-inspired visualizations:
 
-| Demo | Port | Description | Run |
-|------|------|-------------|-----|
-| **[Linked Portal](./demos/linked-portal/)** | 5180 | Multi-panel dashboard with EventBus coordination | `cd demos/linked-portal && npm run dev` |
-| **[Oncoprint Matrix](./demos/oncoprint/)** | 5181 | Gene × Sample mutation matrix with layered rendering | `cd demos/oncoprint && npm run dev` |
-| **[Genome Browser](./demos/genome-browser/)** | 5182 | Track-based viewer with gene, mutation, signal tracks | `cd demos/genome-browser && npm run dev` |
-| **[Dataset Selector](./demos/dataset-selector/)** | 5183 | Landing page with dataset cards and view navigation | `cd demos/dataset-selector && npm run dev` |
+| Demo                                              | Port | Description                                           | Run                                        |
+| ------------------------------------------------- | ---- | ----------------------------------------------------- | ------------------------------------------ |
+| **[Linked Portal](./demos/linked-portal/)**       | 5180 | Multi-panel dashboard with EventBus coordination      | `cd demos/linked-portal && npm run dev`    |
+| **[Oncoprint Matrix](./demos/oncoprint/)**        | 5181 | Gene × Sample mutation matrix with layered rendering  | `cd demos/oncoprint && npm run dev`        |
+| **[Genome Browser](./demos/genome-browser/)**     | 5182 | Track-based viewer with gene, mutation, signal tracks | `cd demos/genome-browser && npm run dev`   |
+| **[Dataset Selector](./demos/dataset-selector/)** | 5183 | Landing page with dataset cards and view navigation   | `cd demos/dataset-selector && npm run dev` |
 
 ### Quick Start - Run All Demos
 

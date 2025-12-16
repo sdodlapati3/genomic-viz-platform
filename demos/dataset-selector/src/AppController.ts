@@ -8,6 +8,7 @@ import type { Dataset, ViewType, DatasetCategory } from './types';
 import { CATEGORY_CONFIG, searchDatasets, getDatasetsByCategory, VIEWS } from './data';
 import { DatasetCard } from './DatasetCard';
 import { ViewSelector } from './ViewSelector';
+import { renderLollipopPlot, renderOncoprint, renderGenomeBrowser } from './EmbeddedViz';
 
 export class AppController {
   private datasetCards: DatasetCard[] = [];
@@ -173,13 +174,85 @@ export class AppController {
     const viewConfig = VIEWS.find((v) => v.id === view);
 
     if (viewConfig?.demoUrl) {
-      // Open demo in new tab
-      window.open(viewConfig.demoUrl, '_blank');
-      this.updateStatus(`Launched ${viewConfig.name} demo`);
+      // Render embedded visualization directly
+      this.renderEmbeddedViz(viewConfig, dataset);
+      this.updateStatus(`Viewing ${viewConfig.name}`);
     } else {
       // Show coming soon message
       this.showLaunchModal(view, dataset);
     }
+  }
+
+  private renderEmbeddedViz(
+    viewConfig: { id: string; name: string; icon: string; demoUrl?: string },
+    dataset: Dataset
+  ): void {
+    const viewPanel = document.querySelector('#view-panel');
+    if (!viewPanel) return;
+
+    // Create container for embedded viz
+    viewPanel.innerHTML = `
+      <div class="embedded-viz">
+        <div class="viz-header">
+          <div class="viz-title">
+            <span class="viz-icon">${viewConfig.icon}</span>
+            <h2>${viewConfig.name}</h2>
+            <span class="viz-dataset">${dataset.shortName}</span>
+          </div>
+          <div class="viz-actions">
+            <button class="viz-btn close-viz" title="Close visualization">✕ Close</button>
+          </div>
+        </div>
+        <div class="viz-container" id="viz-container"></div>
+      </div>
+    `;
+
+    const container = viewPanel.querySelector('#viz-container') as HTMLElement;
+    const closeBtn = viewPanel.querySelector('.close-viz');
+
+    // Render the appropriate visualization
+    try {
+      switch (viewConfig.id) {
+        case 'lollipop':
+          renderLollipopPlot(container, dataset);
+          break;
+        case 'oncoprint':
+          renderOncoprint(container, dataset);
+          break;
+        case 'genome-browser':
+          renderGenomeBrowser(container, dataset);
+          break;
+        default:
+          container.innerHTML = `<div class="viz-placeholder">Visualization coming soon</div>`;
+      }
+    } catch (error) {
+      console.error('Error rendering visualization:', error);
+      container.innerHTML = `<div class="viz-error">Error rendering visualization</div>`;
+    }
+
+    // Hide the launch button and status when viewing
+    this.hideLaunchControls();
+
+    // Close button
+    closeBtn?.addEventListener('click', () => {
+      this.showLaunchControls();
+      this.viewSelector.setDataset(this.selectedDataset);
+    });
+  }
+
+  private hideLaunchControls(): void {
+    const launchBtn = document.querySelector('#launch-btn') as HTMLButtonElement;
+    const statusBar = document.querySelector('.status-bar') as HTMLElement;
+    if (launchBtn) launchBtn.style.display = 'none';
+    if (statusBar) statusBar.style.display = 'none';
+  }
+
+  private showLaunchControls(): void {
+    const launchBtn = document.querySelector('#launch-btn') as HTMLButtonElement;
+    const statusBar = document.querySelector('.status-bar') as HTMLElement;
+    if (launchBtn) launchBtn.style.display = '';
+    if (statusBar) statusBar.style.display = '';
+    this.updateLaunchButton();
   }
 
   private showLaunchModal(view: ViewType, dataset: Dataset): void {

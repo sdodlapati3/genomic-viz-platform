@@ -98,7 +98,7 @@ export const VIEWS: ViewConfig[] = [
       'Visualize mutations along protein domains with interactive filtering and sample linking.',
     icon: '🍭',
     supportedDatasets: ['all'],
-    demoUrl: '/demos/linked-portal/',
+    demoUrl: 'http://localhost:5180/',
   },
   {
     id: 'oncoprint',
@@ -106,7 +106,7 @@ export const VIEWS: ViewConfig[] = [
     description: 'Gene × Sample mutation matrix showing mutation patterns across cohorts.',
     icon: '📊',
     supportedDatasets: ['all'],
-    demoUrl: '/demos/oncoprint/',
+    demoUrl: 'http://localhost:5181/',
   },
   {
     id: 'genome-browser',
@@ -114,7 +114,7 @@ export const VIEWS: ViewConfig[] = [
     description: 'Track-based genomic visualization with genes, mutations, and signal data.',
     icon: '🧬',
     supportedDatasets: ['all'],
-    demoUrl: '/demos/genome-browser/',
+    demoUrl: 'http://localhost:5182/',
   },
   {
     id: 'scatter',
