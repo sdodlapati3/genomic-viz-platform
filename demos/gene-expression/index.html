@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gene Expression Visualization Demo</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>🧬 Gene Expression Visualization</h1>
+        <p>Expression heatmaps, profiles, and fold change analysis</p>
+      </header>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Dataset:</label>
+          <select id="dataset-select">
+            <option value="tcga">TCGA Breast Cancer</option>
+            <option value="gtex">GTEx Multi-Tissue</option>
+            <option value="cellline">Cancer Cell Lines</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>View:</label>
+          <select id="view-select">
+            <option value="heatmap">Expression Heatmap</option>
+            <option value="profile">Gene Profile</option>
+            <option value="comparison">Group Comparison</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Color Scale:</label>
+          <select id="colorscale-select">
+            <option value="viridis">Viridis</option>
+            <option value="redblue">Red-Blue (diverging)</option>
+            <option value="yellowred">Yellow-Red</option>
+            <option value="blues">Blues</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Normalize:</label>
+          <select id="normalize-select">
+            <option value="zscore">Z-Score (row)</option>
+            <option value="log2">Log2(TPM+1)</option>
+            <option value="raw">Raw Values</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input type="checkbox" id="cluster-rows" checked />
+            Cluster Rows
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input type="checkbox" id="cluster-cols" checked />
+            Cluster Columns
+          </label>
+        </div>
+      </div>
+
+      <div class="main-container">
+        <div class="plot-container">
+          <div id="expression-plot"></div>
+        </div>
+
+        <div class="sidebar">
+          <div class="gene-panel">
+            <h3>Gene Selection</h3>
+            <input type="text" id="gene-search" placeholder="Search genes..." />
+            <div id="gene-list"></div>
+          </div>
+
+          <div class="sample-panel">
+            <h3>Sample Groups</h3>
+            <div id="sample-groups"></div>
+          </div>
+
+          <div class="stats-panel">
+            <h3>Statistics</h3>
+            <div id="stats"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
