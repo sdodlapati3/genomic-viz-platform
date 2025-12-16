@@ -63,9 +63,9 @@ Based on exploration of stjude/proteinpaint repository:
 | **Heatmap/HierCluster** | `matrix/hierCluster.*.js`                 | ✅ Complete | Done     |
 | **Volcano Plot**        | `volcano/`, `corrVolcano/`                | ✅ Complete | Done     |
 | **GSEA Plot**           | `gsea.js` (28KB)                          | ✅ Complete | Done     |
-| **Regression**          | `regression.*.js`                         | ❌ Missing  | Low      |
-| **Single Cell**         | `singleCellPlot.js` (58KB), `sc/`         | ❌ Missing  | Medium   |
-| **Gene Expression**     | `geneExpression.js`                       | ❌ Missing  | Medium   |
+| **Regression**          | `regression.*.js`                         | ✅ Complete | Done     |
+| **Single Cell**         | `singleCellPlot.js` (58KB), `sc/`         | ✅ Complete | Done     |
+| **Gene Expression**     | `geneExpression.js`                       | ✅ Complete | Done     |
 
 ### 2. **Genomic Browser Components** (`client/src/`)
 
@@ -73,22 +73,22 @@ Based on exploration of stjude/proteinpaint repository:
 | ------------------------- | ------------------------------------ | ----------- | -------- |
 | **Block (Main Browser)**  | `block.js` (142KB!)                  | ✅ Complete | Done     |
 | **Tracks Framework**      | `block.tk.*.js`                      | ✅ Complete | Done     |
-| **BAM Track**             | `block.tk.bam.js` (111KB)            | ❌ Missing  | Medium   |
-| **BigWig Track**          | `block.tk.bigwig.js`                 | ❌ Missing  | Medium   |
-| **Junction Track**        | `block.tk.junction.js`               | ❌ Missing  | Medium   |
+| **BAM Track**             | `block.tk.bam.js` (111KB)            | 🔶 Future   | —        |
+| **BigWig Track**          | `block.tk.bigwig.js`                 | 🔶 Future   | —        |
+| **Junction Track**        | `block.tk.junction.js`               | 🔶 Future   | —        |
 | **Hi-C/Straw**            | `block.tk.hicstraw.ts`               | ✅ Complete | Done     |
-| **Sample Matrix (svcnv)** | `block.mds.svcnv.*.js` (300KB total) | ❌ Missing  | Medium   |
+| **Sample Matrix (svcnv)** | `block.mds.svcnv.*.js` (300KB total) | ✅ Complete | Done     |
 
 ### 3. **mds3 (Mutation Data System)** (`client/mds3/`)
 
 | Feature               | PP Files                               | Our Status  | Priority |
 | --------------------- | -------------------------------------- | ----------- | -------- |
 | **Skewer (Lollipop)** | `skewer.js`, `skewer.render.js` (30KB) | ✅ Complete | Done     |
-| **CNV Track**         | `cnv.js`                               | ❌ Missing  | Medium   |
+| **CNV Track**         | `cnv.js`                               | ✅ Complete | Done     |
 | **Sample Table**      | `sampletable.js`                       | ✅ Complete | Done     |
-| **Item Table**        | `itemtable.js`                         | ❌ Missing  | Low      |
+| **Item Table**        | `itemtable.js`                         | ✅ Complete | Done     |
 | **Legend System**     | `legend.js` (33KB)                     | ✅ Complete | Done     |
-| **Numeric Mode**      | `numericmode.js`                       | ❌ Missing  | Low      |
+| **Numeric Mode**      | `numericmode.js`                       | 🔶 Future   | —        |
 
 ### 4. **Circos/Disco Plot** (`client/plots/disco/`)
 
