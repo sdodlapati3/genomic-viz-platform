@@ -58,6 +58,26 @@ export interface CnvArc extends Arc {
 }
 
 /**
+ * Loss of heterozygosity (LOH) data
+ */
+export interface LohData {
+  chr: string;
+  start: number;
+  end: number;
+  bafValue: number; // B-allele frequency (0.5 = normal, 0 or 1 = LOH)
+  copyNeutral?: boolean; // Copy-neutral LOH
+}
+
+export interface LohArc extends Arc {
+  chr: string;
+  start: number;
+  end: number;
+  bafValue: number;
+  copyNeutral: boolean;
+  type: 'loh' | 'cnloh';
+}
+
+/**
  * Fusion / Structural variant
  */
 export interface FusionData {
@@ -110,6 +130,7 @@ export interface SampleData {
   mutations: SnvData[];
   cnv: CnvData[];
   fusions: FusionData[];
+  loh?: LohData[]; // Optional LOH data
 }
 
 /**
@@ -121,10 +142,12 @@ export interface DiscoSettings {
   chromosomeWidth: number;
   snvRingWidth: number;
   cnvRingWidth: number;
+  lohRingWidth: number; // LOH layer width
   showLabels: boolean;
   showSnv: boolean;
   showCnv: boolean;
   showFusions: boolean;
+  showLoh: boolean; // LOH layer toggle
 }
 
 /**

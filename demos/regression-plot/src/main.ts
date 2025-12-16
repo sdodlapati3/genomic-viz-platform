@@ -164,12 +164,16 @@ class RegressionDemo {
         <span class="stat-label">Slope (β₁):</span>
         <span class="stat-value">${coefficients[1].toFixed(4)}</span>
       </div>
-      ${coefficients.length > 2 ? `
+      ${
+        coefficients.length > 2
+          ? `
       <div class="stat-row">
         <span class="stat-label">β₂ (x²):</span>
         <span class="stat-value">${coefficients[2].toFixed(4)}</span>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
       <h4>Equation</h4>
       <div class="equation">
         ${this.getEquationString(coefficients)}

@@ -37,12 +37,14 @@ export class RegressionPlot {
 
     this.settings = { ...DEFAULT_SETTINGS, ...settings };
 
-    this.svg = d3.select(this.container)
+    this.svg = d3
+      .select(this.container)
       .append('svg')
       .attr('width', this.settings.width)
       .attr('height', this.settings.height);
 
-    this.tooltip = d3.select('body')
+    this.tooltip = d3
+      .select('body')
       .append('div')
       .attr('class', 'tooltip')
       .style('display', 'none');
@@ -61,21 +63,22 @@ export class RegressionPlot {
     const plotHeight = height - margin.top - margin.bottom;
 
     // Create main group
-    const g = this.svg.append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    const g = this.svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     // Create scales
-    const xExtent = d3.extent(data, d => d.x) as [number, number];
-    const yExtent = d3.extent(data, d => d.y) as [number, number];
+    const xExtent = d3.extent(data, (d) => d.x) as [number, number];
+    const yExtent = d3.extent(data, (d) => d.y) as [number, number];
 
     const xPadding = (xExtent[1] - xExtent[0]) * 0.1;
     const yPadding = (yExtent[1] - yExtent[0]) * 0.1;
 
-    const xScale = d3.scaleLinear()
+    const xScale = d3
+      .scaleLinear()
       .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])
       .range([0, plotWidth]);
 
-    const yScale = d3.scaleLinear()
+    const yScale = d3
+      .scaleLinear()
       .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
       .range([plotHeight, 0])
       .nice();
@@ -111,7 +114,8 @@ export class RegressionPlot {
     this.renderAxes(g, xScale, yScale, plotWidth, plotHeight, xLabel, yLabel);
 
     // Render title
-    this.svg.append('text')
+    this.svg
+      .append('text')
       .attr('x', width / 2)
       .attr('y', 20)
       .attr('text-anchor', 'middle')
@@ -125,10 +129,10 @@ export class RegressionPlot {
 
   private calculateLinearRegression(data: DataPoint[]): RegressionResult {
     const n = data.length;
-    const sumX = d3.sum(data, d => d.x);
-    const sumY = d3.sum(data, d => d.y);
-    const sumXY = d3.sum(data, d => d.x * d.y);
-    const sumX2 = d3.sum(data, d => d.x * d.x);
+    const sumX = d3.sum(data, (d) => d.x);
+    const sumY = d3.sum(data, (d) => d.y);
+    const sumXY = d3.sum(data, (d) => d.x * d.y);
+    const sumX2 = d3.sum(data, (d) => d.x * d.x);
 
     const meanX = sumX / n;
     const meanY = sumY / n;
@@ -138,12 +142,12 @@ export class RegressionPlot {
     const intercept = meanY - slope * meanX;
 
     // Calculate predicted values and residuals
-    const predicted = data.map(d => intercept + slope * d.x);
+    const predicted = data.map((d) => intercept + slope * d.x);
     const residuals = data.map((d, i) => d.y - predicted[i]);
 
     // Calculate R-squared
-    const ssRes = d3.sum(residuals, r => r * r);
-    const ssTot = d3.sum(data, d => Math.pow(d.y - meanY, 2));
+    const ssRes = d3.sum(residuals, (r) => r * r);
+    const ssTot = d3.sum(data, (d) => Math.pow(d.y - meanY, 2));
     const rSquared = 1 - ssRes / ssTot;
     const adjustedRSquared = 1 - ((1 - rSquared) * (n - 1)) / (n - 2);
 
@@ -152,27 +156,31 @@ export class RegressionPlot {
 
     // Calculate F-statistic and p-value (simplified)
     const ssReg = ssTot - ssRes;
-    const fStatistic = (ssReg / 1) / (ssRes / (n - 2));
+    const fStatistic = ssReg / 1 / (ssRes / (n - 2));
     const pValue = Math.exp(-fStatistic / 2); // Simplified approximation
 
     // Calculate confidence interval
     const tCritical = 1.96; // For 95% CI, approximate
 
     const xRange = d3.range(
-      d3.min(data, d => d.x)! - 1,
-      d3.max(data, d => d.x)! + 1,
-      (d3.max(data, d => d.x)! - d3.min(data, d => d.x)!) / 100
+      d3.min(data, (d) => d.x)! - 1,
+      d3.max(data, (d) => d.x)! + 1,
+      (d3.max(data, (d) => d.x)! - d3.min(data, (d) => d.x)!) / 100
     );
 
-    const lower = xRange.map(x => {
+    const lower = xRange.map((x) => {
       const yHat = intercept + slope * x;
-      const seY = standardError * Math.sqrt(1 / n + Math.pow(x - meanX, 2) / d3.sum(data, d => Math.pow(d.x - meanX, 2)));
+      const seY =
+        standardError *
+        Math.sqrt(1 / n + Math.pow(x - meanX, 2) / d3.sum(data, (d) => Math.pow(d.x - meanX, 2)));
       return yHat - tCritical * seY;
     });
 
-    const upper = xRange.map(x => {
+    const upper = xRange.map((x) => {
       const yHat = intercept + slope * x;
-      const seY = standardError * Math.sqrt(1 / n + Math.pow(x - meanX, 2) / d3.sum(data, d => Math.pow(d.x - meanX, 2)));
+      const seY =
+        standardError *
+        Math.sqrt(1 / n + Math.pow(x - meanX, 2) / d3.sum(data, (d) => Math.pow(d.x - meanX, 2)));
       return yHat + tCritical * seY;
     });
 
@@ -192,30 +200,34 @@ export class RegressionPlot {
   private calculatePolynomialRegression(data: DataPoint[], degree: number): RegressionResult {
     // Simplified polynomial regression using normal equations
     // For a proper implementation, use matrix operations
-    
+
     const n = data.length;
     const coefficients: number[] = [];
 
     // Use simple polynomial fitting (least squares approximation)
     // This is a simplified version - real implementation would use matrix algebra
-    
+
     // For demo, we'll use a quadratic fit with gradient descent approximation
-    const meanX = d3.mean(data, d => d.x) ?? 0;
-    const meanY = d3.mean(data, d => d.y) ?? 0;
+    const meanX = d3.mean(data, (d) => d.x) ?? 0;
+    const meanY = d3.mean(data, (d) => d.y) ?? 0;
 
     // Center the data
-    const centeredData = data.map(d => ({
+    const centeredData = data.map((d) => ({
       x: d.x - meanX,
       y: d.y - meanY,
     }));
 
     // Estimate coefficients
-    let a = 0, b = 0, c = meanY;
+    let a = 0,
+      b = 0,
+      c = meanY;
     const iterations = 1000;
     const learningRate = 0.0001;
 
     for (let iter = 0; iter < iterations; iter++) {
-      let gradA = 0, gradB = 0, gradC = 0;
+      let gradA = 0,
+        gradB = 0,
+        gradC = 0;
 
       for (const d of centeredData) {
         const pred = a * d.x * d.x + b * d.x + c - meanY;
@@ -225,9 +237,9 @@ export class RegressionPlot {
         gradC += error;
       }
 
-      a -= learningRate * gradA / n;
-      b -= learningRate * gradB / n;
-      c -= learningRate * gradC / n;
+      a -= (learningRate * gradA) / n;
+      b -= (learningRate * gradB) / n;
+      c -= (learningRate * gradC) / n;
     }
 
     // Adjust for centering
@@ -238,18 +250,18 @@ export class RegressionPlot {
     coefficients.push(a2, a1, a0);
 
     // Calculate predicted and residuals
-    const predicted = data.map(d => a2 + a1 * d.x + a0 * d.x * d.x);
+    const predicted = data.map((d) => a2 + a1 * d.x + a0 * d.x * d.x);
     const residuals = data.map((d, i) => d.y - predicted[i]);
 
     // Calculate R-squared
-    const ssRes = d3.sum(residuals, r => r * r);
-    const ssTot = d3.sum(data, d => Math.pow(d.y - meanY, 2));
+    const ssRes = d3.sum(residuals, (r) => r * r);
+    const ssTot = d3.sum(data, (d) => Math.pow(d.y - meanY, 2));
     const rSquared = Math.max(0, 1 - ssRes / ssTot);
 
     return {
       coefficients,
       rSquared,
-      adjustedRSquared: rSquared - (1 - rSquared) * degree / (n - degree - 1),
+      adjustedRSquared: rSquared - ((1 - rSquared) * degree) / (n - degree - 1),
       standardError: Math.sqrt(ssRes / (n - degree - 1)),
       pValue: 0.001, // Placeholder
       fStatistic: (ssTot - ssRes) / degree / (ssRes / (n - degree - 1)),
@@ -271,10 +283,10 @@ export class RegressionPlot {
       .data(data)
       .join('circle')
       .attr('class', 'data-point')
-      .attr('cx', d => xScale(d.x))
-      .attr('cy', d => yScale(d.y))
+      .attr('cx', (d) => xScale(d.x))
+      .attr('cy', (d) => yScale(d.y))
       .attr('r', 5)
-      .attr('fill', d => d.group ? colorScale(d.group) : this.settings.pointColor)
+      .attr('fill', (d) => (d.group ? colorScale(d.group) : this.settings.pointColor))
       .attr('stroke', '#fff')
       .attr('stroke-width', 1.5)
       .attr('opacity', 0.8)
@@ -298,8 +310,8 @@ export class RegressionPlot {
     _width: number,
     regressionType: RegressionType
   ): void {
-    const xMin = d3.min(data, d => d.x)!;
-    const xMax = d3.max(data, d => d.x)!;
+    const xMin = d3.min(data, (d) => d.x)!;
+    const xMax = d3.max(data, (d) => d.x)!;
     const numPoints = 100;
     const step = (xMax - xMin) / numPoints;
 
@@ -315,9 +327,10 @@ export class RegressionPlot {
       lineData.push({ x, y });
     }
 
-    const line = d3.line<{ x: number; y: number }>()
-      .x(d => xScale(d.x))
-      .y(d => yScale(d.y));
+    const line = d3
+      .line<{ x: number; y: number }>()
+      .x((d) => xScale(d.x))
+      .y((d) => yScale(d.y));
 
     g.append('path')
       .datum(lineData)
@@ -340,14 +353,14 @@ export class RegressionPlot {
   ): void {
     if (regressionType === 'polynomial') return; // Skip for polynomial
 
-    const xMin = d3.min(data, d => d.x)!;
-    const xMax = d3.max(data, d => d.x)!;
+    const xMin = d3.min(data, (d) => d.x)!;
+    const xMax = d3.max(data, (d) => d.x)!;
     const numPoints = 100;
     const step = (xMax - xMin) / numPoints;
 
     const n = data.length;
-    const meanX = d3.mean(data, d => d.x)!;
-    const ssX = d3.sum(data, d => Math.pow(d.x - meanX, 2));
+    const meanX = d3.mean(data, (d) => d.x)!;
+    const ssX = d3.sum(data, (d) => Math.pow(d.x - meanX, 2));
     const tCritical = 1.96;
 
     const areaData: Array<{ x: number; lower: number; upper: number }> = [];
@@ -355,7 +368,7 @@ export class RegressionPlot {
     for (let i = 0, x = xMin; x <= xMax; x += step, i++) {
       const yHat = result.coefficients[0] + result.coefficients[1] * x;
       const seY = result.standardError * Math.sqrt(1 / n + Math.pow(x - meanX, 2) / ssX);
-      
+
       areaData.push({
         x,
         lower: yHat - tCritical * seY,
@@ -363,10 +376,11 @@ export class RegressionPlot {
       });
     }
 
-    const area = d3.area<{ x: number; lower: number; upper: number }>()
-      .x(d => xScale(d.x))
-      .y0(d => yScale(d.lower))
-      .y1(d => yScale(d.upper));
+    const area = d3
+      .area<{ x: number; lower: number; upper: number }>()
+      .x((d) => xScale(d.x))
+      .y0((d) => yScale(d.lower))
+      .y1((d) => yScale(d.upper));
 
     g.append('path')
       .datum(areaData)
@@ -387,10 +401,7 @@ export class RegressionPlot {
   ): void {
     // X axis
     const xAxis = d3.axisBottom(xScale).ticks(8);
-    g.append('g')
-      .attr('class', 'x-axis')
-      .attr('transform', `translate(0, ${height})`)
-      .call(xAxis);
+    g.append('g').attr('class', 'x-axis').attr('transform', `translate(0, ${height})`).call(xAxis);
 
     g.append('text')
       .attr('class', 'axis-label')
@@ -403,9 +414,7 @@ export class RegressionPlot {
 
     // Y axis
     const yAxis = d3.axisLeft(yScale).ticks(8);
-    g.append('g')
-      .attr('class', 'y-axis')
-      .call(yAxis);
+    g.append('g').attr('class', 'y-axis').call(yAxis);
 
     g.append('text')
       .attr('class', 'axis-label')
@@ -421,7 +430,8 @@ export class RegressionPlot {
   private showTooltip(event: MouseEvent, d: DataPoint): void {
     this.tooltip
       .style('display', 'block')
-      .html(`
+      .html(
+        `
         <div class="tooltip-title">${d.label ?? 'Data Point'}</div>
         <div class="tooltip-row">
           <span class="tooltip-label">X:</span>
@@ -431,13 +441,18 @@ export class RegressionPlot {
           <span class="tooltip-label">Y:</span>
           <span class="tooltip-value">${d.y.toFixed(2)}</span>
         </div>
-        ${d.group ? `
+        ${
+          d.group
+            ? `
           <div class="tooltip-row">
             <span class="tooltip-label">Group:</span>
             <span class="tooltip-value">${d.group}</span>
           </div>
-        ` : ''}
-      `)
+        `
+            : ''
+        }
+      `
+      )
       .style('left', `${event.pageX + 10}px`)
       .style('top', `${event.pageY - 10}px`);
   }
@@ -466,7 +481,8 @@ export class ResidualPlot {
 
     this.settings = { ...DEFAULT_SETTINGS, width: 600, height: 250, ...settings };
 
-    this.svg = d3.select(this.container)
+    this.svg = d3
+      .select(this.container)
       .append('svg')
       .attr('width', this.settings.width)
       .attr('height', this.settings.height);
@@ -479,15 +495,16 @@ export class ResidualPlot {
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
-    const g = this.svg.append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    const g = this.svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    const xScale = d3.scaleLinear()
+    const xScale = d3
+      .scaleLinear()
       .domain(d3.extent(predicted) as [number, number])
       .range([0, plotWidth])
       .nice();
 
-    const yScale = d3.scaleLinear()
+    const yScale = d3
+      .scaleLinear()
       .domain(d3.extent(residuals) as [number, number])
       .range([plotHeight, 0])
       .nice();
@@ -506,8 +523,8 @@ export class ResidualPlot {
     g.selectAll('circle')
       .data(predicted.map((p, i) => ({ predicted: p, residual: residuals[i] })))
       .join('circle')
-      .attr('cx', d => xScale(d.predicted))
-      .attr('cy', d => yScale(d.residual))
+      .attr('cx', (d) => xScale(d.predicted))
+      .attr('cy', (d) => yScale(d.residual))
       .attr('r', 4)
       .attr('fill', '#3498db')
       .attr('opacity', 0.6);
@@ -517,8 +534,7 @@ export class ResidualPlot {
       .attr('transform', `translate(0, ${plotHeight})`)
       .call(d3.axisBottom(xScale).ticks(6));
 
-    g.append('g')
-      .call(d3.axisLeft(yScale).ticks(5));
+    g.append('g').call(d3.axisLeft(yScale).ticks(5));
 
     // Labels
     g.append('text')

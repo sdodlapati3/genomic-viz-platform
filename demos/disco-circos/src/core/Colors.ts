@@ -27,6 +27,15 @@ export const CNV_COLORS = {
 };
 
 /**
+ * LOH (Loss of Heterozygosity) colors
+ */
+export const LOH_COLORS = {
+  loh: '#9b59b6', // Purple for LOH
+  cnloh: '#8e44ad', // Dark purple for copy-neutral LOH
+  normal: '#2ecc71', // Green for heterozygous (normal)
+};
+
+/**
  * Fusion chord colors - generate random but consistent colors
  */
 export function getFusionColor(geneA: string, geneB: string): string {

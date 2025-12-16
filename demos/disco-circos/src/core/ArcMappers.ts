@@ -5,10 +5,12 @@ import type {
   CnvArc,
   FusionData,
   FusionChord,
+  LohData,
+  LohArc,
   DiscoSettings,
 } from '../types';
 import { Reference } from './Reference';
-import { MUTATION_COLORS, CNV_COLORS, getFusionColor } from './Colors';
+import { MUTATION_COLORS, CNV_COLORS, LOH_COLORS, getFusionColor } from './Colors';
 
 /**
  * Map SNV data to arc objects
@@ -203,5 +205,88 @@ export class FusionChordMapper {
 
   public getChromosomeInnerRadius(): number {
     return this.chromosomeInnerRadius;
+  }
+}
+
+/**
+ * Map LOH data to arc objects
+ * Loss of Heterozygosity shows regions where B-allele frequency deviates from 0.5
+ */
+export class LohArcMapper {
+  private reference: Reference;
+  private innerRadius: number;
+  private ringWidth: number;
+
+  constructor(reference: Reference, settings: DiscoSettings) {
+    this.reference = reference;
+
+    // LOH ring is between CNV and chromosome ring
+    this.ringWidth = settings.lohRingWidth;
+    // LOH starts inside the CNV ring
+    const cnvInnerRadius = settings.radius - settings.cnvRingWidth;
+    this.innerRadius = cnvInnerRadius - this.ringWidth;
+  }
+
+  public map(lohData: LohData[]): LohArc[] {
+    const arcs: LohArc[] = [];
+
+    for (const loh of lohData) {
+      const angles = this.reference.rangeToAngles(loh.chr, loh.start, loh.end);
+      if (!angles) continue;
+
+      // Ensure minimum visible arc
+      let { startAngle, endAngle } = angles;
+      const minArcAngle = 0.01;
+      if (endAngle - startAngle < minArcAngle) {
+        const mid = (startAngle + endAngle) / 2;
+        startAngle = mid - minArcAngle / 2;
+        endAngle = mid + minArcAngle / 2;
+      }
+
+      // Determine LOH type based on copy-neutral flag
+      const isCopyNeutral = loh.copyNeutral || false;
+      const type = isCopyNeutral ? 'cnloh' : 'loh';
+      const baseColor = isCopyNeutral ? LOH_COLORS.cnloh : LOH_COLORS.loh;
+
+      // Calculate opacity based on BAF deviation from 0.5
+      // BAF close to 0 or 1 = strong LOH signal
+      const bafDeviation = Math.abs(loh.bafValue - 0.5) * 2; // Normalize to 0-1
+      const opacity = 0.4 + bafDeviation * 0.6;
+
+      const arc: LohArc = {
+        startAngle,
+        endAngle,
+        innerRadius: this.innerRadius,
+        outerRadius: this.innerRadius + this.ringWidth,
+        color: this.applyOpacity(baseColor, opacity),
+        chr: loh.chr,
+        start: loh.start,
+        end: loh.end,
+        bafValue: loh.bafValue,
+        copyNeutral: isCopyNeutral,
+        type,
+        text: `BAF: ${loh.bafValue.toFixed(2)}`,
+      };
+
+      arcs.push(arc);
+    }
+
+    return arcs;
+  }
+
+  public getInnerRadius(): number {
+    return this.innerRadius;
+  }
+
+  public getOuterRadius(): number {
+    return this.innerRadius + this.ringWidth;
+  }
+
+  private applyOpacity(hex: string, opacity: number): string {
+    // Convert hex to rgba
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   }
 }

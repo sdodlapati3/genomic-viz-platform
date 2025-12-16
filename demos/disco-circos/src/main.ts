@@ -9,10 +9,12 @@ const defaultSettings: DiscoSettings = {
   chromosomeWidth: 20,
   snvRingWidth: 15,
   cnvRingWidth: 20,
+  lohRingWidth: 15,
   showLabels: true,
   showSnv: true,
   showCnv: true,
   showFusions: true,
+  showLoh: true,
 };
 
 // Global state
@@ -90,6 +92,11 @@ function setupControls(): void {
   setupCheckbox('show-fusions', (checked) => {
     currentSettings.showFusions = checked;
     disco?.updateSettings({ showFusions: checked });
+  });
+
+  setupCheckbox('show-loh', (checked) => {
+    currentSettings.showLoh = checked;
+    disco?.updateSettings({ showLoh: checked });
   });
 
   setupCheckbox('show-labels', (checked) => {

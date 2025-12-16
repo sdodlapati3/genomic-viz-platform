@@ -64,6 +64,14 @@
         "posB": 105862000,
         "geneB": "IGH"
       }
+    ],
+    "loh": [
+      { "chr": "chr3", "start": 20000000, "end": 45000000, "bafValue": 0.92, "copyNeutral": false },
+      { "chr": "chr6", "start": 80000000, "end": 120000000, "bafValue": 0.08, "copyNeutral": true },
+      { "chr": "chr9", "start": 15000000, "end": 25000000, "bafValue": 0.95, "copyNeutral": false },
+      { "chr": "chr12", "start": 40000000, "end": 80000000, "bafValue": 0.05, "copyNeutral": true },
+      { "chr": "chr17", "start": 5000000, "end": 15000000, "bafValue": 0.88, "copyNeutral": false },
+      { "chr": "chr19", "start": 10000000, "end": 35000000, "bafValue": 0.12, "copyNeutral": false }
     ]
   },
   "sample2": {
@@ -101,6 +109,18 @@
         "posB": 38465000,
         "geneB": "RARA"
       }
+    ],
+    "loh": [
+      { "chr": "chr5", "start": 50000000, "end": 100000000, "bafValue": 0.02, "copyNeutral": true },
+      { "chr": "chr7", "start": 70000000, "end": 110000000, "bafValue": 0.97, "copyNeutral": true },
+      {
+        "chr": "chr11",
+        "start": 60000000,
+        "end": 90000000,
+        "bafValue": 0.06,
+        "copyNeutral": false
+      },
+      { "chr": "chr17", "start": 20000000, "end": 50000000, "bafValue": 0.93, "copyNeutral": false }
     ]
   },
   "sample3": {
@@ -146,6 +166,19 @@
         "posB": 178400000,
         "geneB": "NPM1"
       }
+    ],
+    "loh": [
+      {
+        "chr": "chr1",
+        "start": 100000000,
+        "end": 140000000,
+        "bafValue": 0.04,
+        "copyNeutral": false
+      },
+      { "chr": "chr6", "start": 30000000, "end": 60000000, "bafValue": 0.96, "copyNeutral": true },
+      { "chr": "chr9", "start": 5000000, "end": 18000000, "bafValue": 0.03, "copyNeutral": false },
+      { "chr": "chr16", "start": 20000000, "end": 50000000, "bafValue": 0.91, "copyNeutral": true },
+      { "chr": "chr22", "start": 20000000, "end": 40000000, "bafValue": 0.07, "copyNeutral": false }
     ]
   }
 }

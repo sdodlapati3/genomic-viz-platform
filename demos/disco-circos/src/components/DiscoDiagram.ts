@@ -6,12 +6,19 @@ import type {
   Chromosome,
   SnvArc,
   CnvArc,
+  LohArc,
   FusionChord,
   MutationClass,
 } from '../types';
 import { Reference } from '../core/Reference';
-import { SnvArcMapper, CnvArcMapper, FusionChordMapper } from '../core/ArcMappers';
-import { MUTATION_COLORS, getMutationLabel, formatPosition, formatRange } from '../core/Colors';
+import { SnvArcMapper, CnvArcMapper, LohArcMapper, FusionChordMapper } from '../core/ArcMappers';
+import {
+  MUTATION_COLORS,
+  LOH_COLORS,
+  getMutationLabel,
+  formatPosition,
+  formatRange,
+} from '../core/Colors';
 
 /**
  * Main Disco/Circos diagram component
@@ -31,6 +38,7 @@ export class DiscoDiagram {
   // Mapped data
   private snvArcs: SnvArc[] = [];
   private cnvArcs: CnvArc[] = [];
+  private lohArcs: LohArc[] = [];
   private fusionChords: FusionChord[] = [];
 
   constructor(containerId: string, genome: GenomeReference, settings: DiscoSettings) {
@@ -87,10 +95,12 @@ export class DiscoDiagram {
 
     const snvMapper = new SnvArcMapper(this.reference, this.settings);
     const cnvMapper = new CnvArcMapper(this.reference, this.settings);
+    const lohMapper = new LohArcMapper(this.reference, this.settings);
     const fusionMapper = new FusionChordMapper(this.reference, this.settings);
 
     this.snvArcs = snvMapper.map(this.sampleData.mutations);
     this.cnvArcs = cnvMapper.map(this.sampleData.cnv);
+    this.lohArcs = this.sampleData.loh ? lohMapper.map(this.sampleData.loh) : [];
     this.fusionChords = fusionMapper.map(this.sampleData.fusions);
   }
 
@@ -104,6 +114,7 @@ export class DiscoDiagram {
     // Create groups in drawing order (back to front)
     const fusionsGroup = this.mainGroup.append('g').attr('class', 'fusions-layer');
     const trackBgGroup = this.mainGroup.append('g').attr('class', 'track-bg-layer');
+    const lohGroup = this.mainGroup.append('g').attr('class', 'loh-layer');
     const cnvGroup = this.mainGroup.append('g').attr('class', 'cnv-layer');
     const snvGroup = this.mainGroup.append('g').attr('class', 'snv-layer');
     const chromosomeGroup = this.mainGroup.append('g').attr('class', 'chromosome-layer');
@@ -127,6 +138,10 @@ export class DiscoDiagram {
       this.renderCnvRing(cnvGroup);
     }
 
+    if (this.settings.showLoh && this.lohArcs.length > 0) {
+      this.renderLohRing(lohGroup);
+    }
+
     if (this.settings.showFusions && this.fusionChords.length > 0) {
       this.renderFusionChords(fusionsGroup);
     }
@@ -141,6 +156,7 @@ export class DiscoDiagram {
   private renderTrackBackgrounds(group: d3.Selection<SVGGElement, unknown, null, undefined>): void {
     const snvMapper = new SnvArcMapper(this.reference, this.settings);
     const cnvMapper = new CnvArcMapper(this.reference, this.settings);
+    const lohMapper = new LohArcMapper(this.reference, this.settings);
 
     // SNV track background (light gray ring)
     if (this.settings.showSnv) {
@@ -168,6 +184,19 @@ export class DiscoDiagram {
         .attr('opacity', 0.8);
     }
 
+    // LOH track background (purple tint)
+    if (this.settings.showLoh) {
+      group
+        .append('circle')
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', (lohMapper.getInnerRadius() + lohMapper.getOuterRadius()) / 2)
+        .attr('fill', 'none')
+        .attr('stroke', '#f5f0f8')
+        .attr('stroke-width', lohMapper.getOuterRadius() - lohMapper.getInnerRadius())
+        .attr('opacity', 0.8);
+    }
+
     // Add track labels on the right side
     const labelX = this.settings.radius + 20;
 
@@ -181,6 +210,18 @@ export class DiscoDiagram {
         .attr('font-size', '10px')
         .attr('fill', '#666')
         .text('SNV');
+    }
+
+    if (this.settings.showLoh) {
+      const lohMidRadius = (lohMapper.getInnerRadius() + lohMapper.getOuterRadius()) / 2;
+      group
+        .append('text')
+        .attr('x', labelX)
+        .attr('y', -lohMidRadius + 4)
+        .attr('class', 'track-label')
+        .attr('font-size', '10px')
+        .attr('fill', '#666')
+        .text('LOH');
     }
 
     if (this.settings.showCnv) {
@@ -357,6 +398,52 @@ export class DiscoDiagram {
   }
 
   /**
+   * Render LOH (Loss of Heterozygosity) ring
+   */
+  private renderLohRing(group: d3.Selection<SVGGElement, unknown, null, undefined>): void {
+    const arc = d3
+      .arc<LohArc>()
+      .innerRadius((d) => d.innerRadius)
+      .outerRadius((d) => d.outerRadius)
+      .startAngle((d) => d.startAngle)
+      .endAngle((d) => d.endAngle);
+
+    group
+      .selectAll('path.loh-arc')
+      .data(this.lohArcs)
+      .join('path')
+      .attr('class', 'loh-arc')
+      .attr('d', arc)
+      .attr('fill', (d) => d.color)
+      .on('mouseover', (event, d) => {
+        this.showTooltip(
+          event,
+          `
+          <div class="tooltip-title">Loss of Heterozygosity${d.copyNeutral ? ' (Copy Neutral)' : ''}</div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">Region:</span>
+            <span class="tooltip-value">${formatRange(d.chr, d.start, d.end)}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">B-Allele Freq:</span>
+            <span class="tooltip-value">${d.bafValue.toFixed(3)}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">Size:</span>
+            <span class="tooltip-value">${((d.end - d.start) / 1e6).toFixed(2)} Mb</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">Type:</span>
+            <span class="tooltip-value">${d.copyNeutral ? 'Copy-Neutral LOH' : 'LOH'}</span>
+          </div>
+        `
+        );
+      })
+      .on('mousemove', (event) => this.moveTooltip(event))
+      .on('mouseout', () => this.hideTooltip());
+  }
+
+  /**
    * Render fusion chords (bezier curves connecting two chromosomes)
    */
   private renderFusionChords(group: d3.Selection<SVGGElement, unknown, null, undefined>): void {
@@ -464,6 +551,10 @@ export class DiscoDiagram {
           <div class="stat-card">
             <div class="stat-value">${this.sampleData.cnv.length}</div>
             <div class="stat-label">CNVs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${this.sampleData.loh?.length || 0}</div>
+            <div class="stat-label">LOH</div>
           </div>
           <div class="stat-card">
             <div class="stat-value">${this.sampleData.fusions.length}</div>
@@ -615,6 +706,16 @@ export class DiscoDiagram {
       <div class="legend-item">
         <span class="legend-color" style="background: #3498db"></span>
         <span>Loss</span>
+      </div>
+      
+      <div class="legend-title" style="margin-top: 1rem;">Loss of Heterozygosity</div>
+      <div class="legend-item">
+        <span class="legend-color" style="background: ${LOH_COLORS.loh}"></span>
+        <span>LOH</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background: ${LOH_COLORS.cnloh}"></span>
+        <span>Copy-Neutral LOH</span>
       </div>
     `;
   }
