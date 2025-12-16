@@ -1,0 +1,256 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e4e4e7;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  font-size: 2rem;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  color: #a1a1aa;
+  margin-top: 8px;
+}
+
+.controls-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 0.875rem;
+  color: #a1a1aa;
+}
+
+.control-group select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  color: #e4e4e7;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.control-group select:hover {
+  border-color: #60a5fa;
+}
+
+.control-group select:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+}
+
+.chart-container {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#bar-chart {
+  width: 100%;
+  min-height: 500px;
+}
+
+.legend-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legend-panel h3 {
+  font-size: 0.875rem;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legend-panel h3:not(:first-child) {
+  margin-top: 24px;
+}
+
+#legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.legend-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.legend-item.disabled {
+  opacity: 0.4;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+#stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.stat-label {
+  color: #a1a1aa;
+}
+
+.stat-value {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.15s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-width: 250px;
+}
+
+.tooltip.visible {
+  opacity: 1;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #60a5fa;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tooltip-row + .tooltip-row {
+  margin-top: 4px;
+}
+
+/* SVG Styles */
+.bar {
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.bar:hover {
+  opacity: 0.8;
+}
+
+.bar.highlighted {
+  stroke: #fff;
+  stroke-width: 2px;
+}
+
+.axis text {
+  fill: #a1a1aa;
+  font-size: 12px;
+}
+
+.axis path,
+.axis line {
+  stroke: rgba(255, 255, 255, 0.2);
+}
+
+.grid line {
+  stroke: rgba(255, 255, 255, 0.05);
+}
+
+.chart-title {
+  fill: #e4e4e7;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.axis-label {
+  fill: #a1a1aa;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .legend-panel {
+    order: -1;
+  }
+}

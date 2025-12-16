@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bar Chart Demo - Genomic Viz Platform</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>📊 Bar Chart Visualization</h1>
+        <p class="subtitle">Categorical data comparison for genomic analysis</p>
+      </header>
+
+      <div class="controls-panel">
+        <div class="control-group">
+          <label for="dataset-select">Dataset:</label>
+          <select id="dataset-select">
+            <option value="mutation-types">Mutation Types by Cancer</option>
+            <option value="gene-frequency">Gene Mutation Frequency</option>
+            <option value="sample-counts">Samples per Cancer Type</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="chart-type">Chart Type:</label>
+          <select id="chart-type">
+            <option value="grouped">Grouped</option>
+            <option value="stacked">Stacked</option>
+            <option value="simple">Simple</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="orientation">Orientation:</label>
+          <select id="orientation">
+            <option value="vertical">Vertical</option>
+            <option value="horizontal">Horizontal</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="sort-by">Sort By:</label>
+          <select id="sort-by">
+            <option value="value-desc">Value (High to Low)</option>
+            <option value="value-asc">Value (Low to High)</option>
+            <option value="alpha">Alphabetical</option>
+            <option value="original">Original Order</option>
+          </select>
+        </div>
+      </div>
+
+      <main class="main-content">
+        <div class="chart-container">
+          <div id="bar-chart"></div>
+        </div>
+
+        <aside class="legend-panel">
+          <h3>Legend</h3>
+          <div id="legend"></div>
+
+          <h3>Statistics</h3>
+          <div id="stats"></div>
+        </aside>
+      </main>
+
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
