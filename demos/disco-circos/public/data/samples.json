@@ -1,0 +1,151 @@
+{
+  "sample1": {
+    "sample": "SJALL015",
+    "mutations": [
+      { "chr": "chr1", "pos": 11850000, "gene": "NRAS", "class": "missense", "mname": "G12D" },
+      { "chr": "chr1", "pos": 115250000, "gene": "NTRK1", "class": "missense", "mname": "R649W" },
+      { "chr": "chr2", "pos": 25500000, "gene": "DNMT3A", "class": "nonsense", "mname": "R882*" },
+      { "chr": "chr3", "pos": 41200000, "gene": "CTNNB1", "class": "missense", "mname": "S45F" },
+      { "chr": "chr4", "pos": 55500000, "gene": "KIT", "class": "missense", "mname": "D816V" },
+      { "chr": "chr5", "pos": 170800000, "gene": "NPM1", "class": "frameshift", "mname": "W288fs" },
+      { "chr": "chr7", "pos": 55200000, "gene": "EGFR", "class": "missense", "mname": "L858R" },
+      { "chr": "chr9", "pos": 21970000, "gene": "CDKN2A", "class": "nonsense", "mname": "R80*" },
+      { "chr": "chr10", "pos": 89690000, "gene": "PTEN", "class": "frameshift", "mname": "K267fs" },
+      { "chr": "chr11", "pos": 119100000, "gene": "CBL", "class": "splice" },
+      { "chr": "chr12", "pos": 25380000, "gene": "KRAS", "class": "missense", "mname": "G12V" },
+      { "chr": "chr13", "pos": 28600000, "gene": "FLT3", "class": "inframe", "mname": "ITD" },
+      { "chr": "chr17", "pos": 7577100, "gene": "TP53", "class": "missense", "mname": "R175H" },
+      { "chr": "chr17", "pos": 7578200, "gene": "TP53", "class": "missense", "mname": "R248W" },
+      { "chr": "chr17", "pos": 7579300, "gene": "TP53", "class": "nonsense", "mname": "R213*" },
+      { "chr": "chr19", "pos": 11100000, "gene": "LDLR", "class": "missense", "mname": "C667Y" },
+      {
+        "chr": "chr20",
+        "pos": 31020000,
+        "gene": "ASXL1",
+        "class": "frameshift",
+        "mname": "G646fs"
+      },
+      { "chr": "chrX", "pos": 123200000, "gene": "STAG2", "class": "nonsense", "mname": "R1012*" }
+    ],
+    "cnv": [
+      { "chr": "chr1", "start": 1000000, "end": 25000000, "value": 0.6 },
+      { "chr": "chr2", "start": 50000000, "end": 100000000, "value": -0.8 },
+      { "chr": "chr5", "start": 10000000, "end": 40000000, "value": 1.2 },
+      { "chr": "chr7", "start": 50000000, "end": 60000000, "value": 1.5 },
+      { "chr": "chr8", "start": 1000000, "end": 43000000, "value": -1.0 },
+      { "chr": "chr9", "start": 21000000, "end": 23000000, "value": -1.8 },
+      { "chr": "chr11", "start": 60000000, "end": 135000000, "value": 0.7 },
+      { "chr": "chr13", "start": 19000000, "end": 115000000, "value": -0.5 },
+      { "chr": "chr17", "start": 1000000, "end": 10000000, "value": 1.3 },
+      { "chr": "chr21", "start": 14000000, "end": 47000000, "value": 0.9 }
+    ],
+    "fusions": [
+      {
+        "chrA": "chr9",
+        "posA": 133729451,
+        "geneA": "ABL1",
+        "chrB": "chr22",
+        "posB": 23632600,
+        "geneB": "BCR"
+      },
+      {
+        "chrA": "chr12",
+        "posA": 12022903,
+        "geneA": "ETV6",
+        "chrB": "chr21",
+        "posB": 36164440,
+        "geneB": "RUNX1"
+      },
+      {
+        "chrA": "chr4",
+        "posA": 1803620,
+        "geneA": "FGFR3",
+        "chrB": "chr14",
+        "posB": 105862000,
+        "geneB": "IGH"
+      }
+    ]
+  },
+  "sample2": {
+    "sample": "SJAML001",
+    "mutations": [
+      { "chr": "chr2", "pos": 25500000, "gene": "DNMT3A", "class": "missense", "mname": "R882H" },
+      { "chr": "chr5", "pos": 170800000, "gene": "NPM1", "class": "frameshift", "mname": "W288fs" },
+      { "chr": "chr8", "pos": 128750000, "gene": "MYC", "class": "missense", "mname": "T58A" },
+      { "chr": "chr11", "pos": 32420000, "gene": "WT1", "class": "frameshift", "mname": "R370fs" },
+      { "chr": "chr13", "pos": 28600000, "gene": "FLT3", "class": "inframe", "mname": "ITD" },
+      { "chr": "chr13", "pos": 28640000, "gene": "FLT3", "class": "missense", "mname": "D835Y" },
+      { "chr": "chr17", "pos": 74730000, "gene": "SRSF2", "class": "missense", "mname": "P95H" },
+      { "chr": "chr21", "pos": 36200000, "gene": "RUNX1", "class": "frameshift", "mname": "R166fs" }
+    ],
+    "cnv": [
+      { "chr": "chr5", "start": 1000000, "end": 180000000, "value": -0.7 },
+      { "chr": "chr7", "start": 1000000, "end": 159000000, "value": -0.6 },
+      { "chr": "chr8", "start": 120000000, "end": 146000000, "value": 1.8 },
+      { "chr": "chr11", "start": 100000000, "end": 135000000, "value": 0.5 }
+    ],
+    "fusions": [
+      {
+        "chrA": "chr11",
+        "posA": 118310000,
+        "geneA": "KMT2A",
+        "chrB": "chr9",
+        "posB": 20350000,
+        "geneB": "MLLT3"
+      },
+      {
+        "chrA": "chr15",
+        "posA": 90631000,
+        "geneA": "PML",
+        "chrB": "chr17",
+        "posB": 38465000,
+        "geneB": "RARA"
+      }
+    ]
+  },
+  "sample3": {
+    "sample": "SJMB002",
+    "mutations": [
+      { "chr": "chr3", "pos": 41200000, "gene": "CTNNB1", "class": "missense", "mname": "S33Y" },
+      { "chr": "chr6", "pos": 135500000, "gene": "MYB", "class": "inframe", "mname": "dup" },
+      { "chr": "chr7", "pos": 140450000, "gene": "BRAF", "class": "missense", "mname": "V600E" },
+      { "chr": "chr10", "pos": 43600000, "gene": "RET", "class": "missense", "mname": "M918T" },
+      { "chr": "chr10", "pos": 89690000, "gene": "PTEN", "class": "nonsense", "mname": "R130*" },
+      { "chr": "chr16", "pos": 3780000, "gene": "CREBBP", "class": "missense", "mname": "R1446C" },
+      { "chr": "chr17", "pos": 7577100, "gene": "TP53", "class": "missense", "mname": "R273H" },
+      {
+        "chr": "chr22",
+        "pos": 29090000,
+        "gene": "SMARCB1",
+        "class": "frameshift",
+        "mname": "Q48fs"
+      }
+    ],
+    "cnv": [
+      { "chr": "chr1", "start": 145000000, "end": 249000000, "value": 0.8 },
+      { "chr": "chr6", "start": 1000000, "end": 170000000, "value": 0.4 },
+      { "chr": "chr7", "start": 1000000, "end": 159000000, "value": 0.6 },
+      { "chr": "chr9", "start": 1000000, "end": 21000000, "value": -1.2 },
+      { "chr": "chr17", "start": 1000000, "end": 25000000, "value": 1.0 },
+      { "chr": "chr22", "start": 25000000, "end": 35000000, "value": -1.5 }
+    ],
+    "fusions": [
+      {
+        "chrA": "chr7",
+        "posA": 27200000,
+        "geneA": "HOXA9",
+        "chrB": "chr11",
+        "posB": 118310000,
+        "geneB": "KMT2A"
+      },
+      {
+        "chrA": "chr2",
+        "posA": 29400000,
+        "geneA": "ALK",
+        "chrB": "chr5",
+        "posB": 178400000,
+        "geneB": "NPM1"
+      }
+    ]
+  }
+}

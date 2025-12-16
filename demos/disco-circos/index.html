@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Disco/Circos Plot - Circular Genome Visualization</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>🌀 Disco/Circos Plot</h1>
+        <p class="subtitle">Circular Genome Visualization</p>
+      </header>
+
+      <main class="main-content">
+        <div class="viz-container">
+          <div class="controls-panel">
+            <h3>Sample</h3>
+            <select id="sample-select">
+              <option value="sample1">SJALL015</option>
+              <option value="sample2">SJAML001</option>
+              <option value="sample3">SJMB002</option>
+            </select>
+
+            <h3>Tracks</h3>
+            <div class="track-toggles">
+              <label>
+                <input type="checkbox" id="show-snv" checked />
+                SNV/Indel Ring
+              </label>
+              <label>
+                <input type="checkbox" id="show-cnv" checked />
+                CNV Ring
+              </label>
+              <label>
+                <input type="checkbox" id="show-fusions" checked />
+                Fusion Chords
+              </label>
+              <label>
+                <input type="checkbox" id="show-labels" checked />
+                Chromosome Labels
+              </label>
+            </div>
+
+            <h3>Display</h3>
+            <div class="display-controls">
+              <label>
+                Radius: <span id="radius-value">300</span>px
+                <input type="range" id="radius-slider" min="200" max="400" value="300" />
+              </label>
+            </div>
+
+            <div class="legend" id="legend"></div>
+          </div>
+
+          <div class="disco-container" id="disco-container">
+            <!-- Disco plot renders here -->
+          </div>
+
+          <div class="info-panel" id="info-panel">
+            <h3>Details</h3>
+            <div id="info-content">
+              <p class="placeholder">Hover over elements for details</p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
