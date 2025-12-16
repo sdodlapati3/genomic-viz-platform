@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CNV Track Visualization Demo</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>📊 Copy Number Variation Track</h1>
+        <p>Genome-wide CNV visualization with segmentation and gene annotations</p>
+      </header>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Sample:</label>
+          <select id="sample-select">
+            <option value="tumor1">Tumor Sample 1</option>
+            <option value="tumor2">Tumor Sample 2</option>
+            <option value="cellline">Cancer Cell Line</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Chromosome:</label>
+          <select id="chromosome-select">
+            <option value="all">All Chromosomes</option>
+            <option value="chr1">Chromosome 1</option>
+            <option value="chr7">Chromosome 7</option>
+            <option value="chr8">Chromosome 8</option>
+            <option value="chr17">Chromosome 17</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>View:</label>
+          <select id="view-select">
+            <option value="linear">Linear Track</option>
+            <option value="heatmap">Sample Heatmap</option>
+            <option value="segments">Segments Only</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Color By:</label>
+          <select id="color-select">
+            <option value="gainloss">Gain/Loss</option>
+            <option value="logr">Log2 Ratio</option>
+            <option value="segment">Segment Mean</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input type="checkbox" id="show-genes" checked />
+            Show Genes
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input type="checkbox" id="show-cytobands" checked />
+            Show Cytobands
+          </label>
+        </div>
+      </div>
+
+      <div class="main-container">
+        <div class="plot-container">
+          <div id="cnv-track"></div>
+        </div>
+
+        <div class="sidebar">
+          <div class="legend-panel">
+            <h3>CNV Legend</h3>
+            <div id="legend"></div>
+          </div>
+
+          <div class="stats-panel">
+            <h3>Sample Statistics</h3>
+            <div id="stats"></div>
+          </div>
+
+          <div class="genes-panel">
+            <h3>Affected Genes</h3>
+            <div id="affected-genes"></div>
+          </div>
+
+          <div class="selection-panel">
+            <h3>Selected Region</h3>
+            <div id="selection-info">
+              <p>Click on a segment for details</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
