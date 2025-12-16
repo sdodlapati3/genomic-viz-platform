@@ -32,7 +32,12 @@ export type ViewType =
   | 'scatter'
   | 'heatmap'
   | 'survival'
-  | 'volcano';
+  | 'volcano'
+  | 'gsea-plot'
+  | 'hic-matrix'
+  | 'bar-chart'
+  | 'violin-plot'
+  | 'box-plot';
 
 /** View configuration */
 export interface ViewConfig {

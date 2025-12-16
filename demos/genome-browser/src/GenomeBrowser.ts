@@ -11,6 +11,9 @@ import { GeneTrack } from './GeneTrack';
 import { MutationTrack } from './MutationTrack';
 import { SignalTrack } from './SignalTrack';
 import { AnnotationTrack } from './AnnotationTrack';
+import { BamTrack, generateMockBamData } from './BamTrack';
+import { BigWigTrack, generateMockBigWigData } from './BigWigTrack';
+import { JunctionTrack, generateMockJunctionData } from './JunctionTrack';
 import {
   getGenesInRegion,
   generateMutations,
@@ -216,6 +219,44 @@ export class GenomeBrowser {
     );
     annotationTrack.setClickCallback((feature) => this.onFeatureSelect?.(feature));
     this.addTrack(annotationTrack);
+
+    // BAM track (read alignments)
+    const bamTrack = new BamTrack({
+      id: 'alignments',
+      name: 'Alignments',
+      height: 150,
+      showCoverage: true,
+      showReads: true,
+      colorBy: 'strand',
+    });
+    bamTrack.setHoverCallback((feature, event) => this.showTooltip(bamTrack, feature, event));
+    bamTrack.setClickCallback((feature) => this.onFeatureSelect?.(feature));
+    this.addTrack(bamTrack);
+
+    // BigWig track (ChIP-seq signal)
+    const bigwigTrack = new BigWigTrack({
+      id: 'chipseq',
+      name: 'ChIP-seq',
+      height: 60,
+      displayMode: 'area',
+      color: '#9b59b6',
+    });
+    bigwigTrack.setHoverCallback((feature, event) => this.showTooltip(bigwigTrack, feature, event));
+    this.addTrack(bigwigTrack);
+
+    // Junction track (splice junctions)
+    const junctionTrack = new JunctionTrack({
+      id: 'junctions',
+      name: 'Splice Junctions',
+      height: 80,
+      colorByType: true,
+      showLabels: true,
+    });
+    junctionTrack.setHoverCallback((feature, event) =>
+      this.showTooltip(junctionTrack, feature, event)
+    );
+    junctionTrack.setClickCallback((feature) => this.onFeatureSelect?.(feature));
+    this.addTrack(junctionTrack);
   }
 
   addTrack(track: Track<unknown>): void {
@@ -348,6 +389,27 @@ export class GenomeBrowser {
     const annotationTrack = this.tracks.get('annotations') as AnnotationTrack | undefined;
     if (annotationTrack) {
       annotationTrack.setData({ annotations: generateAnnotations() });
+    }
+
+    // Load BAM data
+    const bamTrack = this.tracks.get('alignments') as BamTrack | undefined;
+    if (bamTrack) {
+      const bamData = generateMockBamData(this.region, 300);
+      bamTrack.setData(bamData);
+    }
+
+    // Load BigWig data
+    const bigwigTrack = this.tracks.get('chipseq') as BigWigTrack | undefined;
+    if (bigwigTrack) {
+      const bigwigData = generateMockBigWigData(this.region, 200, 'chip');
+      bigwigTrack.setData(bigwigData);
+    }
+
+    // Load Junction data
+    const junctionTrack = this.tracks.get('junctions') as JunctionTrack | undefined;
+    if (junctionTrack) {
+      const junctionData = generateMockJunctionData(this.region);
+      junctionTrack.setData(junctionData);
     }
   }
 

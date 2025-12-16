@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Regression Analysis | Genomic Viz Platform</title>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Regression Analysis</h1>
+        <p>Linear, Polynomial, and Logistic Regression Visualization for Genomic Data</p>
+      </header>
+
+      <div class="main-content">
+        <div class="visualization-area">
+          <div class="plot-card">
+            <div id="regression-container"></div>
+            <div id="residual-container"></div>
+          </div>
+          
+          <div class="description-panel">
+            <h4>Dataset Description</h4>
+            <p id="dataset-description">Select a dataset to see its description.</p>
+          </div>
+        </div>
+
+        <div class="sidebar">
+          <div class="controls-panel">
+            <h3>Settings</h3>
+            
+            <div class="control-group">
+              <label for="dataset-select">Dataset</label>
+              <select id="dataset-select">
+                <option value="expression">Gene Expression vs Drug Response</option>
+                <option value="mutation">Mutation Load vs Survival</option>
+                <option value="age">Age vs Biomarker Level</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="regression-select">Regression Type</label>
+              <select id="regression-select">
+                <option value="linear">Linear Regression</option>
+                <option value="polynomial">Polynomial Regression</option>
+                <option value="logistic">Logistic Regression</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <div class="checkbox-group">
+                <input type="checkbox" id="show-ci" checked />
+                <span>Show 95% Confidence Interval</span>
+              </div>
+              <div class="checkbox-group">
+                <input type="checkbox" id="show-residuals" checked />
+                <span>Show Residual Plot</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="stats-panel">
+            <h3>Regression Statistics</h3>
+            <p class="stat-row"><span class="stat-label">Loading...</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

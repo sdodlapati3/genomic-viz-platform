@@ -10,7 +10,14 @@ export interface GenomicRegion {
 }
 
 // Track types
-export type TrackType = 'gene' | 'mutation' | 'signal' | 'annotation';
+export type TrackType =
+  | 'gene'
+  | 'mutation'
+  | 'signal'
+  | 'annotation'
+  | 'bam'
+  | 'bigwig'
+  | 'junction';
 
 // Base track configuration
 export interface TrackConfig {
