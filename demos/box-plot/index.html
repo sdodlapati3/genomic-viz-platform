@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Box Plot Demo - Genomic Viz Platform</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>📦 Box Plot Visualization</h1>
+        <p class="subtitle">Statistical summary visualization for genomic data analysis</p>
+      </header>
+
+      <div class="controls-panel">
+        <div class="control-group">
+          <label for="dataset-select">Dataset:</label>
+          <select id="dataset-select">
+            <option value="expression-by-subtype">Expression by Molecular Subtype</option>
+            <option value="tmb-by-cancer">TMB by Cancer Type</option>
+            <option value="age-by-stage">Patient Age by Stage</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="show-outliers">Show Outliers:</label>
+          <input type="checkbox" id="show-outliers" checked />
+        </div>
+        <div class="control-group">
+          <label for="show-notch">Notched Box:</label>
+          <input type="checkbox" id="show-notch" />
+        </div>
+        <div class="control-group">
+          <label for="show-mean">Show Mean:</label>
+          <input type="checkbox" id="show-mean" checked />
+        </div>
+        <div class="control-group">
+          <label for="orientation">Orientation:</label>
+          <select id="orientation">
+            <option value="vertical">Vertical</option>
+            <option value="horizontal">Horizontal</option>
+          </select>
+        </div>
+      </div>
+
+      <main class="main-content">
+        <div class="chart-container">
+          <div id="box-chart"></div>
+        </div>
+
+        <aside class="stats-panel">
+          <h3>Group Statistics</h3>
+          <div id="stats"></div>
+
+          <h3>Legend</h3>
+          <div id="legend"></div>
+        </aside>
+      </main>
+
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
