@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hi-C Contact Matrix | Genomic Viz Platform</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>Hi-C Contact Matrix</h1>
+        <p class="subtitle">Chromatin Interaction Heatmap Visualization</p>
+      </header>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="region-select">Region:</label>
+          <select id="region-select">
+            <option value="chr1:1-50">chr1:1-50 Mb</option>
+            <option value="chr2:50-100">chr2:50-100 Mb</option>
+            <option value="chr3:1-50">chr3:1-50 Mb</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="resolution-select">Resolution:</label>
+          <select id="resolution-select">
+            <option value="500kb">500 kb</option>
+            <option value="250kb">250 kb</option>
+            <option value="100kb">100 kb</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="normalization-select">Normalization:</label>
+          <select id="normalization-select">
+            <option value="KR">KR</option>
+            <option value="VC">VC</option>
+            <option value="VC_SQRT">VC_SQRT</option>
+            <option value="NONE">None</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="colormap-select">Color Map:</label>
+          <select id="colormap-select">
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="viridis">Viridis</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="matrix-container">
+          <div id="hic-matrix"></div>
+        </div>
+        <div class="colorbar-container">
+          <div id="colorbar"></div>
+        </div>
+      </div>
+
+      <div class="info-panel" id="info-panel">
+        <div class="info-item">
+          <span class="info-label">Hover over matrix to see interaction details</span>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
