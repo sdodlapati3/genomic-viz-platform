@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GSEA Running Sum Plot | Genomic Viz Platform</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>GSEA Running Sum Plot</h1>
+        <p class="subtitle">Gene Set Enrichment Analysis Visualization</p>
+      </header>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="gene-set-select">Gene Set:</label>
+          <select id="gene-set-select">
+            <option value="HALLMARK_P53_PATHWAY">HALLMARK_P53_PATHWAY</option>
+            <option value="HALLMARK_MYC_TARGETS_V1">HALLMARK_MYC_TARGETS_V1</option>
+            <option value="HALLMARK_E2F_TARGETS">HALLMARK_E2F_TARGETS</option>
+            <option value="HALLMARK_G2M_CHECKPOINT">HALLMARK_G2M_CHECKPOINT</option>
+          </select>
+        </div>
+        <div class="stats-panel" id="stats-panel">
+          <!-- Stats populated by JS -->
+        </div>
+      </div>
+
+      <div class="plot-container">
+        <div id="gsea-plot"></div>
+      </div>
+
+      <div class="legend-container">
+        <div class="legend-item">
+          <span class="legend-color" style="background: #e41a1c"></span>
+          <span>Enrichment Score (ES)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #377eb8"></span>
+          <span>Zero Line</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-bar"></span>
+          <span>Gene Set Hits</span>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
