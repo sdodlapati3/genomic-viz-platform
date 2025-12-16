@@ -28,6 +28,7 @@ export type ViewType =
   | 'lollipop'
   | 'oncoprint'
   | 'genome-browser'
+  | 'disco-circos'
   | 'scatter'
   | 'heatmap'
   | 'survival'

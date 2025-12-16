@@ -629,3 +629,312 @@ function generateSignalData(
 
   return data;
 }
+
+/**
+ * Render a Disco/Circos Plot
+ */
+export function renderDiscoCircos(container: HTMLElement, dataset: Dataset): void {
+  container.innerHTML = '';
+
+  const size = Math.min(container.clientWidth - 40, 600);
+  const radius = size / 2 - 50;
+  const centerX = size / 2;
+  const centerY = size / 2;
+
+  const svg = d3.select(container).append('svg').attr('width', size).attr('height', size);
+
+  // Title
+  svg
+    .append('text')
+    .attr('x', centerX)
+    .attr('y', 25)
+    .attr('text-anchor', 'middle')
+    .attr('fill', '#fff')
+    .attr('font-size', '16px')
+    .attr('font-weight', 'bold')
+    .text(`Disco Plot - ${dataset.shortName}`);
+
+  const g = svg.append('g').attr('transform', `translate(${centerX}, ${centerY})`);
+
+  // Chromosome data (simplified human genome)
+  const chromosomes = [
+    { name: '1', size: 249 },
+    { name: '2', size: 243 },
+    { name: '3', size: 198 },
+    { name: '4', size: 190 },
+    { name: '5', size: 182 },
+    { name: '6', size: 171 },
+    { name: '7', size: 159 },
+    { name: '8', size: 145 },
+    { name: '9', size: 138 },
+    { name: '10', size: 134 },
+    { name: '11', size: 135 },
+    { name: '12', size: 133 },
+    { name: '13', size: 114 },
+    { name: '14', size: 107 },
+    { name: '15', size: 102 },
+    { name: '16', size: 90 },
+    { name: '17', size: 83 },
+    { name: '18', size: 80 },
+    { name: '19', size: 59 },
+    { name: '20', size: 64 },
+    { name: '21', size: 47 },
+    { name: '22', size: 51 },
+    { name: 'X', size: 156 },
+    { name: 'Y', size: 57 },
+  ];
+
+  const totalSize = chromosomes.reduce((sum, c) => sum + c.size, 0);
+  const padAngle = 0.02;
+  const totalPad = chromosomes.length * padAngle;
+  const availableAngle = 2 * Math.PI - totalPad;
+
+  // Calculate chromosome angles
+  let currentAngle = padAngle / 2;
+  const chrArcs: { name: string; startAngle: number; endAngle: number; size: number }[] = [];
+
+  for (const chr of chromosomes) {
+    const chrAngle = availableAngle * (chr.size / totalSize);
+    chrArcs.push({
+      name: chr.name,
+      startAngle: currentAngle,
+      endAngle: currentAngle + chrAngle,
+      size: chr.size,
+    });
+    currentAngle += chrAngle + padAngle;
+  }
+
+  // Draw chromosome ring
+  const arc = d3
+    .arc<{ startAngle: number; endAngle: number }>()
+    .innerRadius(radius - 20)
+    .outerRadius(radius)
+    .startAngle((d) => d.startAngle)
+    .endAngle((d) => d.endAngle);
+
+  g.selectAll('path.chromosome')
+    .data(chrArcs)
+    .join('path')
+    .attr('class', 'chromosome')
+    .attr('d', arc as never)
+    .attr('fill', (_, i) => (i % 2 === 0 ? '#3a3a4a' : '#2a2a3a'))
+    .attr('stroke', '#444')
+    .attr('stroke-width', 0.5);
+
+  // Chromosome labels
+  g.selectAll('text.chr-label')
+    .data(chrArcs)
+    .join('text')
+    .attr('class', 'chr-label')
+    .attr('transform', (d) => {
+      const angle = (d.startAngle + d.endAngle) / 2;
+      const x = Math.sin(angle) * (radius + 15);
+      const y = -Math.cos(angle) * (radius + 15);
+      return `translate(${x}, ${y})`;
+    })
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .attr('fill', '#888')
+    .attr('font-size', '8px')
+    .text((d) => d.name);
+
+  // Generate mutations for this dataset
+  const mutations = generateDiscoMutations(chrArcs, dataset);
+
+  // SNV ring
+  const snvArc = d3
+    .arc<{ startAngle: number; endAngle: number }>()
+    .innerRadius(radius - 35)
+    .outerRadius(radius - 25)
+    .startAngle((d) => d.startAngle)
+    .endAngle((d) => d.endAngle);
+
+  g.selectAll('path.snv')
+    .data(mutations)
+    .join('path')
+    .attr('class', 'snv')
+    .attr('d', snvArc as never)
+    .attr('fill', (d) => MUTATION_COLORS[d.type] || '#666');
+
+  // Generate CNV data
+  const cnvs = generateDiscoCNV(chrArcs, dataset);
+
+  // CNV ring
+  const cnvArc = d3
+    .arc<{ startAngle: number; endAngle: number }>()
+    .innerRadius(radius - 55)
+    .outerRadius(radius - 40)
+    .startAngle((d) => d.startAngle)
+    .endAngle((d) => d.endAngle);
+
+  g.selectAll('path.cnv')
+    .data(cnvs)
+    .join('path')
+    .attr('class', 'cnv')
+    .attr('d', cnvArc as never)
+    .attr('fill', (d) => (d.value > 0 ? 'rgba(231, 76, 60, 0.7)' : 'rgba(52, 152, 219, 0.7)'));
+
+  // Generate fusion data
+  const fusions = generateDiscoFusions(chrArcs, dataset);
+
+  // Fusion chords
+  const chordRadius = radius - 60;
+
+  fusions.forEach((fusion) => {
+    const sourceAngle = (fusion.source.startAngle + fusion.source.endAngle) / 2;
+    const targetAngle = (fusion.target.startAngle + fusion.target.endAngle) / 2;
+
+    const sx = Math.sin(sourceAngle) * chordRadius;
+    const sy = -Math.cos(sourceAngle) * chordRadius;
+    const tx = Math.sin(targetAngle) * chordRadius;
+    const ty = -Math.cos(targetAngle) * chordRadius;
+
+    // Control points for bezier
+    const cx1 = Math.sin(sourceAngle) * chordRadius * 0.3;
+    const cy1 = -Math.cos(sourceAngle) * chordRadius * 0.3;
+    const cx2 = Math.sin(targetAngle) * chordRadius * 0.3;
+    const cy2 = -Math.cos(targetAngle) * chordRadius * 0.3;
+
+    g.append('path')
+      .attr('class', 'fusion-chord')
+      .attr('d', `M ${sx} ${sy} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${tx} ${ty}`)
+      .attr('fill', 'none')
+      .attr('stroke', fusion.color)
+      .attr('stroke-width', 2)
+      .attr('stroke-opacity', 0.7);
+  });
+
+  // Center text
+  g.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .attr('fill', '#888')
+    .attr('font-size', '12px')
+    .text(dataset.shortName);
+
+  // Legend
+  const legendData = [
+    { label: 'Missense', color: '#3b82f6' },
+    { label: 'Nonsense', color: '#ef4444' },
+    { label: 'Frameshift', color: '#f59e0b' },
+    { label: 'CNV Gain', color: '#e74c3c' },
+    { label: 'CNV Loss', color: '#3498db' },
+    { label: 'Fusion', color: '#9b59b6' },
+  ];
+
+  const legend = svg.append('g').attr('transform', `translate(${size - 100}, ${size - 120})`);
+
+  legendData.forEach((item, i) => {
+    const row = legend.append('g').attr('transform', `translate(0, ${i * 16})`);
+
+    row.append('rect').attr('width', 10).attr('height', 10).attr('fill', item.color).attr('rx', 2);
+
+    row
+      .append('text')
+      .attr('x', 15)
+      .attr('y', 9)
+      .attr('fill', '#888')
+      .attr('font-size', '10px')
+      .text(item.label);
+  });
+}
+
+function generateDiscoMutations(
+  chrArcs: { name: string; startAngle: number; endAngle: number; size: number }[],
+  _dataset: Dataset
+): { startAngle: number; endAngle: number; type: string }[] {
+  const mutations: { startAngle: number; endAngle: number; type: string }[] = [];
+  const types = ['missense', 'nonsense', 'frameshift', 'splice'];
+  const arcWidth = 0.015;
+
+  // Add mutations to various chromosomes
+  const hotspotChrs = ['1', '2', '7', '9', '12', '17', 'X'];
+
+  for (const chrName of hotspotChrs) {
+    const chr = chrArcs.find((c) => c.name === chrName);
+    if (!chr) continue;
+
+    const numMuts = Math.floor(Math.random() * 4) + 2;
+    for (let i = 0; i < numMuts; i++) {
+      const frac = Math.random();
+      const angle = chr.startAngle + frac * (chr.endAngle - chr.startAngle);
+      mutations.push({
+        startAngle: angle - arcWidth / 2,
+        endAngle: angle + arcWidth / 2,
+        type: types[Math.floor(Math.random() * types.length)],
+      });
+    }
+  }
+
+  return mutations;
+}
+
+function generateDiscoCNV(
+  chrArcs: { name: string; startAngle: number; endAngle: number; size: number }[],
+  _dataset: Dataset
+): { startAngle: number; endAngle: number; value: number }[] {
+  const cnvs: { startAngle: number; endAngle: number; value: number }[] = [];
+
+  // Add CNVs to various chromosomes
+  const cnvChrs = ['1', '5', '7', '8', '13', '17'];
+
+  for (const chrName of cnvChrs) {
+    const chr = chrArcs.find((c) => c.name === chrName);
+    if (!chr) continue;
+
+    const start = Math.random() * 0.5;
+    const end = start + 0.2 + Math.random() * 0.3;
+    const chrSpan = chr.endAngle - chr.startAngle;
+
+    cnvs.push({
+      startAngle: chr.startAngle + start * chrSpan,
+      endAngle: chr.startAngle + Math.min(end, 1) * chrSpan,
+      value: Math.random() > 0.5 ? 1 : -1,
+    });
+  }
+
+  return cnvs;
+}
+
+function generateDiscoFusions(
+  chrArcs: { name: string; startAngle: number; endAngle: number; size: number }[],
+  _dataset: Dataset
+): {
+  source: { startAngle: number; endAngle: number };
+  target: { startAngle: number; endAngle: number };
+  color: string;
+}[] {
+  const fusions: {
+    source: { startAngle: number; endAngle: number };
+    target: { startAngle: number; endAngle: number };
+    color: string;
+  }[] = [];
+  const colors = ['#e74c3c', '#9b59b6', '#3498db', '#1abc9c', '#f39c12'];
+
+  // Classic fusions
+  const fusionPairs = [
+    ['9', '22'], // BCR-ABL
+    ['12', '21'], // ETV6-RUNX1
+    ['11', '17'], // KMT2A rearrangement
+  ];
+
+  fusionPairs.forEach((pair, i) => {
+    const chrA = chrArcs.find((c) => c.name === pair[0]);
+    const chrB = chrArcs.find((c) => c.name === pair[1]);
+    if (!chrA || !chrB) return;
+
+    const fracA = Math.random();
+    const fracB = Math.random();
+    const angleA = chrA.startAngle + fracA * (chrA.endAngle - chrA.startAngle);
+    const angleB = chrB.startAngle + fracB * (chrB.endAngle - chrB.startAngle);
+    const arcWidth = 0.02;
+
+    fusions.push({
+      source: { startAngle: angleA - arcWidth / 2, endAngle: angleA + arcWidth / 2 },
+      target: { startAngle: angleB - arcWidth / 2, endAngle: angleB + arcWidth / 2 },
+      color: colors[i % colors.length],
+    });
+  });
+
+  return fusions;
+}

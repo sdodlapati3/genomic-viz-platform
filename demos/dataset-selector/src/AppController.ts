@@ -8,7 +8,12 @@ import type { Dataset, ViewType, DatasetCategory } from './types';
 import { CATEGORY_CONFIG, searchDatasets, getDatasetsByCategory, VIEWS } from './data';
 import { DatasetCard } from './DatasetCard';
 import { ViewSelector } from './ViewSelector';
-import { renderLollipopPlot, renderOncoprint, renderGenomeBrowser } from './EmbeddedViz';
+import {
+  renderLollipopPlot,
+  renderOncoprint,
+  renderGenomeBrowser,
+  renderDiscoCircos,
+} from './EmbeddedViz';
 
 export class AppController {
   private datasetCards: DatasetCard[] = [];
@@ -221,6 +226,9 @@ export class AppController {
           break;
         case 'genome-browser':
           renderGenomeBrowser(container, dataset);
+          break;
+        case 'disco-circos':
+          renderDiscoCircos(container, dataset);
           break;
         default:
           container.innerHTML = `<div class="viz-placeholder">Visualization coming soon</div>`;
