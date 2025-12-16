@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Single Cell Visualization Demo</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>🧬 Single Cell Visualization</h1>
+        <p>UMAP/t-SNE dimensionality reduction with cell clustering and gene expression overlay</p>
+      </header>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Dataset:</label>
+          <select id="dataset-select">
+            <option value="pbmc">PBMC 10K Cells</option>
+            <option value="tumor">Tumor Microenvironment</option>
+            <option value="brain">Brain Cortex</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Reduction:</label>
+          <select id="reduction-select">
+            <option value="umap">UMAP</option>
+            <option value="tsne">t-SNE</option>
+            <option value="pca">PCA</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Color By:</label>
+          <select id="color-select">
+            <option value="cluster">Cell Cluster</option>
+            <option value="celltype">Cell Type</option>
+            <option value="expression">Gene Expression</option>
+          </select>
+        </div>
+
+        <div class="control-group" id="gene-control" style="display: none">
+          <label>Gene:</label>
+          <select id="gene-select">
+            <option value="CD3D">CD3D (T cells)</option>
+            <option value="CD19">CD19 (B cells)</option>
+            <option value="CD14">CD14 (Monocytes)</option>
+            <option value="NKG7">NKG7 (NK cells)</option>
+            <option value="PPBP">PPBP (Platelets)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Point Size:</label>
+          <input type="range" id="size-slider" min="1" max="10" value="3" />
+          <span id="size-value">3</span>
+        </div>
+
+        <div class="control-group">
+          <label>Opacity:</label>
+          <input type="range" id="opacity-slider" min="10" max="100" value="70" />
+          <span id="opacity-value">70%</span>
+        </div>
+      </div>
+
+      <div class="main-container">
+        <div class="plot-container">
+          <div id="scatter-plot"></div>
+        </div>
+
+        <div class="sidebar">
+          <div class="legend-container">
+            <h3>Legend</h3>
+            <div id="legend"></div>
+          </div>
+
+          <div class="stats-container">
+            <h3>Statistics</h3>
+            <div id="stats"></div>
+          </div>
+
+          <div class="selection-container">
+            <h3>Selection</h3>
+            <div id="selection-info">
+              <p>Click or lasso select cells</p>
+            </div>
+            <button id="clear-selection" class="btn">Clear Selection</button>
+            <button id="export-selection" class="btn">Export Selected</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
