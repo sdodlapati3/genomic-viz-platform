@@ -31,22 +31,22 @@ What's **missing** for a cohesive demo:
 
 ### Deliverables
 
-| #   | Deliverable                      | Type        | Priority | Status         |
-| --- | -------------------------------- | ----------- | -------- | -------------- |
-| 1   | `demos/linked-portal/`           | New folder  | **P0**   | ✅ Complete    |
-| 2   | Event-driven lollipop with brush | Enhancement | **P0**   | ✅ Complete    |
-| 3   | Filter panel component           | New         | **P0**   | ✅ Complete    |
-| 4   | Cohort/filter store              | New         | **P0**   | ✅ Complete    |
-| 5   | Integrated portal app            | New         | **P0**   | ✅ Complete    |
-| 6   | Zoom/pan with mini-map           | Enhancement | **P0**   | ✅ Complete    |
-| 7   | MutationSummary component        | New         | **P0**   | ✅ Complete    |
-| 8   | Enhanced Oncoprint matrix        | New demo    | **P1**   | ✅ Complete    |
-| 9   | Genome Browser with tracks       | New demo    | **P1**   | ✅ Complete    |
-| 10  | Dataset selector/landing page    | New demo    | **P1**   | ✅ Complete    |
-| 11  | Documentation & README           | Docs        | **P1**   | ✅ Complete    |
-| 12  | Disco/Circos Plot                | New         | **P2**   | ❌ Not Started |
-| 13  | GSEA Running Sum Plot            | New         | **P2**   | ❌ Not Started |
-| 14  | Hi-C Contact Matrix              | New         | **P2**   | ❌ Not Started |
+| #   | Deliverable                      | Type        | Priority | Status      |
+| --- | -------------------------------- | ----------- | -------- | ----------- |
+| 1   | `demos/linked-portal/`           | New folder  | **P0**   | ✅ Complete |
+| 2   | Event-driven lollipop with brush | Enhancement | **P0**   | ✅ Complete |
+| 3   | Filter panel component           | New         | **P0**   | ✅ Complete |
+| 4   | Cohort/filter store              | New         | **P0**   | ✅ Complete |
+| 5   | Integrated portal app            | New         | **P0**   | ✅ Complete |
+| 6   | Zoom/pan with mini-map           | Enhancement | **P0**   | ✅ Complete |
+| 7   | MutationSummary component        | New         | **P0**   | ✅ Complete |
+| 8   | Enhanced Oncoprint matrix        | New demo    | **P1**   | ✅ Complete |
+| 9   | Genome Browser with tracks       | New demo    | **P1**   | ✅ Complete |
+| 10  | Dataset selector/landing page    | New demo    | **P1**   | ✅ Complete |
+| 11  | Documentation & README           | Docs        | **P1**   | ✅ Complete |
+| 12  | Disco/Circos Plot                | New         | **P2**   | ✅ Complete |
+| 13  | GSEA Running Sum Plot            | New         | **P2**   | ✅ Complete |
+| 14  | Hi-C Contact Matrix              | New         | **P2**   | ✅ Complete |
 
 ---
 
@@ -669,5 +669,118 @@ class CohortStore {
 
 ---
 
+## 🌀 P2 Feature: Disco/Circos Plot
+
+### Overview
+
+A circular genome visualization showing:
+
+- **Chromosome arcs** arranged in a circle
+- **Mutation tracks** (SNV/indel as marks on inner rings)
+- **CNV tracks** (copy number as colored arcs)
+- **Fusion/SV chords** (structural variants as connecting arcs between chromosomes)
+
+### Architecture (based on ProteinPaint patterns)
+
+```
+demos/disco-circos/
+├── index.html
+├── package.json
+├── vite.config.ts
+├── tsconfig.json
+├── public/
+│   └── data/
+│       ├── genome.json        # Chromosome sizes
+│       └── sample_data.json   # SNVs, CNVs, fusions
+├── src/
+│   ├── main.ts
+│   ├── types/
+│   │   ├── index.ts
+│   │   ├── Arc.ts             # Base arc interface
+│   │   ├── Chromosome.ts      # Chromosome with angles
+│   │   ├── Mutation.ts        # SNV/indel data
+│   │   ├── CopyNumber.ts      # CNV data
+│   │   └── Fusion.ts          # Structural variant data
+│   ├── core/
+│   │   ├── Reference.ts       # Chromosome angle calculations
+│   │   ├── ArcMapper.ts       # Data → Arc conversion
+│   │   └── ColorProvider.ts   # Mutation class colors
+│   ├── components/
+│   │   ├── DiscoDiagram.ts    # Main component
+│   │   ├── ChromosomeRing.ts  # Outer chromosome track
+│   │   ├── LabelRing.ts       # Chromosome labels
+│   │   ├── SnvRing.ts         # SNV mutation arcs
+│   │   ├── CnvRing.ts         # CNV colored arcs
+│   │   ├── FusionChords.ts    # SV connecting lines
+│   │   └── Tooltip.ts         # Hover info
+│   └── styles.css
+└── README.md
+```
+
+### Key Technical Concepts
+
+1. **Angle Calculation**: Each chromosome gets proportional angle based on size
+
+   ```typescript
+   chromosomeAngle = (2 * Math.PI - totalPadAngle) * (chrSize / totalGenomeSize);
+   ```
+
+2. **Arc Generation**: D3 arc generator for rings
+
+   ```typescript
+   const arc = d3
+     .arc<ArcData>()
+     .innerRadius((d) => d.innerRadius)
+     .outerRadius((d) => d.outerRadius)
+     .startAngle((d) => d.startAngle)
+     .endAngle((d) => d.endAngle);
+   ```
+
+3. **Position to Angle**: Convert genomic position to radians
+
+   ```typescript
+   angle = chromosomeStartAngle + (position / chromosomeSize) * chromosomeAngle;
+   ```
+
+4. **Fusion Chords**: D3 ribbon or custom bezier curves connecting two loci
+
+### Implementation Steps
+
+1. Create Reference class for chromosome angle mapping
+2. Build ChromosomeRing (outer ring with chromosome arcs)
+3. Build SnvRing (inner ring with mutation marks)
+4. Build CnvRing (colored arcs for copy number)
+5. Build FusionChords (bezier curves for structural variants)
+6. Add interactivity (hover, click, zoom)
+7. Add to Dataset Selector embedded visualizations
+
+### Sample Data Format
+
+```json
+{
+  "sample": "SAMPLE-001",
+  "mutations": [
+    { "chr": "chr1", "pos": 12345678, "gene": "TP53", "class": "missense" },
+    { "chr": "chr17", "pos": 7577121, "gene": "BRCA1", "class": "nonsense" }
+  ],
+  "cnv": [
+    { "chr": "chr1", "start": 1000000, "end": 50000000, "value": 1.5 },
+    { "chr": "chr3", "start": 100000, "end": 30000000, "value": -0.8 }
+  ],
+  "fusions": [
+    {
+      "chrA": "chr9",
+      "posA": 133729451,
+      "geneA": "ABL1",
+      "chrB": "chr22",
+      "posB": 23632600,
+      "geneB": "BCR"
+    }
+  ]
+}
+```
+
+---
+
 _Document created: December 15, 2025_
-_Last updated: December 15, 2025_
+_Last updated: December 16, 2025_

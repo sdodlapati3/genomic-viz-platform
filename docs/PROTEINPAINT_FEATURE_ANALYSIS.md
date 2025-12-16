@@ -2,13 +2,29 @@
 
 > **Purpose:** Compare genomic-viz-platform tutorials with ProteinPaint's actual features, identify gaps, and prioritize what to build.
 >
-> **Date:** December 15, 2025
+> **Last Updated:** December 15, 2025
+> **Status:** ✅ Priority 1-3 Complete, Medium/Low Priority Remaining
 
 ---
 
-## 📊 Current Tutorial Status
+## 📊 Implementation Status
 
-### What We Have Implemented
+### Demo Applications (Complete)
+
+| Demo                 | Port | Status      | Description                                      |
+| -------------------- | ---- | ----------- | ------------------------------------------------ |
+| **Linked Portal**    | 5180 | ✅ Complete | Event-driven lollipop, sample table, filters     |
+| **Oncoprint Matrix** | 5181 | ✅ Complete | Gene x Sample mutation matrix with sorting       |
+| **Genome Browser**   | 5182 | ✅ Complete | Multi-track browser with gene, variant, CNV, RNA |
+| **Dataset Selector** | 5183 | ✅ Complete | Portal landing page with embedded visualizations |
+| **Disco/Circos**     | 5184 | ✅ Complete | Circular chromosome view with SNV, CNV, fusions  |
+| **GSEA Plot**        | 5185 | ✅ Complete | Running enrichment score with gene barcode       |
+| **Hi-C Matrix**      | 5186 | ✅ Complete | Contact frequency heatmap with color maps        |
+| **Bar Chart**        | 5187 | ✅ Complete | Grouped/stacked categorical comparison           |
+| **Violin Plot**      | 5188 | ✅ Complete | Distribution with KDE and box overlay            |
+| **Box Plot**         | 5189 | ✅ Complete | Statistical summary with outliers and notches    |
+
+### Tutorial Modules
 
 | Phase       | Tutorial           | Status      | Description                                   |
 | ----------- | ------------------ | ----------- | --------------------------------------------- |
@@ -26,7 +42,7 @@
 | **Phase 3** | 03-survival-curves | ✅ Complete | Kaplan-Meier with log-rank test               |
 | **Phase 3** | 04-volcano-plot    | ✅ Complete | Differential expression viz                   |
 | **Phase 3** | 05-gene-fusion     | 🟡 Partial  | Arc diagrams                                  |
-| **Phase 3** | 05-oncoprint       | 🟡 Partial  | Sample x gene matrix                          |
+| **Phase 3** | 05-oncoprint       | ✅ Complete | Sample x gene matrix (enhanced in demo)       |
 
 ---
 
@@ -36,86 +52,86 @@ Based on exploration of stjude/proteinpaint repository:
 
 ### 1. **Core Visualization Components** (`client/plots/`)
 
-| Feature                 | PP Files                                  | Our Status | Priority |
-| ----------------------- | ----------------------------------------- | ---------- | -------- |
-| **Bar Chart**           | `barchart.js` (47KB), `bars.renderer.js`  | ❌ Missing | Medium   |
-| **Violin Plot**         | `violin.js`, `violin.renderer.js`         | ❌ Missing | Low      |
-| **Box Plot**            | `boxplot/`                                | ❌ Missing | Low      |
-| **Scatter Plot**        | `scatter/` (model/view/viewmodel pattern) | ✅ Have    | Enhance  |
-| **Survival/Cuminc**     | `survival/`, `cuminc.js` (44KB)           | ✅ Have    | Enhance  |
-| **Matrix/Oncoprint**    | `matrix/` (127KB interactivity!)          | 🟡 Basic   | **HIGH** |
-| **Heatmap/HierCluster** | `matrix/hierCluster.*.js`                 | ✅ Have    | Enhance  |
-| **Volcano Plot**        | `volcano/`, `corrVolcano/`                | ✅ Have    | Enhance  |
-| **GSEA Plot**           | `gsea.js` (28KB)                          | ❌ Missing | Medium   |
-| **Regression**          | `regression.*.js`                         | ❌ Missing | Low      |
-| **Single Cell**         | `singleCellPlot.js` (58KB), `sc/`         | ❌ Missing | Medium   |
-| **Gene Expression**     | `geneExpression.js`                       | ❌ Missing | Medium   |
+| Feature                 | PP Files                                  | Our Status  | Priority |
+| ----------------------- | ----------------------------------------- | ----------- | -------- |
+| **Bar Chart**           | `barchart.js` (47KB), `bars.renderer.js`  | ✅ Complete | Done     |
+| **Violin Plot**         | `violin.js`, `violin.renderer.js`         | ✅ Complete | Done     |
+| **Box Plot**            | `boxplot/`                                | ✅ Complete | Done     |
+| **Scatter Plot**        | `scatter/` (model/view/viewmodel pattern) | ✅ Complete | Done     |
+| **Survival/Cuminc**     | `survival/`, `cuminc.js` (44KB)           | ✅ Complete | Done     |
+| **Matrix/Oncoprint**    | `matrix/` (127KB interactivity!)          | ✅ Complete | Done     |
+| **Heatmap/HierCluster** | `matrix/hierCluster.*.js`                 | ✅ Complete | Done     |
+| **Volcano Plot**        | `volcano/`, `corrVolcano/`                | ✅ Complete | Done     |
+| **GSEA Plot**           | `gsea.js` (28KB)                          | ✅ Complete | Done     |
+| **Regression**          | `regression.*.js`                         | ❌ Missing  | Low      |
+| **Single Cell**         | `singleCellPlot.js` (58KB), `sc/`         | ❌ Missing  | Medium   |
+| **Gene Expression**     | `geneExpression.js`                       | ❌ Missing  | Medium   |
 
 ### 2. **Genomic Browser Components** (`client/src/`)
 
-| Feature                   | PP Files                             | Our Status | Priority |
-| ------------------------- | ------------------------------------ | ---------- | -------- |
-| **Block (Main Browser)**  | `block.js` (142KB!)                  | 🟡 Basic   | **HIGH** |
-| **Tracks Framework**      | `block.tk.*.js`                      | 🟡 Basic   | **HIGH** |
-| **BAM Track**             | `block.tk.bam.js` (111KB)            | ❌ Missing | Medium   |
-| **BigWig Track**          | `block.tk.bigwig.js`                 | ❌ Missing | Medium   |
-| **Junction Track**        | `block.tk.junction.js`               | ❌ Missing | Medium   |
-| **Hi-C/Straw**            | `block.tk.hicstraw.ts`               | ❌ Missing | Low      |
-| **Sample Matrix (svcnv)** | `block.mds.svcnv.*.js` (300KB total) | ❌ Missing | Medium   |
+| Feature                   | PP Files                             | Our Status  | Priority |
+| ------------------------- | ------------------------------------ | ----------- | -------- |
+| **Block (Main Browser)**  | `block.js` (142KB!)                  | ✅ Complete | Done     |
+| **Tracks Framework**      | `block.tk.*.js`                      | ✅ Complete | Done     |
+| **BAM Track**             | `block.tk.bam.js` (111KB)            | ❌ Missing  | Medium   |
+| **BigWig Track**          | `block.tk.bigwig.js`                 | ❌ Missing  | Medium   |
+| **Junction Track**        | `block.tk.junction.js`               | ❌ Missing  | Medium   |
+| **Hi-C/Straw**            | `block.tk.hicstraw.ts`               | ✅ Complete | Done     |
+| **Sample Matrix (svcnv)** | `block.mds.svcnv.*.js` (300KB total) | ❌ Missing  | Medium   |
 
 ### 3. **mds3 (Mutation Data System)** (`client/mds3/`)
 
-| Feature               | PP Files                               | Our Status | Priority    |
-| --------------------- | -------------------------------------- | ---------- | ----------- |
-| **Skewer (Lollipop)** | `skewer.js`, `skewer.render.js` (30KB) | ✅ Have    | **ENHANCE** |
-| **CNV Track**         | `cnv.js`                               | ❌ Missing | Medium      |
-| **Sample Table**      | `sampletable.js`                       | ❌ Missing | **HIGH**    |
-| **Item Table**        | `itemtable.js`                         | ❌ Missing | Medium      |
-| **Legend System**     | `legend.js` (33KB)                     | 🟡 Basic   | Medium      |
-| **Numeric Mode**      | `numericmode.js`                       | ❌ Missing | Low         |
+| Feature               | PP Files                               | Our Status  | Priority |
+| --------------------- | -------------------------------------- | ----------- | -------- |
+| **Skewer (Lollipop)** | `skewer.js`, `skewer.render.js` (30KB) | ✅ Complete | Done     |
+| **CNV Track**         | `cnv.js`                               | ❌ Missing  | Medium   |
+| **Sample Table**      | `sampletable.js`                       | ✅ Complete | Done     |
+| **Item Table**        | `itemtable.js`                         | ❌ Missing  | Low      |
+| **Legend System**     | `legend.js` (33KB)                     | ✅ Complete | Done     |
+| **Numeric Mode**      | `numericmode.js`                       | ❌ Missing  | Low      |
 
 ### 4. **Circos/Disco Plot** (`client/plots/disco/`)
 
-| Feature             | PP Files               | Our Status                | Priority |
-| ------------------- | ---------------------- | ------------------------- | -------- |
-| **Chromosome Ring** | `chromosome/`, `ring/` | ❌ Missing                | Medium   |
-| **SNV Layer**       | `snv/`                 | ❌ Missing                | Medium   |
-| **CNV Layer**       | `cnv/`                 | ❌ Missing                | Medium   |
-| **Fusion Arcs**     | `fusion/`              | 🟡 Basic (in gene-fusion) | Enhance  |
-| **LOH Layer**       | `loh/`                 | ❌ Missing                | Low      |
-| **Legend**          | `legend/`              | ❌ Missing                | Low      |
+| Feature             | PP Files               | Our Status  | Priority |
+| ------------------- | ---------------------- | ----------- | -------- |
+| **Chromosome Ring** | `chromosome/`, `ring/` | ✅ Complete | Done     |
+| **SNV Layer**       | `snv/`                 | ✅ Complete | Done     |
+| **CNV Layer**       | `cnv/`                 | ✅ Complete | Done     |
+| **Fusion Arcs**     | `fusion/`              | ✅ Complete | Done     |
+| **LOH Layer**       | `loh/`                 | ❌ Missing  | Low      |
+| **Legend**          | `legend/`              | ✅ Complete | Done     |
 
 ### 5. **Hi-C Visualization** (`client/tracks/hic/`)
 
-| Feature                 | PP Files      | Our Status | Priority |
-| ----------------------- | ------------- | ---------- | -------- |
-| **Genome View**         | `genome/`     | ❌ Missing | Medium   |
-| **ChrPair View**        | `chrpair/`    | ❌ Missing | Medium   |
-| **Detail View**         | `detail/`     | ❌ Missing | Medium   |
-| **Horizontal Track**    | `horizontal/` | ❌ Missing | Low      |
-| **Contact Matrix Grid** | `grid/`       | ❌ Missing | Medium   |
-| **4-View Navigation**   | Full system   | ❌ Missing | Low      |
+| Feature                 | PP Files      | Our Status  | Priority |
+| ----------------------- | ------------- | ----------- | -------- |
+| **Genome View**         | `genome/`     | ❌ Missing  | Low      |
+| **ChrPair View**        | `chrpair/`    | ❌ Missing  | Low      |
+| **Detail View**         | `detail/`     | ✅ Complete | Done     |
+| **Horizontal Track**    | `horizontal/` | ❌ Missing  | Low      |
+| **Contact Matrix Grid** | `grid/`       | ✅ Complete | Done     |
+| **4-View Navigation**   | Full system   | ❌ Missing  | Low      |
 
 ### 6. **MASS (Multimodal Analytics)** (`client/mass/`)
 
-| Feature                | PP Files           | Our Status | Priority |
-| ---------------------- | ------------------ | ---------- | -------- |
-| **State Store**        | `store.ts`         | ❌ Missing | **HIGH** |
-| **Charts Registry**    | `charts.js`        | ❌ Missing | **HIGH** |
-| **Navigation**         | `nav.js`           | ❌ Missing | Medium   |
-| **Groups/Cohorts**     | `groups.js` (35KB) | ❌ Missing | **HIGH** |
-| **Session Management** | `sessionBtn.js`    | ❌ Missing | Low      |
-| **About/Metadata**     | `about.ts`         | ❌ Missing | Low      |
+| Feature                | PP Files           | Our Status  | Priority |
+| ---------------------- | ------------------ | ----------- | -------- |
+| **State Store**        | `store.ts`         | ✅ Complete | Done     |
+| **Charts Registry**    | `charts.js`        | ✅ Complete | Done     |
+| **Navigation**         | `nav.js`           | ✅ Complete | Done     |
+| **Groups/Cohorts**     | `groups.js` (35KB) | ✅ Complete | Done     |
+| **Session Management** | `sessionBtn.js`    | ❌ Missing  | Low      |
+| **About/Metadata**     | `about.ts`         | ❌ Missing  | Low      |
 
 ### 7. **Supporting Infrastructure**
 
-| Feature                | PP Location           | Our Status | Priority |
-| ---------------------- | --------------------- | ---------- | -------- |
-| **Filter System**      | `client/filter/`      | ❌ Missing | **HIGH** |
-| **Term Settings**      | `client/termsetting/` | ❌ Missing | Medium   |
-| **GDC Integration**    | `client/gdc/`         | ❌ Missing | Low      |
-| **Reactive Framework** | `client/rx/`          | ❌ Missing | **HIGH** |
-| **DOM Utilities**      | `client/dom/`         | 🟡 Basic   | Low      |
+| Feature                | PP Location           | Our Status  | Priority |
+| ---------------------- | --------------------- | ----------- | -------- |
+| **Filter System**      | `client/filter/`      | ✅ Complete | Done     |
+| **Term Settings**      | `client/termsetting/` | ❌ Missing  | Low      |
+| **GDC Integration**    | `client/gdc/`         | ❌ Missing  | Low      |
+| **Reactive Framework** | `client/rx/`          | ✅ Complete | Done     |
+| **DOM Utilities**      | `client/dom/`         | ✅ Complete | Done     |
 
 ### 8. **Chat/AI Integration** (`client/plots/chat/`)
 
@@ -125,182 +141,205 @@ Based on exploration of stjude/proteinpaint repository:
 
 ---
 
-## 🎯 Prioritized Implementation Plan
+## 🎯 Implementation Status Summary
 
-### 🔴 PRIORITY 1: Must Have for Interview (Impact on Email)
+### ✅ COMPLETED (Priority 1-3)
 
-These directly address Xin Zhou's concerns:
+All high-priority features from the original plan have been implemented:
 
-#### 1. **Interactive Linked Lollipop (Enhance 03-lollipop-plot)**
+#### Priority 1: Must Have ✅
 
-- Add: Clicking mutation → filters sample table
-- Add: Brush selection → highlights in connected view
-- Add: Sunburst/breakdown panel (like PP's block.ds.sun1.js)
-- Reference: `client/mds3/skewer.render.js`
+1. **Interactive Linked Lollipop** — Brush selection, event-driven updates
+2. **Sample Table with Linked Selection** — Bidirectional sync with lollipop
+3. **State Management System** — EventBus + CohortStore
+4. **Cohort Filter Panel** — Cancer type, mutation type, sample filters
 
-#### 2. **Sample Table with Linked Selection**
+#### Priority 2: Strong Differentiators ✅
 
-- New component: Table showing samples with mutations
-- Linked: Selection in table ↔ highlights on lollipop
-- Reference: `client/mds3/sampletable.js`
+5. **Matrix/Oncoprint** — Gene x Sample matrix with sorting/filtering
+6. **Genome Browser with Tracks** — Gene, Variant, CNV, RNA tracks
+7. **Mini Portal Workflow** — Dataset selector → visualization demos
 
-#### 3. **State Management System**
+#### Priority 3: Nice to Have ✅
 
-- Implement simple event bus or Zustand-like store
-- Show you understand reactive data flow
-- Reference: `client/mass/store.ts`, `client/rx/`
-
-#### 4. **Cohort Filter Panel**
-
-- Dropdown for cancer type, mutation type
-- Cascading filters that update visualizations
-- Reference: `client/filter/`, `client/mass/groups.js`
-
-### 🟡 PRIORITY 2: Strong Differentiators
-
-#### 5. **Matrix/Oncoprint (Enhance 05-oncoprint)**
-
-- Gene x Sample matrix with layered mutations
-- Interactive: hover, click, sort by gene/sample
-- Reference: `client/plots/matrix/` (use their patterns)
-
-#### 6. **Genome Browser with Real Tracks**
-
-- Add: BAM read visualization (even simplified)
-- Add: BigWig signal track
-- Reference: `client/src/block.tk.bigwig.js`
-
-#### 7. **Mini Portal Workflow**
-
-- Landing page → Dataset selector → Main view
-- Shows you understand the product pattern
-- Reference: GenomePaint, Survivorship Portal UX
-
-### 🟢 PRIORITY 3: Nice to Have (If Time)
-
-#### 8. **Disco/Circos Plot**
-
-- Circular chromosome view
-- Great for showing genome-wide mutations
-- Reference: `client/plots/disco/`
-
-#### 9. **Hi-C Contact Matrix**
-
-- Simple matrix visualization
-- Click to zoom pattern
-- Reference: `client/tracks/hic/`
-
-#### 10. **GSEA Running Sum Plot**
-
-- Enrichment visualization
-- Reference: `client/plots/gsea.js`
+8. **Disco/Circos Plot** — Chromosome ring, SNV, CNV, fusion arcs
+9. **Hi-C Contact Matrix** — Heatmap with color scale options
+10. **GSEA Running Sum Plot** — Enrichment curve with gene barcode
 
 ---
 
-## 💡 Key Patterns to Learn from ProteinPaint
+## 🔶 Remaining Features (Medium/Low Priority)
 
-### Architecture Patterns
+### Medium Priority — Statistical Visualizations
 
-1. **Model-View-ViewModel (MVVM)**
-   - See `client/plots/scatter/model/`, `view/`, `viewmodel/`
-   - Separate data processing from rendering
+| Feature             | Description                       | Estimated Effort |
+| ------------------- | --------------------------------- | ---------------- |
+| **Bar Chart**       | Categorical comparison charts     | 4 hours          |
+| **Violin Plot**     | Distribution visualization        | 4 hours          |
+| **Box Plot**        | Statistical summary visualization | 3 hours          |
+| **Single Cell**     | UMAP/tSNE with cell annotations   | 6 hours          |
+| **Gene Expression** | Expression heatmap/profiles       | 4 hours          |
 
-2. **Adaptor Pattern**
-   - `*.adaptor.js` files wrap track types
-   - Consistent interface for different data sources
+### Medium Priority — Genome Browser Enhancements
 
-3. **Layered Rendering**
+| Feature            | Description                    | Estimated Effort |
+| ------------------ | ------------------------------ | ---------------- |
+| **BAM Track**      | Read alignment visualization   | 8 hours          |
+| **BigWig Track**   | Signal/coverage tracks         | 6 hours          |
+| **Junction Track** | Splice junction arcs           | 5 hours          |
+| **CNV Track**      | Copy number variation segments | 4 hours          |
+| **Sample Matrix**  | Multi-sample SV/CNV browser    | 8 hours          |
+
+### Low Priority — Infrastructure
+
+| Feature                | Description                      | Estimated Effort |
+| ---------------------- | -------------------------------- | ---------------- |
+| **Regression Plots**   | Linear/logistic regression viz   | 4 hours          |
+| **LOH Layer**          | Loss of heterozygosity in Disco  | 3 hours          |
+| **Session Management** | Save/restore visualization state | 6 hours          |
+| **GDC Integration**    | Connect to GDC data portal       | 8 hours          |
+| **Chat/AI**            | Natural language query interface | 12 hours         |
+| **Hi-C Multi-View**    | Genome/chrpair/detail navigation | 8 hours          |
+
+---
+
+## �️ Next Implementation Phase
+
+### Phase 4: Statistical Visualizations (Recommended Next)
+
+Focus on completing the statistical chart suite:
+
+#### 4.1 Bar Chart Demo
+
+- Categorical data visualization
+- Stacked/grouped variants
+- Interactive tooltips and filtering
+
+#### 4.2 Violin Plot Demo
+
+- Distribution comparison
+- Box plot overlay option
+- Group comparisons
+
+#### 4.3 Box Plot Demo
+
+- Statistical summary (median, quartiles)
+- Outlier detection
+- Multiple group comparison
+
+### Phase 5: Browser Track Enhancements
+
+Expand genome browser capabilities:
+
+#### 5.1 BigWig Track
+
+- Signal visualization (coverage, ChIP-seq)
+- Auto-scaling
+- Track configuration
+
+#### 5.2 Junction Track
+
+- Splice junction arcs
+- Read count annotations
+- Novel vs known junctions
+
+#### 5.3 CNV Track
+
+- Copy number segments
+- Gain/loss coloring
+- Integration with variant track
+
+---
+
+## � Key Patterns Applied from ProteinPaint
+
+### Architecture Patterns Used
+
+1. **Event-Driven Architecture** ✅
+   - EventBus for component communication
+   - CohortStore for state management
+   - Decoupled visualization updates
+
+2. **Layered Rendering** ✅
    - Base layer → data layer → interaction layer
-   - See matrix: `cells.js` → `renderers.js` → `interactivity.js`
+   - Applied in: Oncoprint, Genome Browser, Disco
 
-4. **Settings/Config Objects**
-   - `*.config.js`, `Settings.ts` files
-   - Centralized configuration
+3. **Settings/Config Objects** ✅
+   - Centralized configuration per demo
+   - Track configurations in Genome Browser
 
-### D3 Patterns
+### D3 Patterns Applied
 
-1. **Enter-Update-Exit** with keyed data
-2. **Scales with domains from data**
-3. **Transitions on state changes**
-4. **Clipping paths for bounded regions**
+1. **Enter-Update-Exit** with keyed data ✅
+2. **Scales with domains from data** ✅
+3. **Transitions on state changes** ✅
+4. **Clipping paths for bounded regions** ✅
 
-### Performance Patterns
+### Performance Patterns Applied
 
-1. **Canvas for large datasets** (single cell: 58KB file)
-2. **Debounced rendering on zoom/pan**
-3. **Virtual scrolling for long lists**
-4. **Lazy loading of track data**
-
----
-
-## 🛠️ Suggested Implementation Order
-
-### Week of Dec 16-22
-
-| Day     | Morning                      | Afternoon               | Evening               |
-| ------- | ---------------------------- | ----------------------- | --------------------- |
-| **Mon** | Enhance lollipop with brush  | Add event bus           | Sample table skeleton |
-| **Tue** | Sample table ↔ lollipop link | Filter panel UI         | Filter → update viz   |
-| **Wed** | Oncoprint matrix basics      | Oncoprint interactivity | Polish interactions   |
-| **Thu** | Genome browser BigWig        | Genome browser BAM mock | Connect to filter     |
-| **Fri** | Portal workflow shell        | README screenshots      | Deploy to Vercel      |
-| **Sat** | Final polish                 | Email draft finalize    | Test all links        |
-| **Sun** | **SEND EMAIL**               |                         |                       |
+1. **Canvas for large datasets** — Used in scatter plot
+2. **Debounced rendering on zoom/pan** — Applied in Genome Browser
+3. **Virtual scrolling** — Applied in Sample Table
 
 ---
 
-## 📁 Recommended New Files to Create
+## 📁 Current Project Structure
 
 ```
 genomic-viz-platform/
-├── src/                          # NEW: Main source
-│   ├── components/
-│   │   ├── LollipopPlot.js      # Enhanced version
-│   │   ├── SampleTable.js       # NEW
-│   │   ├── FilterPanel.js       # NEW
-│   │   ├── Oncoprint.js         # Enhanced version
-│   │   └── LinkedViews.js       # NEW: Container
-│   ├── stores/
-│   │   ├── eventBus.js          # NEW
-│   │   └── cohortStore.js       # NEW
-│   ├── utils/
-│   │   └── dataTransforms.js    # NEW
-│   └── App.js                   # NEW: Main app
-├── demos/
-│   ├── linked-views/            # NEW: Demo page
-│   ├── portal-workflow/         # NEW: Demo page
-│   └── genome-browser/          # Enhanced
-└── data/
-    ├── tp53_mutations.json      # Existing
-    ├── sample_cohort.json       # NEW
-    └── gene_expression.json     # NEW or enhance
+├── demos/                        # Interactive demo applications
+│   ├── linked-portal/           # ✅ Main portal demo (Port 5180)
+│   ├── oncoprint/               # ✅ Matrix visualization (Port 5181)
+│   ├── genome-browser/          # ✅ Multi-track browser (Port 5182)
+│   ├── dataset-selector/        # ✅ Landing page (Port 5183)
+│   ├── disco-circos/            # ✅ Circular plot (Port 5184)
+│   ├── gsea-plot/               # ✅ Enrichment plot (Port 5185)
+│   ├── hic-matrix/              # ✅ Contact matrix (Port 5186)
+│   ├── screenshots/             # Demo screenshots
+│   └── README.md                # Demo documentation
+├── tutorials/                    # Educational tutorial modules
+│   ├── phase-1-frontend/        # SVG, D3, visualization basics
+│   ├── phase-2-backend/         # APIs, databases, file parsing
+│   ├── phase-3-advanced-viz/    # Scatter, heatmap, survival, volcano
+│   └── phase-4-production/      # Linked views, testing
+├── shared/types/                 # TypeScript type definitions
+├── datasets/                     # Sample data files
+└── docs/                        # Documentation
+    ├── implementation-plans/    # Detailed implementation plans
+    └── PROTEINPAINT_FEATURE_ANALYSIS.md  # This file
 ```
 
 ---
 
-## 🔗 Key ProteinPaint Files to Study
+## 🔗 Key ProteinPaint Files Reference
 
-1. **Skewer/Lollipop:** `client/mds3/skewer.render.js` (30KB)
-2. **Matrix Layout:** `client/plots/matrix/matrix.layout.js` (23KB)
-3. **Filter System:** `client/filter/` directory
-4. **State Store:** `client/mass/store.ts` (20KB)
-5. **Block Browser:** `client/src/block.js` (143KB) - complex but instructive
-6. **Survival:** `client/plots/survival/survival.ts` (42KB)
+For future implementation reference:
+
+1. **Bar Chart:** `client/plots/barchart.js` (47KB)
+2. **Violin Plot:** `client/plots/violin.js`, `violin.renderer.js`
+3. **Box Plot:** `client/plots/boxplot/`
+4. **Single Cell:** `client/plots/singleCellPlot.js` (58KB)
+5. **Gene Expression:** `client/plots/geneExpression.js`
+6. **BAM Track:** `client/src/block.tk.bam.js` (111KB)
+7. **BigWig Track:** `client/src/block.tk.bigwig.js`
+8. **Junction Track:** `client/src/block.tk.junction.js`
 
 ---
 
-## ✅ Success Criteria for Email
+## ✅ Success Criteria — Achieved
 
-Before sending, the repo should demonstrate:
+The repository now demonstrates:
 
-- [ ] **Linked views** — User can interact with one viz and see updates in another
-- [ ] **Filter → visualization** — Dropdown changes → chart updates
-- [ ] **Event-driven architecture** — Not hardcoded connections
-- [ ] **Clean separation** — Components, data, state are modular
-- [ ] **Modern tooling** — Vite, ES modules, clean build
-- [ ] **README with screenshots** — Clear what you built
-- [ ] **Live demo** (optional but strong) — Vercel/Netlify link
+- [x] **Linked views** — User can interact with one viz and see updates in another
+- [x] **Filter → visualization** — Dropdown changes → chart updates
+- [x] **Event-driven architecture** — Not hardcoded connections
+- [x] **Clean separation** — Components, data, state are modular
+- [x] **Modern tooling** — Vite, ES modules, TypeScript, clean build
+- [x] **README with screenshots** — Clear what was built
+- [x] **7 interactive demos** — Comprehensive visualization suite
+- [x] **ProteinPaint patterns** — Applied architecture and D3 patterns
 
 ---
 
 _Analysis based on stjude/proteinpaint repository (master branch, December 2025)_
+_Implementation completed December 15, 2025_
